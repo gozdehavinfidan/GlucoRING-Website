@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>GlucoRING · Klinik İzlem Paneli</title>
+<link rel="stylesheet" href="styles.css?v=18"/>
+<link rel="preload" as="image" href="assets/ring-min/f-001.jpg"/>
+<script>
+  (function(){
+    try {
+      var t = localStorage.getItem('gr-theme');
+      if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    } catch (e) {}
+  })();
+</script>
+<meta name="ext-resource-dependency" content="assets/app-min/app-1.jpg" data-resource-id="appShot1"/>
+<meta name="ext-resource-dependency" content="assets/app-min/app-2.jpg" data-resource-id="appShot2"/>
+<meta name="ext-resource-dependency" content="assets/app-min/app-3.jpg" data-resource-id="appShot3"/>
+<meta name="ext-resource-dependency" content="assets/app-min/app-4.jpg" data-resource-id="appShot4"/>
+<meta name="ext-resource-dependency" content="assets/app-min/app-5.jpg" data-resource-id="appShot5"/>
+<meta name="ext-resource-dependency" content="assets/app-min/app-6.jpg" data-resource-id="appShot6"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-001.jpg" data-resource-id="ringFrame1"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-009.jpg" data-resource-id="ringFrame9"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-017.jpg" data-resource-id="ringFrame17"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-025.jpg" data-resource-id="ringFrame25"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-033.jpg" data-resource-id="ringFrame33"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-041.jpg" data-resource-id="ringFrame41"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-049.jpg" data-resource-id="ringFrame49"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-057.jpg" data-resource-id="ringFrame57"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-065.jpg" data-resource-id="ringFrame65"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-073.jpg" data-resource-id="ringFrame73"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-081.jpg" data-resource-id="ringFrame81"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-089.jpg" data-resource-id="ringFrame89"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-097.jpg" data-resource-id="ringFrame97"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-105.jpg" data-resource-id="ringFrame105"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-113.jpg" data-resource-id="ringFrame113"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-121.jpg" data-resource-id="ringFrame121"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-129.jpg" data-resource-id="ringFrame129"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-137.jpg" data-resource-id="ringFrame137"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-145.jpg" data-resource-id="ringFrame145"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-153.jpg" data-resource-id="ringFrame153"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-161.jpg" data-resource-id="ringFrame161"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-169.jpg" data-resource-id="ringFrame169"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-177.jpg" data-resource-id="ringFrame177"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-185.jpg" data-resource-id="ringFrame185"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-193.jpg" data-resource-id="ringFrame193"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-201.jpg" data-resource-id="ringFrame201"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-209.jpg" data-resource-id="ringFrame209"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-217.jpg" data-resource-id="ringFrame217"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-225.jpg" data-resource-id="ringFrame225"/>
+<meta name="ext-resource-dependency" content="assets/ring-min/f-233.jpg" data-resource-id="ringFrame233"/>
+<meta name="ext-resource-dependency" content="assets/app-min/ring-podium.jpg" data-resource-id="photoPodium"/>
+<meta name="ext-resource-dependency" content="assets/app-min/ring-hand-glucose.jpg" data-resource-id="photoHand"/>
+<template id="__bundler_thumbnail" data-bg-color="#0a0e0c">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#0a0e0c"/>
+    <circle cx="600" cy="400" r="180" fill="none" stroke="#7be3a3" stroke-width="36"/>
+    <circle cx="600" cy="400" r="180" fill="none" stroke="#0a0e0c" stroke-width="36" stroke-dasharray="180 1200" transform="rotate(-90 600 400)"/>
+    <text x="600" y="640" font-family="ui-monospace, monospace" font-size="36" fill="#7be3a3" text-anchor="middle" letter-spacing="6">GLUCORING</text>
+  </svg>
+</template>
+</head>
+<body>
+<div id="app"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="brand.jsx"></script>
+<script type="text/babel" src="charts.jsx"></script>
+<script type="text/babel" src="landing-standalone.jsx"></script>
+<script type="text/babel" src="login.jsx"></script>
+<script type="text/babel" src="qr.jsx"></script>
+<script type="text/babel" src="shell.jsx"></script>
+<script type="text/babel" src="pages.jsx"></script>
+<script type="text/babel" src="app.jsx"></script>
+</body>
+</html>
