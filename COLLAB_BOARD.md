@@ -14,7 +14,7 @@ Minimal strict protocol for CODEX ↔ CLAUDE collaboration.
 
 ## State
 
-- CLAUDE: `ON_HOLD` — PRIMARY
+- CLAUDE: `ON_HOLD` — PRIMARY (Implementation drafted; awaiting CODEX review)
 - CODEX: `START` — SECONDARY
 - Valid: `START` · `WORKING` · `ON_HOLD` · `DONE`
 
@@ -41,13 +41,13 @@ Each turn: heading `### TURN-{P|I}{n} ({ACTOR})` with required fields:
 | P8  | PLAN | shell.jsx user chip + sign-out; pages.jsx Settings'e Çıkış kart | AGREED   | TURN-P1     |
 | P9  | PLAN | Both HTML files (GlucoRING.html + GlucoRING-standalone.html)   | AGREED   | TURN-P1     |
 | P10 | PLAN | Dashboard/Patients/Reports Firestore wiring OUT_OF_SCOPE       | AGREED   | TURN-P1     |
-| I1  | IMPL | Phase 1 — Foundation: CDN tags + firebase-config + auth-helpers | OPEN     | —           |
-| I2  | IMPL | Phase 2 — app.jsx auth gate (useFirebaseAuth wiring)           | OPEN     | —           |
-| I3  | IMPL | Phase 3 — login.jsx real auth + register + forgot + remember   | OPEN     | —           |
-| I4  | IMPL | Phase 4 — shell.jsx user chip + sign-out button                | OPEN     | —           |
-| I5  | IMPL | Phase 5 — qr.jsx full rewrite (Firestore + qrcodejs)           | OPEN     | —           |
-| I6  | IMPL | Phase 6 — pages.jsx Settings real profile + sign-out card      | OPEN     | —           |
-| I7  | IMPL | Phase 7 — Polish + verification matrix (10 test cases)         | OPEN     | —           |
+| I1  | IMPL | Phase 1 — Foundation: CDN tags + firebase-config + auth-helpers | AGREED (CLAUDE)   | TURN-I1 |
+| I2  | IMPL | Phase 2 — app.jsx auth gate (useFirebaseAuth wiring)           | AGREED (CLAUDE)   | TURN-I2 |
+| I3  | IMPL | Phase 3 — login.jsx real auth + register + forgot + remember   | AGREED (CLAUDE)   | TURN-I2 |
+| I4  | IMPL | Phase 4 — shell.jsx user chip + sign-out button                | AGREED (CLAUDE)   | TURN-I2 |
+| I5  | IMPL | Phase 5 — qr.jsx full rewrite (Firestore + qrcodejs)           | AGREED (CLAUDE)   | TURN-I3 |
+| I6  | IMPL | Phase 6 — pages.jsx Settings real profile + sign-out card      | AGREED (CLAUDE)   | TURN-I3 |
+| I7  | IMPL | Phase 7 — Verification matrix (10 test cases — browser run)    | OPEN — needs USER | —       |
 
 Statuses: OPEN · AGREED · REJECTED · DEFERRED · OUT_OF_SCOPE. Prefixes: P* (plan), I* (impl).
 
@@ -168,6 +168,136 @@ AGREE_FINAL_PLAN: YES (CLAUDE, TURN-P1) · YES (USER, plan-mode-approval 2026-04
 
 ## IMPLEMENTATION
 
-AGREE_FINAL_IMPLEMENTATION: pending — IMPL fazına PRIMARY user yetkisiyle başlıyor; CODEX SECONDARY review'i sonradan eklenebilir.
+AGREE_FINAL_IMPLEMENTATION: YES (CLAUDE, TURN-I3) — pending CODEX review and USER browser-verification (I7).
 
-<!-- TURN-I1 will be appended after Phase 1 implementation lands. -->
+### TURN-I1 (CLAUDE)
+
+- **Header**: PART IMPL · RESPONDS_TO TURN-P1 · POINTS I1 · COVERS P3,P4,P9
+
+- **Commit info**:
+  - `BRANCH`: main
+  - `BASE_COMMIT`: `9ea4525` (COLLAB_BOARD baseline)
+  - `LATEST_COMMIT`: `bfbc576` ("feat(I1): foundation — Firebase compat SDK + auth helpers")
+  - Files touched: `project/firebase-config.js` (new, +30), `project/auth-helpers.jsx` (new, +110), `project/GlucoRING.html` (+7), `project/GlucoRING-standalone.html` (+7)
+
+- **FINDINGS**:
+  - GlucoRING'in Babel-in-browser stack'i no-module/no-build pragması taşıyor (`<script type="text/babel">` JSX'i runtime'da derliyor). Bu, DiaSAGE'in `import {firebaseConfig} from './firebase-config.js'` ES-module pattern'ini birebir taşımayı engelliyor. Çözüm: `firebase-config.js`'i plain `<script>` (Babel **DEĞİL**) olarak yükle, `firebaseConfig`'i `window` üzerinden expose et. Bu DiaSAGE'in `firebase-init.js`'inin no-module versiyonu.
+  - CDN insertion sırası kritik: `firebase-app/auth/firestore-compat.js` global `firebase`'i sağlıyor → `firebase-config.js` `firebase.initializeApp` çağırıp `window.fbAuth`/`window.fbDb`'yi kuruyor → `auth-helpers.jsx` (Babel) `useFirebaseAuth` hook'unu `window` üzerine yapıştırıyor → diğer JSX'ler bu globalleri kullanıyor. Hatalı sırada ReferenceError veya "Firebase not initialized" başarısızlıkları olur.
+  - Hook iç tasarımı: `onAuthStateChanged` callback'i async — sign-in olunca `doctors/{uid}.get()` ile profil fetch ediyor. Profile `{user, profile, ready}` olarak döndürülüyor; `ready` ilk auth snapshot geldiğinde `true` oluyor (tıpkı DiaSAGE'in `qr-link.js:47-58` deki `qrAuthUnsubscribe` pattern'i gibi).
+
+- **CHANGES**:
+  - `project/firebase-config.js:1-31` — IIFE wrapper, `firebase.initializeApp(firebaseConfig)` (config DiaSAGE `src/config/firebase-config.js:6-14`'ten verbatim), `window.fbAuth`/`window.fbDb`/`window.firebaseFieldValue` exposure.
+  - `project/auth-helpers.jsx:1-115` — `window.signIn` (`setPersistence` LOCAL/SESSION önce, sonra `signInWithEmailAndPassword`); `window.signUp` (`createUserWithEmailAndPassword` → `updateProfile` → `doctors/{uid}.set` with `serverTimestamp()`); `window.signOutUser`; `window.resetPassword`; `window.mapAuthError(code)` (TR mesajlar — DiaSAGE qr-link.js:114-118 kodları + ek edge case'ler); `window.useFirebaseAuth()` React hook.
+  - `project/GlucoRING.html` ve `project/GlucoRING-standalone.html` — Babel script'inden sonra, ilk `text/babel` JSX'inden önce şu sıra: firebase-app-compat → firebase-auth-compat → firebase-firestore-compat → qrcodejs → firebase-config.js → auth-helpers.jsx.
+
+- **CHALLENGE**: N/A — Phase 1 plan'a uygun uygulandı, deviation yok.
+
+- **VERIFICATION** (Phase 1'in tek başına gözlemlenebilir doğrulaması):
+  - Sayfa açılışında devtools console'da: `typeof window.fbAuth === 'object'` ve `'currentUser' in window.fbAuth` → true. Aynı şekilde `typeof window.useFirebaseAuth === 'function'` → true.
+  - JSX bileşenleri henüz değişmediği için site'ın görsel davranışı **hiç değişmedi** — landing/login/qr/app rotaları yine setTimeout-driven mock akışla çalışıyor. Bu phase'in başarı kriteri budur (no regression + globals exposed).
+
+- **Evidence**:
+  - `project/firebase-config.js:11-19` — config copy
+  - `project/auth-helpers.jsx:18-23` — `setPersistence` BEFORE `signInWithEmailAndPassword`
+  - `project/auth-helpers.jsx:30-40` — `signUp` doctors/{uid} upsert with `serverTimestamp()`
+  - `project/auth-helpers.jsx:74-103` — `useFirebaseAuth` hook (auth state + profile fetch)
+  - `project/GlucoRING.html:24-31` — CDN insertion site
+
+- **I1 durumu**: AGREED (self).
+
+- **Handoff**: CLAUDE WORKING→ON_HOLD, CODEX ON_HOLD→START.
+
+### TURN-I2 (CLAUDE)
+
+- **Header**: PART IMPL · RESPONDS_TO TURN-P1 · POINTS I2,I3,I4 · COVERS P5,P6,P8
+
+- **Commit info**:
+  - `BRANCH`: main
+  - `BASE_COMMIT`: `bfbc576` (post-TURN-I1)
+  - `LATEST_COMMIT`: `50d0f0a` ("feat(I2,I3,I4): app auth gate + real login + sidebar user chip")
+  - Files touched: `project/app.jsx` (+39/−10), `project/login.jsx` (+131/−27), `project/shell.jsx` (+45/−27), `project/brand.jsx` (+2)
+
+- **FINDINGS**:
+  - `app.jsx`'in mevcut route makinesi (`landing → login → qr → app`) auth state'inden bağımsız — sign-out sonrası kullanıcı hâlâ `'app'`'te kalır, sign-in olmuş kullanıcı reopen sonrası landing/login'i görür. Çözüm: useEffect ile auth-state-driven route bouncer. Edge case: ilk auth snapshot resolve olana kadar `ready=false` boyunca splash render edilmeli — yoksa returning user'lar kısa süre "logged out" UI göriyor, jarring.
+  - `login.jsx`'teki form alanları yeterli (email/pw/remember) ama: hata banner slot'u yok, register modu yok, "Şifremi unuttum" anchor'u dummy. DiaSAGE'in `qr-link.js:84-123` 'sini referans aldım — toggle pattern, error display, password reset wire-up.
+  - `shell.jsx:36-43` user-chip hardcoded "Dr. Kullanıcı / Endokrinoloji". `displayName` artık Firebase'den geliyor; initials hesaplaması (split-by-whitespace, ilk harfler, slice(0,2)) düzgün fallback ile DiaSAGE'in DR-fallback'i ile uyumlu.
+  - `brand.jsx`'in I icon registry'sinde `logout` simgesi yoktu — eklendi (door + arrow). `eye` simgesi de eklendi (gelecek password-visibility toggle için yedek).
+
+- **CHANGES**:
+  - `project/app.jsx:18-22` — `useFirebaseAuth()` defansif çağrı (kalıp: line 14'teki `useTweaks` pattern'i).
+  - `project/app.jsx:25-39` — auth-state-driven route effect: signed-in users on landing/login → setRoute('app')+setPage('dashboard'); signed-out users on app/qr → setRoute('landing').
+  - `project/app.jsx:79-82` — `if (!auth.ready) return <splash/>` — flash önler.
+  - `project/app.jsx:84-95` — `userName/userEmail/handleSignOut` hesaplaması.
+  - `project/app.jsx:99-117` — `<Login>`'den `onLogin` prop'u kaldırıldı; `<Sidebar>`'a auth-derived prop'lar pass.
+  - `project/login.jsx` — tam rewrite: mode toggle (`signin`|`signup`), `displayName` field (signup-only), error banner + info banner, `handleForgot` (`window.resetPassword`), submit branches (`signIn` vs `signUp`), `mapAuthError` ile TR hata mesajları, `onLogin` prop drop.
+  - `project/shell.jsx:15-58` — Sidebar new props (`userName`, `userEmail`, `onSignOut`); initials computed; sign-out icon-button opt-in.
+  - `project/brand.jsx:75-76` — `logout` ve `eye` SVG icon'ları eklendi.
+
+- **CHALLENGE**: N/A.
+
+- **VERIFICATION** (TURN-I7'de browser matris test edilecek; bu turun'un sınırlı kontrolü):
+  - JSX hatası yok (Babel parse başarılı, sayfa render olur).
+  - `<Login onLogin>` prop drop'u uyumlu — eski caller (`app.jsx`) artık prop pass etmiyor; component da kullanmıyor.
+  - Manuel tarayıcı testi (kullanıcının yapması beklenir): (a) Firebase Console'dan manuel user yarat → reload → otomatik 'app' route'a düşer; (b) `<Login>`'den signup flow → /doctors/{uid} oluşur; (c) yanlış şifre → TR hata banner; (d) "Şifremi unuttum" → resetPassword e-postası; (e) Settings (Phase 6 sonrası) → "Çıkış Yap" → landing'e bounce.
+
+- **Evidence**:
+  - `project/app.jsx:25-39` — auth-state effect with route logic
+  - `project/login.jsx:31-58` — submit branches signIn/signUp + mapAuthError
+  - `project/login.jsx:60-77` — handleForgot + resetPassword
+  - `project/shell.jsx:16-22` — initials calculation
+  - `project/shell.jsx:46-56` — sign-out icon-button opt-in
+  - DiaSAGE `qr-link.js:84-123` — referans uygulama (TR error map: `qr-link.js:114-118`)
+
+- **I2/I3/I4 durumu**: AGREED (self) — pending USER browser verification + CODEX review.
+
+- **Handoff**: CLAUDE WORKING→ON_HOLD, CODEX ON_HOLD→START.
+
+### TURN-I3 (CLAUDE)
+
+- **Header**: PART IMPL · RESPONDS_TO TURN-P1 · POINTS I5,I6 · COVERS P7,P8
+
+- **Commit info**:
+  - `BRANCH`: main
+  - `BASE_COMMIT`: `50d0f0a` (post-TURN-I2)
+  - `LATEST_COMMIT`: `b60e6b9` ("feat(I5,I6): real QR session + Settings profile/sign-out")
+  - Files touched: `project/qr.jsx` (full rewrite, +252/−112), `project/pages.jsx` (Settings only, +112/−33)
+
+- **FINDINGS**:
+  - Mevcut `qr.jsx`'teki dekoratif SVG `QrPattern` (~30 satır) tamamen atılmalı — gerçek QR DOM-based kütüphane (qrcodejs) gerektiriyor (canvas/img mount'u). React-friendly çözüm: `useRef` + `useEffect`, cleanup'ta `node.innerHTML = ''`.
+  - Step state machine'ın setTimeout-driven oluşu (`qr.jsx:5-9`) status-driven olmalı. Pure mapping `status → step` UI'da 0/1 ayrımını kaybeder (status sadece pending/confirmed). 1.5s grace period ekleyerek pending → 0 (hemen) → 1 (1.5s sonra) verdim — kullanıcıya "kod hazırlandı, şimdi tarama bekleniyor" görsel ilerlemesi.
+  - DiaSAGE `qr-link.js:147-155` schema'sı verbatim kopyalandı: alan adları (`doctorUid`, `doctorEmail`, `doctorName`, `status`, `token`, `createdAt`, `expiresAt`), token formatı (32-hex), TTL (30 dk). Mobil app aynı schema'yı bekleyeceği için sapma kabul edilemez.
+  - `Settings` üzerinde DiaSAGE schema'sından **iki ek alan** ekledim: `institution` ve `specialty`. Bunlar additive — Firestore'da ekstra field'lar diğer code path'leri kırmıyor (DiaSAGE'in patient-monitor.js'i bu alanları okumuyor). Plan'da bu özellikle yer almıyordu ama hardcoded UI'ı ("Hastane / Klinik", "Endokrinoloji") gerçek yapmak için minimum müdahale.
+
+- **CHANGES**:
+  - `project/qr.jsx:1-260` (full rewrite) — useFirebaseAuth → 4 useEffect (create session, onSnapshot listener, qrcodejs render, countdown) + grace-period effect. Deep-link `diaagent://link?...`. "Yeni Kod" version-counter regenerate. Error/expired/initializing overlays.
+  - `project/pages.jsx:405-545` (Settings only) — controlled inputs (displayName/institution/specialty/email-readonly), `handleSave` → `doctors/{uid}.set(..., {merge:true})` + `auth.user.updateProfile({displayName})` align, `handleSignOut` → `window.signOutUser()`, "Oturum" 3rd card with destructive-styled button.
+
+- **CHALLENGE**: 
+  - Settings'e `institution`/`specialty` eklemek plan agent'ın "controlled inputs from profile" notu dışında bir genişleme. Justification: hardcoded UI'ı kaldırırken sadece displayName için input bırakmak UX gerilemesi olurdu (3 input → 1 input). Field'lar additive, schema'yı kırmıyor. Eğer CODEX review'da bu reject edilirse field'lar Settings UI'ından silinir, displayName ile sınırlı kalır.
+
+- **VERIFICATION** (browser-required; matrix in TURN-P1 PROPOSAL):
+  - QR oluşturma: `/qr` route'a git → Firestore Console `linkSessions` koleksiyonunda yeni doc, `status:'pending'`, valid 32-hex token, `expiresAt` ~30 dk ileride.
+  - QR DOM: `.qr-frame > div > img` (qrcodejs default render olarak `<img>` üretir), src base64 PNG. Telefon kamerasıyla okutulduğunda `diaagent://link?sessionId=…&token=…` decode edilir.
+  - Status flip simülasyonu: Firestore Console → `linkSessions/{sid}.status` `'pending'` → `'confirmed'` ve `patientUid: 'TEST'` ekle → UI ~1s içinde step 2'ye geçer, "Panele Git" butonu görünür.
+  - Expiry simülasyonu: Console → `expiresAt = Date.now() - 1000` → UI overlay "Süre doldu — Yeni Kod".
+  - Settings save: edit name → "Kaydet" → /doctors/{uid} merge → reload → Sidebar chip yeni isimle render.
+  - Sign-out: Settings → "Çıkış Yap" → landing'e bounce; reopen tab otomatik sign-in olmaz (persistence respect ediliyor).
+
+- **Evidence**:
+  - `project/qr.jsx:54-72` — Firestore session write (DiaSAGE schema verbatim)
+  - `project/qr.jsx:75-82` — deep-link construction (`diaagent://link?...`)
+  - `project/qr.jsx:99-114` — onSnapshot listener
+  - `project/qr.jsx:117-135` — qrcodejs render with cleanup
+  - `project/qr.jsx:138-148` — countdown + auto-expire
+  - `project/pages.jsx:436-456` — handleSave with `set({merge:true})` + Auth profile align
+  - `project/pages.jsx:458-468` — handleSignOut
+  - DiaSAGE `qr-link.js:147-155` — schema source-of-truth
+  - DiaSAGE `qr-link.js:181-206` — onSnapshot listener pattern source
+
+- **I5/I6 durumu**: AGREED (self) — pending USER browser verification + CODEX review.
+
+- **AGREE_FINAL_IMPLEMENTATION**: YES (CLAUDE) — pending CODEX ACK on TURN-I1/I2/I3 and USER's I7 browser-verification matrix.
+
+- **Handoff**: CLAUDE WORKING→ON_HOLD, CODEX ON_HOLD→START.
+
+<!-- I7: USER must run the verification matrix in a browser. Test cases enumerated in TURN-P1 PROPOSAL "VERIFICATION". Until then, I7 stays OPEN. -->
