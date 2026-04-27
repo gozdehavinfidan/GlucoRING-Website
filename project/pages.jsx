@@ -402,41 +402,145 @@ const NotesPage = () => (
   </>
 );
 
-const Settings = () => (
-  <>
-    <div className="page-h">
-      <div>
-        <h1>Ayarlar</h1>
-        <p className="lede">Hesap, güvenlik ve klinik tercihler.</p>
+const Settings = () => {
+  const auth = (typeof useFirebaseAuth === 'function')
+    ? useFirebaseAuth()
+    : { user: null, profile: null, ready: true };
+
+  const [displayName, setDisplayName] = React.useState('');
+  const [institution, setInstitution] = React.useState('');
+  const [specialty, setSpecialty] = React.useState('');
+  const [saving, setSaving] = React.useState(false);
+  const [signingOut, setSigningOut] = React.useState(false);
+  const [savedAt, setSavedAt] = React.useState(0);
+  const [error, setError] = React.useState('');
+
+  // Hydrate from /doctors/{uid} when the profile arrives.
+  React.useEffect(() => {
+    if (!auth.profile) return;
+    setDisplayName(auth.profile.displayName || auth.user?.displayName || '');
+    setInstitution(auth.profile.institution || '');
+    setSpecialty(auth.profile.specialty || '');
+  }, [auth.profile, auth.user]);
+
+  const handleSave = async () => {
+    if (!auth.user) return;
+    setError('');
+    setSaving(true);
+    try {
+      await window.fbDb.collection('doctors').doc(auth.user.uid).set({
+        email: auth.user.email || '',
+        displayName: displayName.trim(),
+        institution: institution.trim(),
+        specialty: specialty.trim(),
+      }, { merge: true });
+      // Keep auth profile displayName aligned for the sidebar chip.
+      if (displayName.trim() && displayName.trim() !== auth.user.displayName) {
+        try { await auth.user.updateProfile({ displayName: displayName.trim() }); } catch (_) {}
+      }
+      setSavedAt(Date.now());
+    } catch (err) {
+      console.error('[settings] save failed:', err);
+      setError('Kaydetme başarısız. Tekrar deneyin.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    setSigningOut(true);
+    try {
+      if (typeof window.signOutUser === 'function') {
+        await window.signOutUser();
+      }
+    } catch (err) {
+      console.error('[settings] sign-out failed:', err);
+      setSigningOut(false);
+    }
+  };
+
+  const recentlySaved = savedAt && (Date.now() - savedAt < 4000);
+
+  return (
+    <>
+      <div className="page-h">
+        <div>
+          <h1>Ayarlar</h1>
+          <p className="lede">Hesap, güvenlik ve klinik tercihler.</p>
+        </div>
       </div>
-    </div>
-    <div className="split-2">
-      <div className="card">
-        <div className="card-h"><h3>Profil</h3></div>
-        <div className="field"><label>Ad Soyad</label><input defaultValue="Dr. Kullanıcı"/></div>
-        <div className="field"><label>Kurum</label><input defaultValue="Hastane / Klinik"/></div>
-        <div className="field"><label>Branş</label><input defaultValue="Endokrinoloji"/></div>
-      </div>
-      <div className="card">
-        <div className="card-h"><h3>Güvenlik & Mahremiyet</h3></div>
-        <div className="alert-row">
-          <div className="ai" style={{ background: 'rgba(52,195,143,0.12)', color: '#34c38f' }}><I name="shield" size={16}/></div>
-          <div className="body">
-            <div className="t">İki faktörlü doğrulama aktif</div>
-            <div className="s mono">son giriş · — — —</div>
+      <div className="split-2">
+        <div className="card">
+          <div className="card-h"><h3>Profil</h3></div>
+          <div className="field"><label>Ad Soyad</label>
+            <input value={displayName} onChange={e => setDisplayName(e.target.value)} placeholder="Dr. Ad Soyad"/>
+          </div>
+          <div className="field"><label>Kurum</label>
+            <input value={institution} onChange={e => setInstitution(e.target.value)} placeholder="Hastane / Klinik"/>
+          </div>
+          <div className="field"><label>Branş</label>
+            <input value={specialty} onChange={e => setSpecialty(e.target.value)} placeholder="Endokrinoloji"/>
+          </div>
+          <div className="field"><label>E-posta</label>
+            <input value={auth.user?.email || ''} readOnly style={{ opacity: 0.7 }}/>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={handleSave}
+              disabled={saving || !auth.user}
+              style={{ padding: '10px 18px' }}
+            >
+              {saving ? 'Kaydediliyor…' : 'Kaydet'}
+            </button>
+            {recentlySaved && <span style={{ color: '#7be3a3', fontSize: 13 }}>✓ Kaydedildi</span>}
+            {error && <span style={{ color: '#ff7a82', fontSize: 13 }}>{error}</span>}
           </div>
         </div>
-        <div className="alert-row">
-          <div className="ai" style={{ background: 'rgba(52,195,143,0.12)', color: '#34c38f' }}><I name="lock" size={16}/></div>
-          <div className="body">
-            <div className="t">Tüm hasta erişimleri QR onayı ile</div>
-            <div className="s mono">KVKK / GDPR uyumlu veri politikası</div>
+        <div className="card">
+          <div className="card-h"><h3>Güvenlik & Mahremiyet</h3></div>
+          <div className="alert-row">
+            <div className="ai" style={{ background: 'rgba(52,195,143,0.12)', color: '#34c38f' }}><I name="shield" size={16}/></div>
+            <div className="body">
+              <div className="t">İki faktörlü doğrulama aktif</div>
+              <div className="s mono">son giriş · — — —</div>
+            </div>
+          </div>
+          <div className="alert-row">
+            <div className="ai" style={{ background: 'rgba(52,195,143,0.12)', color: '#34c38f' }}><I name="lock" size={16}/></div>
+            <div className="body">
+              <div className="t">Tüm hasta erişimleri QR onayı ile</div>
+              <div className="s mono">KVKK / GDPR uyumlu veri politikası</div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </>
-);
+      <div className="card" style={{ marginTop: 18 }}>
+        <div className="card-h"><h3>Oturum</h3></div>
+        <div className="alert-row" style={{ alignItems: 'center' }}>
+          <div className="ai" style={{ background: 'rgba(230,57,70,0.12)', color: '#e63946' }}><I name="logout" size={16}/></div>
+          <div className="body" style={{ flex: 1 }}>
+            <div className="t">Hesaptan çıkış yap</div>
+            <div className="s mono">{auth.user?.email || '—'}</div>
+          </div>
+          <button
+            type="button"
+            onClick={handleSignOut}
+            disabled={signingOut || !auth.user}
+            style={{
+              padding: '10px 18px', borderRadius: 999, fontSize: 13, fontWeight: 600,
+              background: 'rgba(230,57,70,0.14)', color: '#ff7a82',
+              border: '1px solid rgba(230,57,70,0.42)', cursor: 'pointer',
+            }}
+          >
+            {signingOut ? 'Çıkılıyor…' : 'Çıkış Yap'}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+};
 
 window.Dashboard = Dashboard;
 window.Patients = Patients;

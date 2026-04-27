@@ -1,46 +1,176 @@
-// QR Pairing flow
+// QR Pairing flow — wired to Firestore /linkSessions per the DiaSAGE
+// backend contract (qr-link.js:147-211 in the sibling repo). Generates a
+// real session doc, renders a real QR via qrcodejs, and listens for
+// patient-app confirmation via onSnapshot. Deep-link scheme is
+// `diaagent://link?sessionId=…&token=…` (shared with DiaSAGE so the same
+// mobile companion app handles both sites).
+
+const QR_SESSION_TTL_MS = 30 * 60 * 1000; // 30 minutes — must match DiaSAGE
+
+const generateHexToken = (lenBytes) => {
+  const arr = new Uint8Array(lenBytes);
+  crypto.getRandomValues(arr);
+  return Array.from(arr, (b) => b.toString(16).padStart(2, '0')).join('');
+};
+
+const formatRemaining = (ms) => {
+  if (ms <= 0) return '0:00';
+  const total = Math.floor(ms / 1000);
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${m}:${s < 10 ? '0' : ''}${s}`;
+};
 
 const QrPairing = ({ onDone }) => {
-  const [step, setStep] = React.useState(0); // 0: gen, 1: scanned, 2: confirmed
-  React.useEffect(() => {
-    const t1 = setTimeout(() => setStep(1), 4500);
-    const t2 = setTimeout(() => setStep(2), 8200);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, []);
+  const auth = (typeof useFirebaseAuth === 'function')
+    ? useFirebaseAuth()
+    : { user: null, profile: null, ready: true };
 
-  // Static decorative QR — pseudo-random pattern
-  const QrPattern = () => {
-    const cells = [];
-    const rng = (i, j) => ((i * 73 + j * 31 + i * j * 11) % 7) > 3;
-    const size = 21;
-    for (let i = 0; i < size; i++) {
-      for (let j = 0; j < size; j++) {
-        // Corner finders
-        const isFinder = (i < 7 && j < 7) || (i < 7 && j >= size - 7) || (i >= size - 7 && j < 7);
-        if (isFinder) continue;
-        if (rng(i, j)) cells.push(<rect key={`${i}-${j}`} x={j * 10} y={i * 10} width="10" height="10" fill="#000"/>);
-      }
+  const [version, setVersion] = React.useState(0);     // bump to regenerate
+  const [session, setSession] = React.useState(null);   // {sessionId, token, expiresAt, deepLink}
+  const [status, setStatus] = React.useState('initializing'); // initializing | pending | confirmed | expired | error
+  const [errorMsg, setErrorMsg] = React.useState('');
+  const [remainingMs, setRemainingMs] = React.useState(QR_SESSION_TTL_MS);
+
+  const qrRef = React.useRef(null);
+
+  // Effect 1 — create a Firestore session whenever `version` bumps (or on
+  // mount). Uses the EXACT DiaSAGE schema (qr-link.js:147-155 verbatim
+  // field names) so the same mobile companion app can confirm.
+  React.useEffect(() => {
+    if (!auth.ready) return;
+    const user = auth.user;
+    if (!user) {
+      setStatus('error');
+      setErrorMsg('Oturum bulunamadı. Lütfen tekrar giriş yapın.');
+      return;
     }
-    const finder = (cx, cy) => (
-      <g>
-        <rect x={cx} y={cy} width="70" height="70" fill="#000"/>
-        <rect x={cx + 10} y={cy + 10} width="50" height="50" fill="#fff"/>
-        <rect x={cx + 20} y={cy + 20} width="30" height="30" fill="#000"/>
-      </g>
-    );
-    return (
-      <svg viewBox="0 0 210 210">
-        {cells}
-        {finder(0, 0)}
-        {finder(140, 0)}
-        {finder(0, 140)}
-        {/* Center logo block */}
-        <rect x="80" y="80" width="50" height="50" fill="#fff"/>
-        <circle cx="105" cy="105" r="18" fill="#fff" stroke="#e63946" strokeWidth="3"/>
-        <circle cx="105" cy="105" r="11" fill="#e63946"/>
-      </svg>
-    );
-  };
+
+    let cancelled = false;
+    setStatus('initializing');
+    setErrorMsg('');
+    setSession(null);
+
+    (async () => {
+      try {
+        const sessionId = (crypto.randomUUID && crypto.randomUUID()) || generateHexToken(16);
+        const token = generateHexToken(16);
+        const createdAt = Date.now();
+        const expiresAt = createdAt + QR_SESSION_TTL_MS;
+        const doctorName = (auth.profile && auth.profile.displayName) || user.displayName || '';
+
+        await window.fbDb.collection('linkSessions').doc(sessionId).set({
+          doctorUid: user.uid,
+          doctorEmail: user.email || '',
+          doctorName,
+          status: 'pending',
+          token,
+          createdAt,
+          expiresAt,
+        });
+
+        if (cancelled) return;
+
+        const deepLink = 'diaagent://link?sessionId=' + encodeURIComponent(sessionId)
+          + '&token=' + encodeURIComponent(token);
+        setSession({ sessionId, token, expiresAt, deepLink });
+        setRemainingMs(expiresAt - Date.now());
+        setStatus('pending');
+      } catch (err) {
+        if (cancelled) return;
+        console.error('[qr] session create failed:', err);
+        setStatus('error');
+        setErrorMsg('Oturum oluşturulamadı. Tekrar deneyin.');
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [version, auth.ready, auth.user]);
+
+  // Effect 2 — onSnapshot on /linkSessions/{sessionId}; advance to
+  // 'confirmed' when the patient app writes status:'confirmed' + patientUid.
+  React.useEffect(() => {
+    if (!session || !session.sessionId) return;
+    if (status !== 'pending') return;
+
+    const unsub = window.fbDb.collection('linkSessions').doc(session.sessionId)
+      .onSnapshot((snap) => {
+        if (!snap.exists) return;
+        const data = snap.data();
+        if (data.status === 'confirmed') {
+          setStatus('confirmed');
+          // Optional: stash patientUid for downstream handoff to monitor.
+          if (data.patientUid) {
+            try { window.__lastConfirmedPatientUid = data.patientUid; } catch (_) {}
+          }
+        }
+      }, (err) => {
+        console.error('[qr] onSnapshot error:', err);
+        setStatus('error');
+        setErrorMsg('Bağlantı hatası. Tekrar deneyin.');
+      });
+
+    return () => { try { unsub(); } catch (_) {} };
+  }, [session, status]);
+
+  // Effect 3 — render a REAL QR into qrRef via the qrcodejs CDN lib.
+  React.useEffect(() => {
+    if (!session || !qrRef.current) return;
+    if (typeof window.QRCode !== 'function') {
+      console.error('[qr] QRCode global missing — qrcodejs CDN tag not loaded');
+      return;
+    }
+    const node = qrRef.current;
+    node.innerHTML = '';
+    // eslint-disable-next-line no-new
+    new window.QRCode(node, {
+      text: session.deepLink,
+      width: 220,
+      height: 220,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: window.QRCode.CorrectLevel ? window.QRCode.CorrectLevel.M : 1,
+    });
+    return () => { node.innerHTML = ''; };
+  }, [session]);
+
+  // Effect 4 — countdown + auto-expire.
+  React.useEffect(() => {
+    if (!session || status !== 'pending') return;
+    const tick = () => {
+      const left = session.expiresAt - Date.now();
+      setRemainingMs(left);
+      if (left <= 0) setStatus('expired');
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [session, status]);
+
+  // Step state for the existing 3-step UI:
+  //   0 = code generated (initial pending)
+  //   1 = waiting for patient confirmation
+  //   2 = confirmed
+  // We collapse 0/1 onto 'pending' since the contract only distinguishes
+  // pending vs confirmed; 0 → 1 transition fires once after a short grace
+  // period to give the user visual progress.
+  const [hasGracePassed, setHasGracePassed] = React.useState(false);
+  React.useEffect(() => {
+    setHasGracePassed(false);
+    if (status !== 'pending') return;
+    const t = setTimeout(() => setHasGracePassed(true), 1500);
+    return () => clearTimeout(t);
+  }, [session, status]);
+
+  let step = 0;
+  if (status === 'confirmed') step = 2;
+  else if (status === 'pending' && hasGracePassed) step = 1;
+
+  const regenerate = () => setVersion(v => v + 1);
+
+  const sessionLabel = session
+    ? 'SESSION · ' + (session.sessionId || '').replace(/-/g, '').slice(0, 18).toUpperCase()
+    : 'SESSION · ————————————————';
 
   return (
     <div className="qr-stage">
@@ -55,14 +185,14 @@ const QrPairing = ({ onDone }) => {
               <div className="num">{step >= 1 ? <I name="check" size={12}/> : '1'}</div>
               <div>
                 <h5>QR kod oluşturuldu</h5>
-                <p>Geçici, tek kullanımlık kod 5 dk geçerli.</p>
+                <p>Geçici, tek kullanımlık kod 30 dk geçerli.</p>
               </div>
             </div>
             <div className={`step ${step >= 1 ? 'active' : ''} ${step >= 2 ? 'done' : ''}`}>
               <div className="num">{step >= 2 ? <I name="check" size={12}/> : '2'}</div>
               <div>
                 <h5>Hasta uygulamadan tarat</h5>
-                <p>“Hekiminle Paylaş” → kamera ekranını aç → bu kodu çerçevele.</p>
+                <p>"Hekiminle Paylaş" → kamera ekranını aç → bu kodu çerçevele.</p>
               </div>
             </div>
             <div className={`step ${step >= 2 ? 'active done' : ''}`}>
@@ -75,7 +205,7 @@ const QrPairing = ({ onDone }) => {
           </div>
 
           <div className="row gap-12 mt-28">
-            <button className="btn-pill ghost" style={{ padding: '10px 18px' }}>
+            <button className="btn-pill ghost" style={{ padding: '10px 18px' }} onClick={regenerate}>
               <I name="refresh" size={14}/> Yeni Kod
             </button>
             {step >= 2 && (
@@ -84,23 +214,66 @@ const QrPairing = ({ onDone }) => {
               </button>
             )}
           </div>
+
+          {status === 'error' && errorMsg && (
+            <div
+              role="alert"
+              style={{
+                marginTop: 16, padding: '10px 12px', borderRadius: 8,
+                background: 'rgba(230,57,70,0.10)', color: '#ff7a82',
+                border: '1px solid rgba(230,57,70,0.32)', fontSize: 13,
+              }}
+            >
+              {errorMsg}
+            </div>
+          )}
         </div>
 
         <div className="qr-right">
-          <div className="qr-frame">
-            <QrPattern/>
-            {step < 2 && <div className="qr-scan-line"/>}
+          <div className="qr-frame" style={{ position: 'relative' }}>
+            <div
+              ref={qrRef}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: 220, height: 220, background: '#fff', borderRadius: 12,
+                padding: 0, margin: '0 auto',
+              }}
+            />
+            {status === 'initializing' && (
+              <div style={{
+                position: 'absolute', inset: 0, display: 'flex', alignItems: 'center',
+                justifyContent: 'center', color: '#666', fontSize: 13,
+                background: 'rgba(255,255,255,0.6)', borderRadius: 12,
+              }}>QR oluşturuluyor…</div>
+            )}
+            {status === 'expired' && (
+              <div style={{
+                position: 'absolute', inset: 0, display: 'flex', alignItems: 'center',
+                justifyContent: 'center', color: '#fff', fontSize: 14, fontWeight: 600,
+                background: 'rgba(10,14,12,0.78)', borderRadius: 12,
+              }}>Süre doldu — Yeni Kod</div>
+            )}
+            {status === 'pending' && step < 2 && <div className="qr-scan-line"/>}
           </div>
           <div className="qr-meta">
-            <div className="pid mono">SESSION · 4F-9B2C-7AE3</div>
-            {step < 1 && (
-              <div className="stat-line"><span className="pdot"/> Tarama bekleniyor</div>
+            <div className="pid mono">{sessionLabel}</div>
+            {status === 'initializing' && (
+              <div className="stat-line"><span className="pdot"/> Oturum oluşturuluyor</div>
             )}
-            {step === 1 && (
-              <div className="stat-line"><span className="pdot"/> Hasta onayı bekleniyor</div>
+            {status === 'pending' && step < 1 && (
+              <div className="stat-line"><span className="pdot"/> Tarama bekleniyor · Kalan {formatRemaining(remainingMs)}</div>
             )}
-            {step >= 2 && (
+            {status === 'pending' && step === 1 && (
+              <div className="stat-line"><span className="pdot"/> Hasta onayı bekleniyor · Kalan {formatRemaining(remainingMs)}</div>
+            )}
+            {status === 'confirmed' && (
               <div className="stat-line done"><I name="check" size={12}/> Eşleşme tamamlandı</div>
+            )}
+            {status === 'expired' && (
+              <div className="stat-line"><span className="pdot"/> Süre doldu</div>
+            )}
+            {status === 'error' && (
+              <div className="stat-line"><span className="pdot"/> Hata</div>
             )}
           </div>
         </div>
