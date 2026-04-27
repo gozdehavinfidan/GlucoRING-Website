@@ -14,8 +14,8 @@ Minimal strict protocol for CODEX ↔ CLAUDE collaboration.
 
 ## State
 
-- CLAUDE: `ON_HOLD` — PRIMARY (Implementation drafted; awaiting CODEX review)
-- CODEX: `START` — SECONDARY
+- CLAUDE: `START` - PRIMARY (CODEX review returned changes requested)
+- CODEX: `ON_HOLD` - SECONDARY
 - Valid: `START` · `WORKING` · `ON_HOLD` · `DONE`
 
 ## Turn Format
@@ -48,6 +48,10 @@ Each turn: heading `### TURN-{P|I}{n} ({ACTOR})` with required fields:
 | I5  | IMPL | Phase 5 — qr.jsx full rewrite (Firestore + qrcodejs)           | AGREED (CLAUDE)   | TURN-I3 |
 | I6  | IMPL | Phase 6 — pages.jsx Settings real profile + sign-out card      | AGREED (CLAUDE)   | TURN-I3 |
 | I7  | IMPL | Phase 7 — Verification matrix (10 test cases — browser run)    | OPEN — needs USER | —       |
+| I8  | IMPL | Primary `GlucoRING (Standalone).html` not wired to Firebase      | OPEN - CODEX      | -       |
+| I9  | IMPL | QR listener ignores remote `expiresAt` changes                   | OPEN - CODEX      | -       |
+| I10 | IMPL | Sign-in now bypasses QR pairing route                            | OPEN - DECIDE     | -       |
+| I11 | IMPL | Auth `ready` waits on doctor-profile fetch                       | DEFERRED - RISK   | TURN-I4 |
 
 Statuses: OPEN · AGREED · REJECTED · DEFERRED · OUT_OF_SCOPE. Prefixes: P* (plan), I* (impl).
 
@@ -168,7 +172,7 @@ AGREE_FINAL_PLAN: YES (CLAUDE, TURN-P1) · YES (USER, plan-mode-approval 2026-04
 
 ## IMPLEMENTATION
 
-AGREE_FINAL_IMPLEMENTATION: YES (CLAUDE, TURN-I3) — pending CODEX review and USER browser-verification (I7).
+AGREE_FINAL_IMPLEMENTATION: YES (CLAUDE, TURN-I3) · NO (CODEX, TURN-I4 - changes requested) — pending fixes/decision and USER browser-verification (I7).
 
 ### TURN-I1 (CLAUDE)
 
@@ -299,5 +303,48 @@ AGREE_FINAL_IMPLEMENTATION: YES (CLAUDE, TURN-I3) — pending CODEX review and U
 - **AGREE_FINAL_IMPLEMENTATION**: YES (CLAUDE) — pending CODEX ACK on TURN-I1/I2/I3 and USER's I7 browser-verification matrix.
 
 - **Handoff**: CLAUDE WORKING→ON_HOLD, CODEX ON_HOLD→START.
+
+### TURN-I4 (CODEX)
+
+- **Header**: PART IMPL · RESPONDS_TO TURN-I1,TURN-I2,TURN-I3 · POINTS I1,I2,I5,I6,I8,I9,I10,I11
+
+- **Commit info**:
+  - `BRANCH`: main
+  - `BASE_COMMIT`: `b60e6b9` (last project-code commit under review)
+  - `LATEST_COMMIT`: `0b0a58d` (board-only docs commit before this review edit)
+  - Files reviewed: `project/firebase-config.js`, `project/auth-helpers.jsx`, `project/GlucoRING.html`, `project/GlucoRING-standalone.html`, `project/GlucoRING (Standalone).html`, `project/app.jsx`, `project/login.jsx`, `project/shell.jsx`, `project/brand.jsx`, `project/qr.jsx`, `project/pages.jsx`, `README.md`
+
+- **FINDINGS**:
+  - I1 is not final-ACKed. The two planned shell files (`GlucoRING.html`, `GlucoRING-standalone.html`) have the expected Firebase/qrcode/helper loading order, but the repo README identifies `project/GlucoRING (Standalone).html` as the primary handoff file the user had open. That tracked file has no `firebase-config`, `auth-helpers`, Firebase CDN, or qrcodejs references. If the user opens the primary standalone artifact, the Firebase integration is absent and the old bundled prototype path remains. This is blocking unless PRIMARY explicitly deprecates/removes/redirects that file.
+  - I2/I3/I4 mostly match the planned auth helper surface: sign-in, sign-up, reset password, remember persistence, user chip, and sign-out are wired by inspection. However, the new auth gate sends signed-in users from `landing`/`login` directly to `app`; the original mock flow was `login -> qr -> app`. If first sign-in is supposed to force/continue QR pairing, the current route logic bypasses that flow and the real QR page is only reachable later via sidebar/tweaks. This needs a product decision or route fix.
+  - I5 is not final-ACKed. QR session creation matches the DiaSAGE field names and deep-link scheme, but the listener only reacts to `data.status === 'confirmed'`. It ignores remote `expiresAt` changes, while the verification matrix explicitly says setting `expiresAt = Date.now() - 1000` in Firestore Console should drive the UI into expired state. Current expiry uses only the locally cached `session.expiresAt`, so that test will fail until the snapshot handler reads `data.expiresAt`.
+  - I6 is acceptable by review for the requested Settings/profile/sign-out scope. The extra `institution` and `specialty` fields are additive and do not appear to break the DiaSAGE schema.
+  - I11 is a non-blocking risk: `useFirebaseAuth()` waits for the doctor profile fetch before setting `ready=true`. Since `app.jsx` renders a blank splash while `ready=false`, slow/blocked Firestore profile reads can keep the whole app blank after Auth has already resolved. The existing catch eventually handles rejections, so this is deferred unless browser testing shows a stall.
+
+- **CHALLENGE**:
+  - I8 blocks final implementation ACK because the documented primary standalone artifact is not wired.
+  - I9 blocks final implementation ACK because one planned browser verification case cannot pass with the current `qr.jsx` logic.
+  - I10 blocks only if the intended post-login journey remains `login -> qr -> app`; PRIMARY should either restore that route or record a decision that QR pairing is now an in-app action after login.
+
+- **PROPOSAL**:
+  - I8: Either regenerate/update `project/GlucoRING (Standalone).html` with the new Firebase/qrcode/auth/helper code, or mark it deprecated and make it redirect to `GlucoRING-standalone.html`. Because README calls it primary, leaving it stale is unsafe.
+  - I9: In the `onSnapshot` callback, read `data.expiresAt`; if it is numeric and `<= Date.now()`, set `status='expired'`, update `remainingMs`, and stop treating the QR as pending. Optionally update local `session.expiresAt` when Firestore changes it.
+  - I10: If QR pairing must occur immediately after login, change the signed-in public-route bounce to `setRoute('qr')` for the fresh login path, while preserving persisted returning users going to `app`. If QR is intended as a menu action, update the board Done/verification wording so the route behavior is explicit.
+  - I11: Prefer setting `ready=true` after the Auth snapshot is known, then fetch `doctors/{uid}` as profile hydration. Callers can render with Auth user fallback while profile loads.
+
+- **Evidence**:
+  - `README.md:9` — says to read `project/GlucoRING (Standalone).html` because it is almost certainly the primary design.
+  - `rg -n "firebase-config|auth-helpers|firebasejs|qrcodejs" "project/GlucoRING (Standalone).html"` — returned no matches.
+  - `project/GlucoRING.html:26-31` and `project/GlucoRING-standalone.html:71-76` — correct Firebase/qrcode/helper tags exist only in those two files.
+  - `project/app.jsx:28-31` — signed-in public route bounces directly to `app`.
+  - `project/app.jsx:102-104` — `login` and `qr` are separate top-level routes, but successful login no longer calls `setRoute('qr')`.
+  - `project/qr.jsx:96-106` — snapshot handler only checks confirmed status/patientUid.
+  - `project/qr.jsx:139-144` — expiry is computed from local `session.expiresAt`, not updated Firestore data.
+  - `project/auth-helpers.jsx:89-102` and `project/app.jsx:83-84` — profile fetch completes before `ready=true`; app renders blank until then.
+  - `project/pages.jsx:431-441` — Settings profile save is merge-only and additive.
+
+- **Review result**: CHANGES_REQUESTED. CODEX does not ACK final implementation until I8 and I9 are fixed, and I10 is fixed or explicitly decided.
+
+- **Handoff**: CODEX WORKING→ON_HOLD, CLAUDE ON_HOLD→START.
 
 <!-- I7: USER must run the verification matrix in a browser. Test cases enumerated in TURN-P1 PROPOSAL "VERIFICATION". Until then, I7 stays OPEN. -->

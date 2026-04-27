@@ -72,11 +72,7 @@ const Login = ({ onBack }) => {
   return (
     <div className="login-screen">
       <div className="login-art">
-        <img src="assets/ring/f-001.png" alt=""/>
-        <div className="overlay-grid"/>
-        <div className="legend">
-          <span className="v">●</span> SIM_FRAME · GLUCORING.RING.v2 · 1.04 mm CMOS
-        </div>
+        <img src="assets/photos/login.png" alt=""/>
       </div>
       <div className="login-form">
         <div className="login-card">
