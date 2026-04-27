@@ -17,6 +17,8 @@ npm-debug.log*
 # Local env
 .env
 .env.local
+project/firebase-config.local.js
+project/firebase-config.local.json
 
 # Build output (not used today — no build step — but reserved)
 dist/
