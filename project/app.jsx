@@ -1,4 +1,4 @@
-// Root app: routing + tweaks
+// Root app: routing + tweaks + Firebase auth gate
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "accentColor": "#e63946",
@@ -13,6 +13,30 @@ const App = () => {
   const [page, setPage] = React.useState('dashboard');
   const [v, setTweak] = (typeof useTweaks === 'function') ? useTweaks(TWEAK_DEFAULTS) : [TWEAK_DEFAULTS, () => {}];
   const tw = { values: v, set: setTweak };
+
+  // Firebase auth state — drives route transitions on sign-in/sign-out.
+  // Defensive fallback honors the codebase pattern at line 14 above (useTweaks).
+  const auth = (typeof useFirebaseAuth === 'function')
+    ? useFirebaseAuth()
+    : { user: null, profile: null, ready: true };
+
+  // When auth state resolves: if signed in and we're parked on a public route
+  // (landing/login), advance into the app. If signed out and we're inside the
+  // app (or QR pairing), bounce back to landing.
+  React.useEffect(() => {
+    if (!auth.ready) return;
+    if (auth.user) {
+      if (route === 'landing' || route === 'login') {
+        setRoute('app');
+        setPage('dashboard');
+      }
+    } else {
+      if (route === 'app' || route === 'qr') {
+        setRoute('landing');
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auth.ready, auth.user]);
 
   // Apply accent color globally
   React.useEffect(() => {
@@ -54,14 +78,40 @@ const App = () => {
     settings: ['Klinik İzlem', 'Ayarlar'],
   };
 
+  // Wait for auth state to resolve before rendering anything other than the
+  // public landing — avoids a flash of "logged out" UI for returning users.
+  if (!auth.ready) {
+    return <div style={{ background: '#0a0e0c', minHeight: '100vh' }}/>;
+  }
+
+  // Computed user-chip props for the sidebar
+  const userName = auth.profile?.displayName || auth.user?.displayName || auth.user?.email || 'Kullanıcı';
+  const userEmail = auth.user?.email || '';
+  const handleSignOut = async () => {
+    try {
+      if (typeof window.signOutUser === 'function') {
+        await window.signOutUser();
+      }
+    } catch (err) {
+      console.error('[app] sign-out failed:', err);
+    }
+  };
+
   return (
     <>
       {route === 'landing' && <Landing onEnter={() => setRoute('login')}/>}
-      {route === 'login' && <Login onLogin={() => setRoute('qr')} onBack={() => setRoute('landing')}/>}
+      {route === 'login' && <Login onBack={() => setRoute('landing')}/>}
       {route === 'qr' && <QrPairing onDone={() => { setRoute('app'); setPage('dashboard'); }}/>}
       {route === 'app' && (
         <div className={`app-layout ${v.sidebarCompact ? 'sb-compact' : ''}`} data-screen-label={`App · ${page}`}>
-          <Sidebar current={page} compact={v.sidebarCompact} onNav={(p) => { if (p === 'pairing') { setPage('pairing'); } else { setPage(p); } }}/>
+          <Sidebar
+            current={page}
+            compact={v.sidebarCompact}
+            onNav={(p) => { if (p === 'pairing') { setPage('pairing'); } else { setPage(p); } }}
+            userName={userName}
+            userEmail={userEmail}
+            onSignOut={handleSignOut}
+          />
           <main className="main">
             <Topbar crumbs={crumbsMap[page] || ['Klinik İzlem']}/>
             {renderPage()}

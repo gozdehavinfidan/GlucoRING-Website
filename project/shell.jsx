@@ -12,37 +12,52 @@ const NAV_BOTTOM = [
   { id: 'settings', label: 'Ayarlar', icon: 'settings' },
 ];
 
-const Sidebar = ({ current, onNav, compact }) => (
-  <aside className="sidebar">
-    <div className="sidebar-brand">
-      {compact ? <Mono size={28}/> : <Logo size={28}/>}
-    </div>
-    <div className="sidebar-section">İzlem</div>
-    {NAV_ITEMS.map(it => (
-      <div key={it.id} className={`nav-item ${current === it.id ? 'active' : ''}`} onClick={() => onNav(it.id)}>
-        <span className="ico-wrap"><I name={it.icon}/></span>
-        <span>{it.label}</span>
-        {it.badge && <span className="badge">{it.badge}</span>}
+const Sidebar = ({ current, onNav, compact, userName, userEmail, onSignOut }) => {
+  const displayName = (userName && String(userName).trim()) || 'Kullanıcı';
+  const initials = (displayName.split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase()) || 'DR';
+  return (
+    <aside className="sidebar">
+      <div className="sidebar-brand">
+        {compact ? <Mono size={28}/> : <Logo size={28}/>}
       </div>
-    ))}
-    <div className="sidebar-section">Sistem</div>
-    {NAV_BOTTOM.map(it => (
-      <div key={it.id} className={`nav-item ${current === it.id ? 'active' : ''}`} onClick={() => onNav(it.id)}>
-        <span className="ico-wrap"><I name={it.icon}/></span>
-        <span>{it.label}</span>
-      </div>
-    ))}
-    <div className="sidebar-foot">
-      <div className="user-chip">
-        <div className="avatar">DR</div>
-        <div className="meta">
-          <div className="name">Dr. Kullanıcı</div>
-          <div className="role">Endokrinoloji</div>
+      <div className="sidebar-section">İzlem</div>
+      {NAV_ITEMS.map(it => (
+        <div key={it.id} className={`nav-item ${current === it.id ? 'active' : ''}`} onClick={() => onNav(it.id)}>
+          <span className="ico-wrap"><I name={it.icon}/></span>
+          <span>{it.label}</span>
+          {it.badge && <span className="badge">{it.badge}</span>}
+        </div>
+      ))}
+      <div className="sidebar-section">Sistem</div>
+      {NAV_BOTTOM.map(it => (
+        <div key={it.id} className={`nav-item ${current === it.id ? 'active' : ''}`} onClick={() => onNav(it.id)}>
+          <span className="ico-wrap"><I name={it.icon}/></span>
+          <span>{it.label}</span>
+        </div>
+      ))}
+      <div className="sidebar-foot">
+        <div className="user-chip">
+          <div className="avatar">{initials}</div>
+          <div className="meta">
+            <div className="name">{displayName}</div>
+            <div className="role">{userEmail || ''}</div>
+          </div>
+          {onSignOut && (
+            <button
+              className="icon-btn user-chip-signout"
+              onClick={onSignOut}
+              title="Çıkış Yap"
+              aria-label="Çıkış Yap"
+              style={{ marginLeft: 'auto', background: 'transparent', border: 'none', cursor: 'pointer', padding: 6, color: 'inherit', display: 'inline-flex', alignItems: 'center' }}
+            >
+              <I name="logout" size={16}/>
+            </button>
+          )}
         </div>
       </div>
-    </div>
-  </aside>
-);
+    </aside>
+  );
+};
 
 const Topbar = ({ crumbs }) => (
   <div className="topbar">

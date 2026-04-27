@@ -72,6 +72,8 @@ const I = ({ name, size = 18, stroke = 1.6 }) => {
     moon: <path d="M15 11a6 6 0 01-7-8 6 6 0 107 8z" stroke="currentColor" strokeWidth={s} strokeLinejoin="round" fill="none"/>,
     drop: <path d="M10 3s-5 5-5 9a5 5 0 0010 0c0-4-5-9-5-9z" stroke="currentColor" strokeWidth={s} strokeLinejoin="round" fill="none"/>,
     x: <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth={s} strokeLinecap="round"/>,
+    logout: <><path d="M9 4H5a1 1 0 00-1 1v10a1 1 0 001 1h4" stroke="currentColor" strokeWidth={s} strokeLinecap="round" strokeLinejoin="round" fill="none"/><path d="M13 6l4 4-4 4M17 10H8" stroke="currentColor" strokeWidth={s} strokeLinecap="round" strokeLinejoin="round" fill="none"/></>,
+    eye: <><circle cx="10" cy="10" r="2.5" stroke="currentColor" strokeWidth={s} fill="none"/><path d="M2 10s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5z" stroke="currentColor" strokeWidth={s} fill="none" strokeLinejoin="round"/></>,
   };
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none">
