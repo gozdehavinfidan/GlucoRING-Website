@@ -210,6 +210,7 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+html { scrollbar-gutter: stable; }
 html, body {
   background: var(--bg);
   color: var(--text);
@@ -2613,11 +2614,14 @@ a { color: inherit; text-decoration: none; }
   padding: clamp(80px, 9vw, 120px) clamp(24px, 6vw, 96px);
 }
 .section-head {
+  width: 100%;
   max-width: 880px;
   margin-bottom: var(--space-8);
 }
 .section-head.narrow {
   max-width: 760px;
+  align-self: center;
+  text-align: center;
 }
 .section-eye {
   font-size: 15px;
