@@ -691,11 +691,11 @@ a { color: inherit; text-decoration: none; }
   font-weight: 500;
   line-height: 1.18;
   letter-spacing: -0.015em;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   color: var(--text);
 }
 .hiw-step p {
-  font-size: var(--m3-body-l-size);
+  font-size: 19px;
   line-height: 1.55;
   color: var(--text-dim);
 }
@@ -770,18 +770,18 @@ a { color: inherit; text-decoration: none; }
   color: var(--text);
 }
 .value-card p {
-  font-size: var(--m3-body-l-size);
+  font-size: 19px;
   line-height: 1.55;
   color: var(--text-dim);
   flex: 1;
 }
 .value-meta {
-  font-size: var(--m3-label-m-size);
+  font-size: 14px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: currentColor;
   opacity: 0.85;
-  padding-top: 14px;
+  padding-top: 16px;
   border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent);
 }
 
@@ -846,11 +846,11 @@ a { color: inherit; text-decoration: none; }
   border-color: var(--accent);
 }
 .faq-item p {
-  font-size: var(--m3-body-l-size);
+  font-size: 19px;
   line-height: 1.6;
   color: var(--text-dim);
   padding: 0 0 22px;
-  max-width: 60ch;
+  max-width: 62ch;
 }
 
 /* ===== M3 Final CTA — full-width illustrated hero with content overlaid ===== */
@@ -1191,9 +1191,9 @@ a { color: inherit; text-decoration: none; }
   text-wrap: pretty;
 }
 .hw-card p {
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1.55;
-  color: rgba(255,255,255,0.78);
+  color: rgba(255,255,255,0.82);
   text-wrap: pretty;
 }
 .hw-card--dark, .hw-card--ble, .hw-card--battery {
@@ -1746,13 +1746,13 @@ a { color: inherit; text-decoration: none; }
   flex-shrink: 0;
 }
 .app-feat h5 {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 500;
   letter-spacing: -0.01em;
   margin-bottom: 6px;
 }
 .app-feat p {
-  font-size: 16px;
+  font-size: 18px;
   color: var(--text-dim);
   line-height: 1.55;
 }
@@ -2088,7 +2088,7 @@ a { color: inherit; text-decoration: none; }
   font-family: 'JetBrains Mono', monospace;
 }
 .model-card .model-desc {
-  font-size: 16px;
+  font-size: 18px;
   color: var(--text-dim);
   line-height: 1.55;
   margin-bottom: 20px;
@@ -2277,7 +2277,7 @@ a { color: inherit; text-decoration: none; }
   color: var(--text);
 }
 .season-card > p {
-  font-size: 16px;
+  font-size: 18px;
   color: var(--text-dim);
   line-height: 1.55;
   margin-bottom: 4px;
@@ -2285,16 +2285,16 @@ a { color: inherit; text-decoration: none; }
 .season-stats {
   list-style: none;
   display: grid;
-  gap: 10px;
+  gap: 12px;
   margin-top: auto;
-  padding-top: 16px;
+  padding-top: 18px;
   border-top: 1px solid color-mix(in srgb, var(--s-tone) 18%, var(--line));
 }
 .season-stats li {
   display: flex;
   align-items: center;
   gap: 14px;
-  font-size: 15px;
+  font-size: 17px;
   color: var(--text-dim);
 }
 .season-stats li span {
@@ -2375,13 +2375,13 @@ a { color: inherit; text-decoration: none; }
   border: 1px solid color-mix(in srgb, var(--s-tone) 22%, transparent);
 }
 .sec-card h4 {
-  font-size: 19px;
+  font-size: 22px;
   font-weight: 500;
   letter-spacing: -0.015em;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 .sec-card p {
-  font-size: 16px;
+  font-size: 18px;
   color: var(--text-dim);
   line-height: 1.55;
 }
