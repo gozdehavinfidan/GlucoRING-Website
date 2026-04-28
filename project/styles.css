@@ -161,7 +161,7 @@ a { color: inherit; text-decoration: none; }
   background: var(--nav-bg);
   border-bottom: 1px solid var(--nav-line);
 }
-/* M3 top app bar nav — label-large 14/20 weight 500, 40dp tap target */
+/* M3 top app bar nav — title-medium 16/24 weight 500, 44dp tap target */
 .landing-nav-links {
   display: flex;
   align-items: center;
@@ -171,12 +171,12 @@ a { color: inherit; text-decoration: none; }
 .landing-nav-links a {
   display: inline-flex;
   align-items: center;
-  height: 40px;
-  padding: 0 14px;
+  height: 44px;
+  padding: 0 16px;
   border-radius: 999px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
-  line-height: 20px;
+  line-height: 24px;
   letter-spacing: 0.01em;
   transition: color 0.15s, background 0.15s;
 }
@@ -184,21 +184,21 @@ a { color: inherit; text-decoration: none; }
   color: var(--text);
   background: var(--nav-line);
 }
-/* Material 3 button — 8dp grid, min 40dp touch target, type scale label-large */
+/* Material 3 button — 8dp grid, min 44dp touch target, type scale title-medium */
 .btn-pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 40px;
-  padding: 10px 24px;
+  min-height: 44px;
+  padding: 11px 24px;
   border-radius: 999px;
   background: var(--text);
   color: var(--solid-bg);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   letter-spacing: 0.01em;
-  line-height: 20px;
+  line-height: 22px;
   transition: transform 0.15s, background 0.15s, border-color 0.15s, color 0.15s;
 }
 .btn-pill:hover { transform: translateY(-1px); }
@@ -1735,44 +1735,44 @@ a { color: inherit; text-decoration: none; }
   justify-content: space-between;
   margin-bottom: 48px;
 }
-/* M3 type scale — Headline Small (32/40) for the login title */
+/* M3 type scale — Headline Medium (36/44) for the login title */
 .login-card h1 {
-  font-size: 32px;
+  font-size: 36px;
   font-weight: 500;
   letter-spacing: -0.02em;
-  line-height: 40px;
+  line-height: 44px;
   margin: 0 0 12px;
 }
-/* M3 Body Large (16/24) for the supporting paragraph */
+/* Slightly above Body Large for the supporting paragraph */
 .login-card .sub {
   color: var(--text-dim);
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 17px;
+  line-height: 26px;
   margin: 0 0 32px;
 }
-/* M3 form field — 8dp grid, 48dp text-field height, label-medium overline */
+/* M3 form field — 8dp grid, 52dp text-field height, label overline */
 .field {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 .field label {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 16px;
   color: var(--text-dim);
   margin-bottom: 8px;
   font-family: 'JetBrains Mono', monospace;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 .field input {
   width: 100%;
-  min-height: 48px;
-  padding: 12px 16px;
+  min-height: 52px;
+  padding: 14px 16px;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   color: var(--text);
-  font-size: 16px;
+  font-size: 17px;
   line-height: 24px;
   transition: border 0.15s, background 0.15s;
 }
@@ -1791,21 +1791,21 @@ a { color: inherit; text-decoration: none; }
   margin: 8px 0 24px;
 }
 .field-row a:hover { color: var(--accent); }
-/* M3 Filled button — 48dp height, label-large 14/20 weight 500 */
+/* M3 Filled button — 52dp height, button-large 16/24 weight 500 */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 48px;
-  padding: 12px 24px;
+  min-height: 52px;
+  padding: 14px 24px;
   background: var(--accent);
   color: var(--on-accent);
   border-radius: var(--radius-sm);
   font-weight: 500;
-  font-size: 14px;
+  font-size: 16px;
   letter-spacing: 0.05em;
-  line-height: 20px;
+  line-height: 24px;
   transition: background 0.15s, opacity 0.15s;
 }
 .btn-primary:hover { background: #f04654; }
