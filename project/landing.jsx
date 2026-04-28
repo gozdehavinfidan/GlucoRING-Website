@@ -348,20 +348,6 @@ const Landing = ({ onEnter }) => {
             </div>
           </article>
 
-          <article className="hw-card hw-card--wide hw-card--battery">
-            <div className="hw-card-text">
-              <span className="hw-eyebrow">Uzun Pil Ömrü</span>
-              <h3>Tek şarjla 5+ gün, kablosuz dolum 90 dakika.</h3>
-            </div>
-            <div className="hw-bat-viz" aria-hidden="true">
-              <div className="bat-shell">
-                <div className="bat-fill"/>
-              </div>
-              <div className="bat-days">
-                <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span className="plus">+</span>
-              </div>
-            </div>
-          </article>
         </div>
       </section>
 
