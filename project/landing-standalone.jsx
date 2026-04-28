@@ -2,12 +2,12 @@
 
 // Mobile app gallery — fan of 3 screens → click → horizontal scrollable strip of all screens
 const APP_SHOTS = [
-  { src: "assets/app/sign in.png", t: 'Giriş' },
-  { src: 'assets/app/pairing.png', t: 'Eşleştirme' },
-  { src: 'assets/app/medicine reminder.png', t: 'İlaç Hatırlatma' },
-  { src: 'assets/app/new medicine reminder.png', t: 'Yeni Hatırlatma' },
-  { src: "assets/app/ma'n.png", t: 'Ana Ekran', fit: 'fit-tight-left' },
-  { src: 'assets/app/pic-2.png', t: 'Profil', fit: 'fit-tight' },
+  { src: 'assets/app/mobile-sign-in.png', t: 'Giriş' },
+  { src: 'assets/app/mobile-pairing.png', t: 'Eşleştirme' },
+  { src: 'assets/app/mobile-medicine-reminder.png', t: 'İlaç Hatırlatma' },
+  { src: 'assets/app/mobile-new-medicine-reminder.png', t: 'Yeni Hatırlatma' },
+  { src: 'assets/app/mobile-home.png', t: 'Ana Ekran', fit: 'fit-tight-left' },
+  { src: 'assets/app/mobile-profile.png', t: 'Profil', fit: 'fit-tight' },
 ];
 
 const AppGallery = () => {
