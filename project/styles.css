@@ -3481,7 +3481,186 @@ a { color: inherit; text-decoration: none; }
   margin-top: 6px;
 }
 
-/* ===== Big dashboard stat cards ===== */
+/* ===== Dashboard bento (M3, mirrors landing /params bento) ===== */
+.dash-bento {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 200px;
+  gap: var(--space-4);
+  margin-bottom: var(--space-7);
+}
+.dash-bento .pb-hero {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+@media (max-width: 1200px) {
+  .dash-bento { grid-template-columns: repeat(2, 1fr); }
+  .dash-bento .pb-hero { grid-column: span 2; grid-row: span 2; }
+}
+@media (max-width: 600px) {
+  .dash-bento { grid-template-columns: 1fr; grid-auto-rows: 180px; }
+  .dash-bento .pb-hero { grid-column: span 1; grid-row: span 2; }
+}
+
+/* Tonal variants for the small cards (M3 role colors) */
+.db-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6);
+  --db-tone: var(--text-mute);
+  --db-tone-soft: rgba(255,255,255,0.05);
+}
+.db-card--accent {
+  --db-tone: var(--accent);
+  --db-tone-soft: var(--accent-soft);
+  background:
+    radial-gradient(120% 100% at 100% 0%, color-mix(in srgb, var(--accent) 18%, transparent) 0%, transparent 60%),
+    var(--panel);
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
+}
+.db-card--ok {
+  --db-tone: var(--m3-tertiary);
+  --db-tone-soft: rgba(52,195,143,0.16);
+  background:
+    radial-gradient(120% 100% at 100% 0%, rgba(52,195,143,0.16) 0%, transparent 60%),
+    var(--panel);
+  border-color: rgba(52,195,143,0.32);
+}
+.db-card--warn {
+  --db-tone: var(--m3-warning);
+  --db-tone-soft: rgba(245,183,61,0.18);
+  background:
+    radial-gradient(120% 100% at 100% 0%, rgba(245,183,61,0.2) 0%, transparent 60%),
+    var(--panel);
+  border-color: rgba(245,183,61,0.36);
+}
+.db-card--crit {
+  --db-tone: #ff7a82;
+  --db-tone-soft: rgba(255,90,111,0.18);
+  background:
+    radial-gradient(120% 100% at 100% 0%, rgba(255,90,111,0.2) 0%, transparent 60%),
+    var(--panel);
+  border-color: rgba(255,90,111,0.36);
+}
+.db-card--info {
+  --db-tone: var(--m3-secondary);
+  --db-tone-soft: rgba(109,177,255,0.18);
+  background:
+    radial-gradient(120% 100% at 100% 0%, rgba(109,177,255,0.2) 0%, transparent 60%),
+    var(--panel);
+  border-color: rgba(109,177,255,0.34);
+}
+.db-card--gray {
+  background: var(--panel);
+}
+.db-card .pb-num {
+  color: var(--db-tone);
+  font-size: var(--m3-label-l-size);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+.db-card .pb-name {
+  font-size: var(--m3-title-m-size);
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.005em;
+}
+.db-card-ico {
+  position: absolute;
+  top: var(--space-5);
+  right: var(--space-5);
+  width: 32px; height: 32px;
+  border-radius: 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--db-tone-soft);
+  color: var(--db-tone);
+  pointer-events: none;
+}
+.db-big {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-top: auto;
+}
+.db-big .num {
+  font-size: clamp(40px, 3.6vw, 52px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  white-space: nowrap;
+}
+.db-card--accent .db-big .num,
+.db-card--warn .db-big .num,
+.db-card--crit .db-big .num,
+.db-card--info .db-big .num,
+.db-card--ok .db-big .num { color: var(--db-tone); }
+.db-big.is-text .num {
+  font-size: clamp(22px, 2.2vw, 28px);
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+  text-transform: lowercase;
+}
+.db-big .u {
+  font-size: var(--m3-body-m-size);
+  font-weight: 500;
+  color: var(--text-dim);
+  letter-spacing: 0;
+}
+.db-hint {
+  font-size: var(--m3-body-s-size);
+  line-height: var(--m3-body-s-line);
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Dashboard hero variants (mirrors landing pb-hero with status tones) */
+.db-hero {
+  position: relative;
+  padding: var(--space-7);
+  justify-content: space-between;
+  background: linear-gradient(135deg, #0d0d10 0%, #1a0e10 60%, #2a0e15 100%);
+  border-color: rgba(230,57,70,0.25);
+}
+.db-hero--warn { background: linear-gradient(135deg, #0d0d10 0%, #1a1410 60%, #2a200e 100%); border-color: rgba(245,183,61,0.32); }
+.db-hero--crit { background: linear-gradient(135deg, #0d0d10 0%, #1d0e10 60%, #2e1015 100%); border-color: rgba(255,90,111,0.36); }
+.db-hero--ok { background: linear-gradient(135deg, #0a0d0c 0%, #0d1a14 60%, #0e2a1d 100%); border-color: rgba(52,195,143,0.32); }
+.db-hero--gray { background: linear-gradient(135deg, #0d0d10 0%, #14181d 60%, #181d24 100%); }
+
+.db-hero .pb-hero-top h3 {
+  font-size: clamp(28px, 3.2vw, 40px);
+  line-height: 1.1;
+}
+.db-hero .pb-hero-top p {
+  font-size: var(--m3-body-m-size);
+  max-width: 360px;
+}
+.db-hero .pb-hero-val .num {
+  font-size: clamp(56px, 5.6vw, 84px);
+}
+.db-hero--warn .pb-hero-val .num { text-shadow: 0 0 60px rgba(245,183,61,0.42); }
+.db-hero--crit .pb-hero-val .num { text-shadow: 0 0 60px rgba(255,90,111,0.42); }
+.db-hero--ok   .pb-hero-val .num { text-shadow: 0 0 60px rgba(52,195,143,0.42); }
+.db-hero--warn .pb-eyebrow { color: var(--m3-warning); }
+.db-hero--crit .pb-eyebrow { color: #ff7a82; }
+.db-hero--ok   .pb-eyebrow { color: var(--m3-tertiary); }
+.db-hero--warn .trend-arrow { color: var(--m3-warning); }
+.db-hero--crit .trend-arrow { color: #ff7a82; }
+.db-hero--ok   .trend-arrow { color: var(--m3-tertiary); }
+.db-hero--warn .pb-live { background: rgba(245,183,61,0.18); border-color: rgba(245,183,61,0.45); }
+.db-hero--warn .pb-dot  { background: var(--m3-warning); box-shadow: 0 0 12px var(--m3-warning); }
+.db-hero--crit .pb-live { background: rgba(255,90,111,0.18); border-color: rgba(255,90,111,0.5); }
+.db-hero--crit .pb-dot  { background: #ff7a82; box-shadow: 0 0 12px #ff7a82; }
+.db-hero--ok   .pb-live { background: rgba(52,195,143,0.18); border-color: rgba(52,195,143,0.45); }
+.db-hero--ok   .pb-dot  { background: var(--m3-tertiary); box-shadow: 0 0 12px var(--m3-tertiary); }
+
+/* ===== Legacy big stat cards (kept for non-dashboard uses) ===== */
 .stat-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

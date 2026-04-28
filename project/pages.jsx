@@ -21,19 +21,21 @@ const formatRelativeTime = (ms) => {
   return `${Math.floor(d / 30)} ay önce`;
 };
 
-const StatCard = ({ label, value, unit, hint, icon, tone }) => {
+// Dashboard bento card following the landing /params hero/card pattern.
+const DashCard = ({ index, name, value, unit, hint, tone, icon }) => {
   const isText = typeof value === 'string' && !/^[\d\.\-,]+$/.test(value);
   return (
-    <div className={`stat-big ${tone ? 'stat-big--' + tone : ''}`}>
-      <div className="stat-big-head">
-        <span className="stat-big-lbl">{label}</span>
-        <span className="stat-big-ico"><I name={icon}/></span>
+    <div className={`pb-card db-card ${tone ? 'db-card--' + tone : ''}`}>
+      <div className="pb-card-head">
+        <span className="pb-num mono">{index}</span>
+        <span className="pb-name">{name}</span>
       </div>
-      <div className={`stat-big-num ${isText ? 'is-text' : 'mono'}`}>
-        {value != null && value !== '' ? value : '—'}
-        {unit && value != null && !isText ? <span className="stat-big-unit">{unit}</span> : null}
+      {icon && <div className="db-card-ico"><I name={icon}/></div>}
+      <div className={`pb-big db-big ${isText ? 'is-text' : ''}`}>
+        <span className="num mono">{value != null && value !== '' ? value : '—'}</span>
+        {unit && value != null && !isText ? <span className="u">{unit}</span> : null}
       </div>
-      <div className="stat-big-hint" dangerouslySetInnerHTML={{ __html: hint || '' }}/>
+      {hint && <div className="db-hint" dangerouslySetInnerHTML={{ __html: hint }}/>}
     </div>
   );
 };
@@ -150,32 +152,92 @@ const Dashboard = ({ tw, onSelect, onNav }) => {
         </div>
       </div>
 
-      <div className="stat-row">
-        <StatCard
-          label="AKTİF HASTA"
+      <div className="dash-bento">
+        {/* HERO — son okuma */}
+        {(() => {
+          const newest = feed[0];
+          if (newest && newest.latest) {
+            const g = newest.latest.bloodGlucose;
+            const status = g == null ? 'gray' : g < HYPO_THRESHOLD ? 'warn' : g > HYPER_THRESHOLD ? 'crit' : 'ok';
+            const trendLabel = g == null ? '—' : g < HYPO_THRESHOLD ? 'Hipoglisemi eşiğinde' : g > HYPER_THRESHOLD ? 'Hiperglisemi eşiğinde' : 'Hedef aralıkta';
+            const trendArrow = g == null ? '·' : g < HYPO_THRESHOLD ? '↓' : g > HYPER_THRESHOLD ? '↑' : '→';
+            return (
+              <div className={`pb-card pb-hero db-hero db-hero--${status}`}>
+                <div className="pb-live"><span className="pb-dot"/>CANLI</div>
+                <div className="pb-hero-top">
+                  <span className="pb-eyebrow mono">SON OKUMA · {newest.link.patientName || formatPatientId(newest.link.patientUid)}</span>
+                  <h3>Güncel glukoz<br/>{formatRelativeTime(newest.latest.timestamp)}.</h3>
+                  <p>Aktif {activeCount} hastadan en son veri. {trendLabel.toLowerCase()}.</p>
+                </div>
+                <div className="pb-hero-readout">
+                  <div className="pb-hero-val">
+                    <span className="num mono">{g != null ? g : '—'}</span>
+                    <span className="u">mg/dL</span>
+                  </div>
+                  <div className="pb-hero-trend">
+                    <span className="trend-arrow">{trendArrow}</span>
+                    <span className="trend-label">{trendLabel}</span>
+                  </div>
+                </div>
+                <div className="pb-hero-axis mono">
+                  <span>HR {newest.latest.heartRate != null ? Math.round(newest.latest.heartRate) : '—'}</span>
+                  <span>SpO₂ {newest.latest.oxygenSaturation != null ? Math.round(newest.latest.oxygenSaturation) : '—'}%</span>
+                  <span>{newest.latest.bodyTemperature != null ? Number(newest.latest.bodyTemperature).toFixed(1) : '—'}°C</span>
+                  <span>HRV {newest.latest.hrvSdnn != null ? Math.round(newest.latest.hrvSdnn) : '—'}</span>
+                </div>
+              </div>
+            );
+          }
+          return (
+            <div className="pb-card pb-hero db-hero db-hero--ok">
+              <div className="pb-hero-top">
+                <span className="pb-eyebrow mono">PANEL</span>
+                <h3>Klinik izlem<br/>başlasın.</h3>
+                <p>QR kod ile bir hasta eşleştirin; canlı glukoz, fizyoloji ve risk uyarıları bu panele akar.</p>
+              </div>
+              <div className="pb-hero-readout">
+                <div className="pb-hero-val">
+                  <span className="num mono">{activeCount}</span>
+                  <span className="u">aktif hasta</span>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
+        <DashCard
+          index="01"
+          name="Aktif Hasta"
           value={linksLoading ? '…' : activeCount}
+          unit={activeCount === 1 ? 'hasta' : 'hasta'}
           icon="users"
           tone="accent"
-          hint={activeCount > 0 ? `${activeCount} eşleşme · canlı izlemede` : 'henüz eşleşme yok — QR kodla başlayın'}
+          hint={activeCount > 0 ? `${activeCount} eşleşme canlı izlemede` : 'QR kodla bir hasta eşleştirin'}
         />
-        <StatCard
-          label="HİPOGLİSEMİ · 24 SA"
+        <DashCard
+          index="02"
+          name="Hipoglisemi"
           value={hypoEvents.length}
+          unit="olay"
           icon="arrowDown"
-          tone={hypoEvents.length > 0 ? 'warn' : null}
-          hint={hypoEvents.length > 0 ? `${hypoPatients} hasta · &lt; ${HYPO_THRESHOLD} mg/dL` : 'eşik altı okuma yok'}
+          tone={hypoEvents.length > 0 ? 'warn' : 'ok'}
+          hint={hypoEvents.length > 0 ? `son 24 saat · &lt; ${HYPO_THRESHOLD} mg/dL` : 'son 24 saat · eşik altı yok'}
         />
-        <StatCard
-          label="HİPERGLİSEMİ · 24 SA"
+        <DashCard
+          index="03"
+          name="Hiperglisemi"
           value={hyperEvents.length}
+          unit="olay"
           icon="arrowUp"
-          tone={hyperEvents.length > 0 ? 'danger' : null}
-          hint={hyperEvents.length > 0 ? `&gt; ${HYPER_THRESHOLD} mg/dL eşiği aşıldı` : 'eşik üstü okuma yok'}
+          tone={hyperEvents.length > 0 ? 'crit' : 'ok'}
+          hint={hyperEvents.length > 0 ? `son 24 saat · &gt; ${HYPER_THRESHOLD} mg/dL` : 'son 24 saat · eşik üstü yok'}
         />
-        <StatCard
-          label="SON SENKRON"
+        <DashCard
+          index="04"
+          name="Son Senkron"
           value={lastSyncLabel}
           icon="sync"
+          tone={lastSyncMs ? 'info' : 'gray'}
           hint={lastSyncMs ? new Date(lastSyncMs).toLocaleString('tr-TR') : 'henüz okuma alınmadı'}
         />
       </div>
