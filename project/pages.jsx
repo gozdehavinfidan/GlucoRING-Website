@@ -21,35 +21,88 @@ const formatRelativeTime = (ms) => {
   return `${Math.floor(d / 30)} ay önce`;
 };
 
-const EmptyStat = ({ label, icon, accent, hint = 'Firebase bağlandığında', value }) => (
-  <div className={`stat ${accent ? 'accent' : ''}`}>
-    <div className="head">
-      <span className="lbl">{label}</span>
-      <span className="ico"><I name={icon}/></span>
+const StatCard = ({ label, value, unit, hint, icon, tone }) => {
+  const isText = typeof value === 'string' && !/^[\d\.\-,]+$/.test(value);
+  return (
+    <div className={`stat-big ${tone ? 'stat-big--' + tone : ''}`}>
+      <div className="stat-big-head">
+        <span className="stat-big-lbl">{label}</span>
+        <span className="stat-big-ico"><I name={icon}/></span>
+      </div>
+      <div className={`stat-big-num ${isText ? 'is-text' : 'mono'}`}>
+        {value != null && value !== '' ? value : '—'}
+        {unit && value != null && !isText ? <span className="stat-big-unit">{unit}</span> : null}
+      </div>
+      <div className="stat-big-hint" dangerouslySetInnerHTML={{ __html: hint || '' }}/>
     </div>
-    <div className="num mono" style={{ color: value != null ? 'var(--text)' : 'var(--text-mute)' }}>
-      {value != null ? value : '—'}
-    </div>
-    <div className="delta">{hint}</div>
-  </div>
-);
+  );
+};
 
-const Dashboard = ({ tw }) => {
+const HYPO_THRESHOLD = 70;
+const HYPER_THRESHOLD = 180;
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+const Dashboard = ({ tw, onSelect, onNav }) => {
   const auth = (typeof useFirebaseAuth === 'function')
     ? useFirebaseAuth()
     : { user: null, profile: null, ready: true };
-  const [activeCount, setActiveCount] = React.useState(null);
 
+  const [links, setLinks] = React.useState([]);
+  const [linksLoading, setLinksLoading] = React.useState(true);
+  // Map<patientUid, { latest, last24h }>
+  const [readings, setReadings] = React.useState({});
+
+  // Subscribe to linked devices.
   React.useEffect(() => {
-    if (!auth.user || !window.fbDb) return;
+    if (!auth.user || !window.fbDb) {
+      setLinksLoading(false);
+      return;
+    }
     const unsub = window.fbDb.collection('linkedDevices')
       .where('doctorUid', '==', auth.user.uid)
       .where('status', '==', 'active')
-      .onSnapshot(snap => setActiveCount(snap.size), err => {
-        console.error('[dashboard] linkedDevices count failed:', err);
+      .onSnapshot((snap) => {
+        const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        docs.sort((a, b) => (b.linkedAt || 0) - (a.linkedAt || 0));
+        setLinks(docs);
+        setLinksLoading(false);
+      }, (err) => {
+        console.error('[dashboard] linkedDevices query failed:', err);
+        setLinksLoading(false);
       });
     return unsub;
   }, [auth.user && auth.user.uid]);
+
+  // For each linked patient, subscribe to last 24h healthMetrics. Cap at 12 patients
+  // so the dashboard doesn't fan out into hundreds of listeners.
+  React.useEffect(() => {
+    if (!window.fbDb || !links.length) {
+      setReadings({});
+      return;
+    }
+    const unsubs = [];
+    const sinceMs = Date.now() - ONE_DAY_MS;
+    const visiblePatients = links.slice(0, 12).map((l) => l.patientUid).filter(Boolean);
+    visiblePatients.forEach((uid) => {
+      const unsub = window.fbDb
+        .collection('patients').doc(uid)
+        .collection('healthMetrics')
+        .where('timestamp', '>=', sinceMs)
+        .orderBy('timestamp', 'desc')
+        .limit(120)
+        .onSnapshot((snap) => {
+          const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          setReadings((prev) => ({
+            ...prev,
+            [uid]: { latest: docs[0] || null, last24h: docs },
+          }));
+        }, (err) => {
+          console.error('[dashboard] healthMetrics subscribe failed for', uid, err);
+        });
+      unsubs.push(unsub);
+    });
+    return () => { unsubs.forEach((u) => { try { u(); } catch (_) {} }); };
+  }, [links.map((l) => l.patientUid).join('|')]);
 
   const doctorName = (auth.profile && auth.profile.displayName)
     || (auth.user && auth.user.displayName)
@@ -57,73 +110,142 @@ const Dashboard = ({ tw }) => {
     || 'Kullanıcı';
   const greeting = `İyi günler, Dr. ${doctorName}.`;
 
+  // Aggregates
+  const activeCount = links.length;
+  const allReadings = Object.values(readings).flatMap((r) => r.last24h || []);
+  const hypoEvents = allReadings.filter((r) => r.bloodGlucose != null && r.bloodGlucose < HYPO_THRESHOLD);
+  const hyperEvents = allReadings.filter((r) => r.bloodGlucose != null && r.bloodGlucose > HYPER_THRESHOLD);
+  const hypoPatients = new Set(hypoEvents.map((r) => r.patientUid || r._uid)).size; // best-effort
+  const lastSyncMs = allReadings.reduce((max, r) => Math.max(max, r.timestamp || 0), 0);
+  const lastSyncLabel = lastSyncMs ? formatRelativeTime(lastSyncMs) : (linksLoading ? 'yükleniyor…' : 'veri yok');
+
+  // Live feed: every linked patient's latest reading, newest first
+  const feed = links
+    .map((l) => ({ link: l, latest: readings[l.patientUid] && readings[l.patientUid].latest }))
+    .filter((x) => x.latest)
+    .sort((a, b) => (b.latest.timestamp || 0) - (a.latest.timestamp || 0));
+
+  const goToPatient = (uid) => {
+    if (onSelect) onSelect(uid);
+  };
+  const goToPatients = () => { if (onNav) onNav('patients'); };
+  const goToPairing = () => { if (onNav) onNav('pairing'); };
+
   return (
-  <div className={`dash-layout-${tw.layout || 'comfortable'}`}>
-    <div className="page-h">
-      <div>
-        <h1>{greeting}</h1>
-        <p className="lede">Bugün izlediğiniz hastaların özet durumu. Aktif eşleşmiş hastalardan canlı veri akıyor.</p>
+    <div className={`dash-layout-${tw.layout || 'comfortable'}`}>
+      <div className="page-h">
+        <div>
+          <h1>{greeting}</h1>
+          <p className="lede">{activeCount > 0
+            ? `${activeCount} aktif eşleşmiş hasta. Son 24 saatte ${allReadings.length} okuma alındı.`
+            : 'Henüz aktif eşleşme yok. QR kod ile bir hasta bağlayın; veri ve uyarılar burada akmaya başlar.'}</p>
+        </div>
+        <div className="row gap-12">
+          <button className="btn-pill ghost" style={{ padding: '10px 16px' }} onClick={goToPatients}>
+            <I name="users" size={14}/> Hasta Listesi
+          </button>
+          <button className="btn-pill btn-accent" style={{ padding: '10px 16px' }} onClick={goToPairing}>
+            <I name="plus" size={14}/> Yeni Hasta Eşleştir
+          </button>
+        </div>
       </div>
-      <div className="row gap-12">
-        <button className="btn-pill ghost" style={{ padding: '10px 16px' }}>
-          <I name="download" size={14}/> Günlük Özet
-        </button>
-        <button className="btn-pill btn-accent" style={{ padding: '10px 16px' }}>
-          <I name="plus" size={14}/> Yeni Hasta Eşleştir
-        </button>
+
+      <div className="stat-row">
+        <StatCard
+          label="AKTİF HASTA"
+          value={linksLoading ? '…' : activeCount}
+          icon="users"
+          tone="accent"
+          hint={activeCount > 0 ? `${activeCount} eşleşme · canlı izlemede` : 'henüz eşleşme yok — QR kodla başlayın'}
+        />
+        <StatCard
+          label="HİPOGLİSEMİ · 24 SA"
+          value={hypoEvents.length}
+          icon="arrowDown"
+          tone={hypoEvents.length > 0 ? 'warn' : null}
+          hint={hypoEvents.length > 0 ? `${hypoPatients} hasta · &lt; ${HYPO_THRESHOLD} mg/dL` : 'eşik altı okuma yok'}
+        />
+        <StatCard
+          label="HİPERGLİSEMİ · 24 SA"
+          value={hyperEvents.length}
+          icon="arrowUp"
+          tone={hyperEvents.length > 0 ? 'danger' : null}
+          hint={hyperEvents.length > 0 ? `&gt; ${HYPER_THRESHOLD} mg/dL eşiği aşıldı` : 'eşik üstü okuma yok'}
+        />
+        <StatCard
+          label="SON SENKRON"
+          value={lastSyncLabel}
+          icon="sync"
+          hint={lastSyncMs ? new Date(lastSyncMs).toLocaleString('tr-TR') : 'henüz okuma alınmadı'}
+        />
       </div>
-    </div>
 
-    <div className="stat-grid">
-      <EmptyStat label="Toplam Hasta" icon="users" accent value={activeCount} hint={activeCount > 0 ? 'aktif eşleşme' : 'henüz hasta yok'}/>
-      <EmptyStat label="Kritik Risk" icon="bell"/>
-      <EmptyStat label="24sa · Hipoglisemi" icon="arrowDown"/>
-      <EmptyStat label="24sa · Hiperglisemi" icon="arrowUp"/>
-    </div>
-
-    <div className="stat-grid cols-3 mb-28">
-      <EmptyStat label="Ort. Tahmin Başarımı" icon="spark"/>
-      <EmptyStat label="Son Senkron" icon="sync"/>
-      <EmptyStat label="Aktif Yüzük" icon="pulse"/>
-    </div>
-
-    <div className="split-2">
-      <div className="card">
+      <div className="card mt-28">
         <div className="card-h">
-          <h3>Glukoz Tahmin Akışı</h3>
-          <div className="meta mono">Tüm hastalar · 24 sa</div>
+          <h3>Hasta Akışı</h3>
+          <div className="meta mono">canlı · /patients/.../healthMetrics</div>
         </div>
-        <div className="chart-shell">
-          <GlucoseChart style={tw.chartStyle || 'line'} height={280}/>
-        </div>
-      </div>
-      <div className="card">
-        <div className="card-h">
-          <h3>Risk Dağılımı</h3>
-          <div className="meta mono">Şimdi</div>
-        </div>
-        <div className="empty" style={{ padding: '32px 16px' }}>
-          <div className="ico"><I name="users"/></div>
-          <h4>Henüz hasta yok</h4>
-          <p>Eşleştirmeden sonra hastaların risk seviyeleri burada özetlenir.</p>
-          <span className="hint mono">collection: /patients</span>
-        </div>
+        {linksLoading && (
+          <div className="empty" style={{ padding: '48px 16px' }}>
+            <div className="ico"><I name="sync"/></div>
+            <h4>Yükleniyor…</h4>
+            <p>Eşleşmeler ve canlı veri okunuyor.</p>
+          </div>
+        )}
+        {!linksLoading && activeCount === 0 && (
+          <div className="empty" style={{ padding: '56px 16px' }}>
+            <div className="ico"><I name="users"/></div>
+            <h4>Aktif eşleşme yok</h4>
+            <p>İzlemek için bir hastayla QR kod üzerinden bağlanın. Onay verince burada satır olarak görünür.</p>
+            <div style={{ marginTop: 18 }}>
+              <button className="btn-pill btn-accent" style={{ padding: '10px 18px' }} onClick={goToPairing}>
+                <I name="plus" size={14}/> İlk Hastayı Eşleştir
+              </button>
+            </div>
+          </div>
+        )}
+        {!linksLoading && activeCount > 0 && feed.length === 0 && (
+          <div className="empty" style={{ padding: '48px 16px' }}>
+            <div className="ico"><I name="pulse"/></div>
+            <h4>Veri akışı bekleniyor</h4>
+            <p>{activeCount} hasta eşleşmiş ama henüz okuma alınmamış. Yüzükten ilk veri geldiğinde burada akmaya başlar.</p>
+          </div>
+        )}
+        {!linksLoading && feed.length > 0 && (
+          <div className="patient-feed">
+            {feed.map(({ link, latest }) => {
+              const g = latest.bloodGlucose;
+              const status = g == null ? 'gray' : g < HYPO_THRESHOLD ? 'warn' : g > HYPER_THRESHOLD ? 'crit' : 'ok';
+              const statusLabel = g == null ? '—' : g < HYPO_THRESHOLD ? 'Hipo' : g > HYPER_THRESHOLD ? 'Hiper' : 'Normal';
+              return (
+                <button
+                  key={link.id}
+                  type="button"
+                  className={`feed-row feed-${status}`}
+                  onClick={() => goToPatient(link.patientUid)}
+                >
+                  <div className="feed-avatar">{(link.patientUid || '').slice(-2).toUpperCase() || '—'}</div>
+                  <div className="feed-id">
+                    <div className="feed-name">{link.patientName || formatPatientId(link.patientUid)}</div>
+                    <div className="feed-sub mono">{formatRelativeTime(latest.timestamp)} · {latest.dataSource || 'RING'}</div>
+                  </div>
+                  <div className="feed-metric">
+                    <div className="feed-metric-num mono">{g != null ? g : '—'}<span className="feed-metric-unit"> mg/dL</span></div>
+                    <div className={`feed-pill feed-pill--${status}`}>{statusLabel}</div>
+                  </div>
+                  <div className="feed-vitals mono">
+                    <span>HR {latest.heartRate != null ? Math.round(latest.heartRate) : '—'}</span>
+                    <span>SpO₂ {latest.oxygenSaturation != null ? Math.round(latest.oxygenSaturation) : '—'}%</span>
+                    <span>{latest.bodyTemperature != null ? Number(latest.bodyTemperature).toFixed(1) : '—'}°C</span>
+                  </div>
+                  <I name="chevR" size={16}/>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
-
-    <div className="card">
-      <div className="card-h">
-        <h3>Son Klinik Olaylar</h3>
-        <div className="meta mono">stream · /events</div>
-      </div>
-      <div className="empty">
-        <div className="ico"><I name="bell"/></div>
-        <h4>Henüz olay kaydı yok</h4>
-        <p>Hipoglisemi/hiperglisemi uyarıları ve önemli sistem olayları burada listelenecek.</p>
-        <span className="hint mono">awaiting Firebase events</span>
-      </div>
-    </div>
-  </div>
   );
 };
 

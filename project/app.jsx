@@ -55,7 +55,11 @@ const App = () => {
 
   const renderPage = () => {
     switch (page) {
-      case 'dashboard': return <Dashboard tw={{ chartStyle: v.chartStyle, layout: v.dashLayout }}/>;
+      case 'dashboard': return <Dashboard
+        tw={{ chartStyle: v.chartStyle, layout: v.dashLayout }}
+        onSelect={(uid) => { setSelectedPatientUid(uid); setPage('detail'); }}
+        onNav={(p) => { if (p === 'pairing') { setPage('pairing'); } else { setPage(p); } }}
+      />;
       case 'patients': return <Patients
         onOpen={(target) => target === 'pairing' ? setRoute('qr') : setPage('detail')}
         onSelect={(uid) => { setSelectedPatientUid(uid); setPage('detail'); }}
