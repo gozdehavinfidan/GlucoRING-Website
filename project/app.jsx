@@ -11,6 +11,7 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 const App = () => {
   const [route, setRoute] = React.useState('landing'); // landing, login, qr, app
   const [page, setPage] = React.useState('dashboard');
+  const [selectedPatientUid, setSelectedPatientUid] = React.useState(null);
   const [v, setTweak] = (typeof useTweaks === 'function') ? useTweaks(TWEAK_DEFAULTS) : [TWEAK_DEFAULTS, () => {}];
   const tw = { values: v, set: setTweak };
 
@@ -55,8 +56,15 @@ const App = () => {
   const renderPage = () => {
     switch (page) {
       case 'dashboard': return <Dashboard tw={{ chartStyle: v.chartStyle, layout: v.dashLayout }}/>;
-      case 'patients': return <Patients onOpen={(target) => target === 'pairing' ? setRoute('qr') : setPage('detail')}/>;
-      case 'detail': return <PatientDetail tw={{ chartStyle: v.chartStyle, seasonModel: v.seasonModel }} onBack={() => setPage('patients')}/>;
+      case 'patients': return <Patients
+        onOpen={(target) => target === 'pairing' ? setRoute('qr') : setPage('detail')}
+        onSelect={(uid) => { setSelectedPatientUid(uid); setPage('detail'); }}
+      />;
+      case 'detail': return <PatientDetail
+        patientUid={selectedPatientUid}
+        tw={{ chartStyle: v.chartStyle, seasonModel: v.seasonModel }}
+        onBack={() => setPage('patients')}
+      />;
       case 'pairing': return <div style={{ marginTop: -28, marginLeft: -36, marginRight: -36 }}><QrPairing onDone={() => setPage('patients')}/></div>;
       case 'alerts': return <Alerts/>;
       case 'reports': return <Reports/>;

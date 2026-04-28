@@ -1,22 +1,68 @@
 // Pages: Dashboard, Patients, PatientDetail, Alerts, Reports, Notes, Settings
 
-const EmptyStat = ({ label, icon, accent, hint = 'Firebase bağlandığında' }) => (
+// Patient identifier: last 6 chars of UID, uppercase (e.g. "PT-FZQUD3")
+const formatPatientId = (uid) => {
+  if (!uid) return 'PT-XXXX';
+  return 'PT-' + uid.slice(-6).toUpperCase();
+};
+
+const formatRelativeTime = (ms) => {
+  if (!ms) return '—';
+  const diff = Date.now() - Number(ms);
+  if (diff < 0) return 'şimdi';
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return 'şimdi';
+  if (min < 60) return `${min} dk önce`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `${h} sa önce`;
+  const d = Math.floor(h / 24);
+  if (d < 7) return `${d} gün önce`;
+  if (d < 30) return `${Math.floor(d / 7)} hafta önce`;
+  return `${Math.floor(d / 30)} ay önce`;
+};
+
+const EmptyStat = ({ label, icon, accent, hint = 'Firebase bağlandığında', value }) => (
   <div className={`stat ${accent ? 'accent' : ''}`}>
     <div className="head">
       <span className="lbl">{label}</span>
       <span className="ico"><I name={icon}/></span>
     </div>
-    <div className="num mono" style={{ color: 'var(--text-mute)' }}>—</div>
+    <div className="num mono" style={{ color: value != null ? 'var(--text)' : 'var(--text-mute)' }}>
+      {value != null ? value : '—'}
+    </div>
     <div className="delta">{hint}</div>
   </div>
 );
 
-const Dashboard = ({ tw }) => (
+const Dashboard = ({ tw }) => {
+  const auth = (typeof useFirebaseAuth === 'function')
+    ? useFirebaseAuth()
+    : { user: null, profile: null, ready: true };
+  const [activeCount, setActiveCount] = React.useState(null);
+
+  React.useEffect(() => {
+    if (!auth.user || !window.fbDb) return;
+    const unsub = window.fbDb.collection('linkedDevices')
+      .where('doctorUid', '==', auth.user.uid)
+      .where('status', '==', 'active')
+      .onSnapshot(snap => setActiveCount(snap.size), err => {
+        console.error('[dashboard] linkedDevices count failed:', err);
+      });
+    return unsub;
+  }, [auth.user && auth.user.uid]);
+
+  const doctorName = (auth.profile && auth.profile.displayName)
+    || (auth.user && auth.user.displayName)
+    || (auth.user && auth.user.email && auth.user.email.split('@')[0])
+    || 'Kullanıcı';
+  const greeting = `İyi günler, Dr. ${doctorName}.`;
+
+  return (
   <div className={`dash-layout-${tw.layout || 'comfortable'}`}>
     <div className="page-h">
       <div>
-        <h1>İyi günler, Dr. Kullanıcı.</h1>
-        <p className="lede">Bugün izlediğiniz hastaların özet durumu. Veriler Firebase'e bağlanınca canlı akacak.</p>
+        <h1>{greeting}</h1>
+        <p className="lede">Bugün izlediğiniz hastaların özet durumu. Aktif eşleşmiş hastalardan canlı veri akıyor.</p>
       </div>
       <div className="row gap-12">
         <button className="btn-pill ghost" style={{ padding: '10px 16px' }}>
@@ -29,7 +75,7 @@ const Dashboard = ({ tw }) => (
     </div>
 
     <div className="stat-grid">
-      <EmptyStat label="Toplam Hasta" icon="users" accent/>
+      <EmptyStat label="Toplam Hasta" icon="users" accent value={activeCount} hint={activeCount > 0 ? 'aktif eşleşme' : 'henüz hasta yok'}/>
       <EmptyStat label="Kritik Risk" icon="bell"/>
       <EmptyStat label="24sa · Hipoglisemi" icon="arrowDown"/>
       <EmptyStat label="24sa · Hiperglisemi" icon="arrowUp"/>
@@ -78,10 +124,42 @@ const Dashboard = ({ tw }) => (
       </div>
     </div>
   </div>
-);
+  );
+};
 
-const Patients = ({ onOpen }) => {
+const Patients = ({ onOpen, onSelect }) => {
+  const auth = (typeof useFirebaseAuth === 'function')
+    ? useFirebaseAuth()
+    : { user: null, profile: null, ready: true };
   const [filter, setFilter] = React.useState('all');
+  const [links, setLinks] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState('');
+
+  React.useEffect(() => {
+    if (!auth.user || !window.fbDb) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError('');
+    const unsub = window.fbDb.collection('linkedDevices')
+      .where('doctorUid', '==', auth.user.uid)
+      .where('status', '==', 'active')
+      .onSnapshot((snap) => {
+        const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        docs.sort((a, b) => (b.linkedAt || 0) - (a.linkedAt || 0));
+        setLinks(docs);
+        setLoading(false);
+      }, (err) => {
+        console.error('[patients] linkedDevices query failed:', err);
+        setError('Hasta listesi yüklenemedi.');
+        setLoading(false);
+      });
+    return unsub;
+  }, [auth.user && auth.user.uid]);
+
+  const hasPatients = links.length > 0;
   return (
     <>
       <div className="page-h">
@@ -127,39 +205,62 @@ const Patients = ({ onOpen }) => {
             </tr>
           </thead>
           <tbody>
-            <tr onClick={() => onOpen('detail')}>
-              <td colSpan="7" style={{ padding: 0 }}>
+            {loading && (
+              <tr><td colSpan="7" style={{ padding: 0 }}>
+                <div className="empty" style={{ border: 'none', padding: '48px 24px' }}>
+                  <div className="ico"><I name="users"/></div>
+                  <h4>Yükleniyor…</h4>
+                  <span className="hint mono">querying linkedDevices</span>
+                </div>
+              </td></tr>
+            )}
+            {!loading && error && (
+              <tr><td colSpan="7" style={{ padding: 0 }}>
+                <div className="empty" style={{ border: 'none', padding: '48px 24px' }}>
+                  <div className="ico"><I name="bell"/></div>
+                  <h4>{error}</h4>
+                  <span className="hint mono">tekrar denemek için sayfayı yenileyin</span>
+                </div>
+              </td></tr>
+            )}
+            {!loading && !error && !hasPatients && (
+              <tr><td colSpan="7" style={{ padding: 0 }}>
                 <div className="empty" style={{ border: 'none', padding: '64px 24px' }}>
                   <div className="ico"><I name="users"/></div>
                   <h4>Hasta listesi boş</h4>
                   <p>Bir hastayı eşleştirmek için QR kod oluşturun. Hasta uygulamadan onayladıktan sonra burada görünecek.</p>
-                  <span className="hint mono">/patients · Firebase Firestore</span>
+                  <span className="hint mono">/linkedDevices · status: active</span>
                   <div style={{ marginTop: 18 }}>
                     <button className="btn-pill btn-accent" style={{ padding: '10px 18px' }} onClick={(e) => { e.stopPropagation(); onOpen('pairing'); }}>
                       İlk Hastayı Eşleştir
                     </button>
                   </div>
                 </div>
-              </td>
-            </tr>
-            {/* Demo skeleton row showing the schema */}
-            <tr style={{ opacity: 0.35, cursor: 'default' }} onClick={(e) => e.stopPropagation()}>
-              <td style={{ paddingLeft: 22 }}>
-                <div className="row gap-12">
-                  <div className="patient-avatar" style={{ width: 32, height: 32, fontSize: 14 }}>—</div>
-                  <div>
-                    <div className="name">Ad Soyad</div>
-                    <div className="mono" style={{ fontSize: 12, color: 'var(--text-mute)', letterSpacing: '0.04em' }}>PT-XXXX</div>
+              </td></tr>
+            )}
+            {!loading && !error && hasPatients && links.map((link) => (
+              <tr key={link.id} style={{ cursor: 'pointer' }} onClick={() => onSelect && onSelect(link.patientUid)}>
+                <td style={{ paddingLeft: 22 }}>
+                  <div className="row gap-12">
+                    <div className="patient-avatar" style={{ width: 32, height: 32, fontSize: 14 }}>
+                      {(link.patientUid || '').slice(-2).toUpperCase() || '—'}
+                    </div>
+                    <div>
+                      <div className="name">{link.patientName || 'Hasta'}</div>
+                      <div className="mono" style={{ fontSize: 12, color: 'var(--text-mute)', letterSpacing: '0.04em' }}>
+                        {formatPatientId(link.patientUid)}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </td>
-              <td>—</td>
-              <td>Tip ?</td>
-              <td className="mono">— Model</td>
-              <td className="mono">—</td>
-              <td><span className="pill gray"><span className="pdot"/> beklemede</span></td>
-              <td><I name="chevR" size={14}/></td>
-            </tr>
+                </td>
+                <td>{link.patientAge || '—'}</td>
+                <td>{link.diabetesType || '—'}</td>
+                <td className="mono">{link.seasonModel || 'Kişiselleştirilmiş'}</td>
+                <td className="mono">{formatRelativeTime(link.linkedAt)}</td>
+                <td><span className="pill gray"><span className="pdot"/> aktif</span></td>
+                <td><I name="chevR" size={14}/></td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -167,8 +268,34 @@ const Patients = ({ onOpen }) => {
   );
 };
 
-const PatientDetail = ({ onBack, tw }) => {
+const PatientDetail = ({ patientUid, onBack, tw }) => {
   const [horizon, setHorizon] = React.useState('15');
+  const [reading, setReading] = React.useState(null);
+  const [history, setHistory] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    if (!patientUid || !window.fbDb) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    const unsub = window.fbDb
+      .collection('patients').doc(patientUid)
+      .collection('healthMetrics')
+      .orderBy('timestamp', 'desc')
+      .limit(60)
+      .onSnapshot((snap) => {
+        const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        setHistory(docs);
+        setReading(docs[0] || null);
+        setLoading(false);
+      }, (err) => {
+        console.error('[detail] healthMetrics query failed:', err);
+        setLoading(false);
+      });
+    return unsub;
+  }, [patientUid]);
 
   const seasonInfo = {
     summer: { name: 'Yaz Modeli (Summer)', filter: 'KF + Q-Learning', icon: 'sun' },
@@ -176,28 +303,32 @@ const PatientDetail = ({ onBack, tw }) => {
     personal: { name: 'Kişiselleştirilmiş Sezonsal', filter: 'UKF + Q-Learning', icon: 'spark' },
   }[tw.seasonModel || 'personal'];
 
+  const fmt = (v, digits = 0) => v == null ? '—' : Number(v).toFixed(digits);
+  const lastSync = reading ? formatRelativeTime(reading.timestamp) : '—';
+  const patientLabel = patientUid ? formatPatientId(patientUid) : 'PT-XXXX';
+
   return (
     <>
       <div className="row gap-12 mb-20">
         <button className="btn-pill ghost" style={{ padding: '8px 14px', fontSize: 14 }} onClick={onBack}>
           ← Hasta Listesi
         </button>
-        <div className="crumbs mono"><span>Hastalar</span> <span className="sep">/</span> <span className="now">— Boş Profil</span></div>
+        <div className="crumbs mono"><span>Hastalar</span> <span className="sep">/</span> <span className="now">{patientLabel}</span></div>
       </div>
 
       <div className="patient-head">
-        <div className="patient-avatar">—</div>
+        <div className="patient-avatar">{patientUid ? patientUid.slice(-2).toUpperCase() : '—'}</div>
         <div className="patient-meta">
-          <h2>Hasta Profili Boş</h2>
+          <h2>{patientLabel}</h2>
           <div className="row">
-            <span className="mono" style={{ fontSize: 12, color: 'var(--text-mute)', letterSpacing: '0.04em' }}>PT-XXXX</span>
-            <span className="pill gray"><span className="pdot"/> Veri akışı bekleniyor</span>
+            <span className="mono" style={{ fontSize: 12, color: 'var(--text-mute)', letterSpacing: '0.04em' }}>{patientUid || 'PT-XXXX'}</span>
+            <span className="pill gray"><span className="pdot"/> {reading ? 'aktif veri akışı' : (loading ? 'yükleniyor…' : 'veri yok')}</span>
           </div>
           <div className="row mt-12">
-            <span className="item"><span className="lbl">Yaş:</span> —</span>
-            <span className="item"><span className="lbl">Diyabet:</span> —</span>
-            <span className="item"><span className="lbl">Son Senkron:</span> —</span>
-            <span className="item"><span className="lbl">Yüzük ID:</span> —</span>
+            <span className="item"><span className="lbl">Kaynak:</span> {reading?.dataSource || '—'}</span>
+            <span className="item"><span className="lbl">Son Senkron:</span> {lastSync}</span>
+            <span className="item"><span className="lbl">Aykırı:</span> {reading?.isOutlier ? 'evet' : reading ? 'hayır' : '—'}</span>
+            <span className="item"><span className="lbl">Adım:</span> {fmt(reading?.stepCount)}</span>
           </div>
         </div>
         <div className="patient-actions">
@@ -212,15 +343,15 @@ const PatientDetail = ({ onBack, tw }) => {
       <div className="glucose-hero">
         <div className="glucose-now">
           <div className="lbl">GÜNCEL GLUKOZ</div>
-          <div className="val mono">— <span className="unit">mg/dL</span></div>
-          <div className="trend mono"><I name="arrow" size={14}/> trend bekleniyor</div>
+          <div className="val mono">{fmt(reading?.bloodGlucose)} <span className="unit">mg/dL</span></div>
+          <div className="trend mono"><I name="arrow" size={14}/> {reading ? lastSync : 'veri bekleniyor'}</div>
         </div>
         <div className="predict-grid">
           {['5', '15', '30'].map(h => (
             <div key={h} className="predict-tile">
               <div className="horizon">+{h} DK TAHMİN</div>
               <div className="v mono">—</div>
-              <div className="delta mono">±— mg/dL</div>
+              <div className="delta mono">model bekleniyor</div>
             </div>
           ))}
         </div>
@@ -228,7 +359,7 @@ const PatientDetail = ({ onBack, tw }) => {
           <div className="lbl"><I name={seasonInfo.icon} size={12}/> AKTIF SEZON</div>
           <div className="model">{seasonInfo.name}</div>
           <div className="filter mono">{seasonInfo.filter}</div>
-          <div className="updated mono">Güncellendi · —</div>
+          <div className="updated mono">Güncellendi · {lastSync}</div>
         </div>
       </div>
 
@@ -266,22 +397,22 @@ const PatientDetail = ({ onBack, tw }) => {
         <div className="vitals-grid">
           <div className="vital">
             <div className="h"><span className="ico"><I name="heart" size={14}/></span> Kalp Atışı</div>
-            <div className="v mono">— <span className="u">bpm</span></div>
+            <div className="v mono">{fmt(reading?.heartRate)} <span className="u">bpm</span></div>
             <div className="spark"><Sparkline/></div>
           </div>
           <div className="vital">
             <div className="h"><span className="ico"><I name="temp" size={14}/></span> Vücut Sıc.</div>
-            <div className="v mono">—.— <span className="u">°C</span></div>
+            <div className="v mono">{fmt(reading?.bodyTemperature, 1)} <span className="u">°C</span></div>
             <div className="spark"><Sparkline color="#f5b73d"/></div>
           </div>
           <div className="vital">
             <div className="h"><span className="ico"><I name="spo2" size={14}/></span> SpO₂</div>
-            <div className="v mono">— <span className="u">%</span></div>
+            <div className="v mono">{fmt(reading?.oxygenSaturation)} <span className="u">%</span></div>
             <div className="spark"><Sparkline color="#34c38f"/></div>
           </div>
           <div className="vital">
-            <div className="h"><span className="ico"><I name="activity" size={14}/></span> Aktivite</div>
-            <div className="v mono">— <span className="u">MET</span></div>
+            <div className="h"><span className="ico"><I name="activity" size={14}/></span> HRV (SDNN)</div>
+            <div className="v mono">{fmt(reading?.hrvSdnn)} <span className="u">ms</span></div>
             <div className="spark"><Sparkline color="#9aa0aa"/></div>
           </div>
         </div>
