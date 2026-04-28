@@ -21,8 +21,58 @@ const formatRelativeTime = (ms) => {
   return `${Math.floor(d / 30)} ay önce`;
 };
 
+// Decorative inline SVG graphics for the dashboard bento cards.
+const DashGfxPatients = () => (
+  <svg className="db-gfx" viewBox="0 0 160 60" preserveAspectRatio="none" aria-hidden="true">
+    <circle cx="28" cy="32" r="14" fill="currentColor" opacity="0.32"/>
+    <circle cx="58" cy="28" r="18" fill="currentColor" opacity="0.55"/>
+    <circle cx="92" cy="32" r="14" fill="currentColor" opacity="0.32"/>
+    <circle cx="122" cy="36" r="10" fill="currentColor" opacity="0.18"/>
+    <circle cx="146" cy="40" r="6" fill="currentColor" opacity="0.10"/>
+  </svg>
+);
+
+const DashGfxHypo = () => (
+  <svg className="db-gfx" viewBox="0 0 160 60" preserveAspectRatio="none" aria-hidden="true">
+    <line x1="0" y1="22" x2="160" y2="22" stroke="currentColor" strokeWidth="1" strokeDasharray="3 4" opacity="0.4"/>
+    <text x="156" y="18" fontSize="9" fill="currentColor" opacity="0.6" textAnchor="end" fontFamily="JetBrains Mono">70</text>
+    <polyline points="0,18 22,22 44,28 66,30 88,38 110,46 132,52 160,56" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="160" cy="56" r="3.5" fill="currentColor"/>
+  </svg>
+);
+
+const DashGfxHyper = () => (
+  <svg className="db-gfx" viewBox="0 0 160 60" preserveAspectRatio="none" aria-hidden="true">
+    <line x1="0" y1="38" x2="160" y2="38" stroke="currentColor" strokeWidth="1" strokeDasharray="3 4" opacity="0.4"/>
+    <text x="156" y="50" fontSize="9" fill="currentColor" opacity="0.6" textAnchor="end" fontFamily="JetBrains Mono">180</text>
+    <polyline points="0,42 22,38 44,32 66,30 88,22 110,14 132,8 160,4" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="160" cy="4" r="3.5" fill="currentColor"/>
+  </svg>
+);
+
+const DashGfxSync = () => (
+  <svg className="db-gfx" viewBox="0 0 160 60" preserveAspectRatio="none" aria-hidden="true">
+    <polyline
+      points="0,30 18,30 26,16 36,44 46,22 58,38 70,30 160,30"
+      fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"
+    />
+    <circle cx="70" cy="30" r="4" fill="currentColor">
+      <animate attributeName="r" values="4;7;4" dur="1.4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0.4;1" dur="1.4s" repeatCount="indefinite"/>
+    </circle>
+  </svg>
+);
+
+const DashGfx = ({ kind }) => {
+  if (kind === 'patients') return <DashGfxPatients/>;
+  if (kind === 'hypo')     return <DashGfxHypo/>;
+  if (kind === 'hyper')    return <DashGfxHyper/>;
+  if (kind === 'sync')     return <DashGfxSync/>;
+  return null;
+};
+
 // Dashboard bento card following the landing /params hero/card pattern.
-const DashCard = ({ index, name, value, unit, hint, tone }) => {
+const DashCard = ({ index, name, value, unit, hint, tone, gfx }) => {
   const isText = typeof value === 'string' && !/^[\d\.\-,]+$/.test(value);
   return (
     <div className={`pb-card db-card ${tone ? 'db-card--' + tone : ''}`}>
@@ -30,6 +80,7 @@ const DashCard = ({ index, name, value, unit, hint, tone }) => {
         <span className="pb-num mono">{index}</span>
         <span className="pb-name">{name}</span>
       </div>
+      {gfx && <div className="db-gfx-wrap"><DashGfx kind={gfx}/></div>}
       <div className={`pb-big db-big ${isText ? 'is-text' : ''}`}>
         <span className="num mono">{value != null && value !== '' ? value : '—'}</span>
         {unit && value != null && !isText ? <span className="u">{unit}</span> : null}
@@ -211,6 +262,7 @@ const Dashboard = ({ tw, onSelect, onNav }) => {
           value={linksLoading ? '…' : activeCount}
           unit="hasta"
           tone="accent"
+          gfx="patients"
           hint={activeCount > 0 ? 'canlı izlemede' : 'eşleşme yok'}
         />
         <DashCard
@@ -219,6 +271,7 @@ const Dashboard = ({ tw, onSelect, onNav }) => {
           value={hypoEvents.length}
           unit="olay"
           tone={hypoEvents.length > 0 ? 'warn' : 'ok'}
+          gfx="hypo"
           hint={`24 sa · &lt; ${HYPO_THRESHOLD} mg/dL`}
         />
         <DashCard
@@ -227,14 +280,16 @@ const Dashboard = ({ tw, onSelect, onNav }) => {
           value={hyperEvents.length}
           unit="olay"
           tone={hyperEvents.length > 0 ? 'crit' : 'ok'}
+          gfx="hyper"
           hint={`24 sa · &gt; ${HYPER_THRESHOLD} mg/dL`}
         />
         <DashCard
           index="04"
           name="Son Senkron"
           value={lastSyncLabel}
-          tone={lastSyncMs ? 'info' : 'gray'}
-          hint={lastSyncMs ? new Date(lastSyncMs).toLocaleString('tr-TR') : '—'}
+          tone="info"
+          gfx="sync"
+          hint={lastSyncMs ? new Date(lastSyncMs).toLocaleString('tr-TR') : 'akış başlamadı'}
         />
       </div>
 
