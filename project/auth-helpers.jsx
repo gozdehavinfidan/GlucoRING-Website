@@ -7,12 +7,23 @@
 // pattern from src/features/dashboard/qr-link.js:97-104.
 
 (function () {
+  const firebaseUnavailable = () => (
+    !window.fbAuth || !window.fbDb || window.__firebaseUnavailable
+  );
+
+  const missingFirebaseError = () => {
+    const err = new Error('Firebase config missing');
+    err.code = 'app/firebase-config-missing';
+    return err;
+  };
+
   // --- Imperative helpers ----------------------------------------------------
 
   // Sign in. `remember=true` → LOCAL persistence (survives tab close);
   // `remember=false` → SESSION persistence (cleared on tab close).
   // Persistence MUST be set before signInWithEmailAndPassword.
   window.signIn = async function (email, password, remember) {
+    if (firebaseUnavailable()) throw missingFirebaseError();
     const persistence = remember
       ? firebase.auth.Auth.Persistence.LOCAL
       : firebase.auth.Auth.Persistence.SESSION;
@@ -23,6 +34,7 @@
   // Register a new doctor. Creates the Auth user, sets displayName, then
   // upserts /doctors/{uid} with the same shape DiaSAGE uses.
   window.signUp = async function (email, password, displayName) {
+    if (firebaseUnavailable()) throw missingFirebaseError();
     const cred = await window.fbAuth.createUserWithEmailAndPassword(email, password);
     if (displayName) {
       await cred.user.updateProfile({ displayName });
@@ -36,10 +48,12 @@
   };
 
   window.signOutUser = function () {
+    if (firebaseUnavailable()) return Promise.resolve();
     return window.fbAuth.signOut();
   };
 
   window.resetPassword = function (email) {
+    if (firebaseUnavailable()) throw missingFirebaseError();
     return window.fbAuth.sendPasswordResetEmail(email);
   };
 
@@ -63,6 +77,8 @@
         return 'Ağ hatası. Bağlantınızı kontrol edin.';
       case 'auth/missing-email':
         return 'E-posta gerekli.';
+      case 'app/firebase-config-missing':
+        return 'Firebase yapılandırması bu ortamda tanımlı değil.';
       default:
         return 'Bir hata oluştu. Tekrar deneyin.';
     }
@@ -81,6 +97,9 @@
   //     ? useFirebaseAuth()
   //     : { user: null, profile: null, ready: true };
   window.useFirebaseAuth = function useFirebaseAuth() {
+    if (firebaseUnavailable()) {
+      return { user: null, profile: null, ready: true };
+    }
     const [user, setUser] = React.useState(() => window.fbAuth.currentUser);
     const [profile, setProfile] = React.useState(null);
     const [ready, setReady] = React.useState(false);

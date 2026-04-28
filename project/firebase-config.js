@@ -10,7 +10,12 @@
 
   var firebaseConfig = window.GLUCORING_FIREBASE_CONFIG;
   if (!firebaseConfig || !firebaseConfig.apiKey) {
-    throw new Error('firebase-config.js: Missing Firebase config. Create project/firebase-config.local.js from firebase-config.local.example.js and keep it out of git.');
+    console.warn('firebase-config.js: Missing Firebase config. Create project/firebase-config.local.js from firebase-config.local.example.js and keep it out of git.');
+    window.fbAuth = null;
+    window.fbDb = null;
+    window.firebaseFieldValue = null;
+    window.__firebaseUnavailable = true;
+    return;
   }
 
   if (!firebase.apps.length) {
