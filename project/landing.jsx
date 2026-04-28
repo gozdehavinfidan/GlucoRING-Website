@@ -802,8 +802,8 @@ const Landing = ({ onEnter }) => {
             <p>Hayır. Yüzükten gelen veri önce telefonunuzdaki uygulamada <strong>yerel olarak işlenir</strong>; tahminler ve uyarılar internet olmadan da çalışmaya devam eder. İnternet geri geldiğinde uygulama, biriken kayıtları sizin onayınız doğrultusunda doktor paneline senkronize eder. Yani uçakta, kırsalda, asansörde — fark etmez.</p>
           </details>
           <details className="faq-item">
-            <summary>Yüzük 24 saat parmağımda kalıyor, hijyen ve konfor nasıl?</summary>
-            <p>Hipoalerjenik medikal sınıf gövde, su geçirmez (IP68) yapı — duşa, denize, bulaşığa girebilirsiniz. Sensör yüzeyleri parmak terini doğal olarak buharlaştıracak biçimde tasarlandı, gece de takabilirsiniz; uyku kalitenizi ölçen başlıca veri zaten gece toplanır.</p>
+            <summary>Doktorum panelde tam olarak neyi görüyor?</summary>
+            <p>Onayladığınız andan itibaren doktorunuz, GlucoRING klinik panelinde hasta listesinde sizi görür ve <strong>glukoz seyrinizi, 9 fizyolojik parametrenizin trendlerini ve risk olaylarını</strong> tek bir okunabilir arayüzde takip eder. 5/15/30 dakikalık tahminler ve hipo/hiper uyarıları otomatik bildirim olarak panele düşer; doktor haftalık ve aylık özet raporları muayene öncesinde tek bakışta inceleyebilir.</p>
           </details>
           <details className="faq-item">
             <summary>Hangi telefonlarda çalışıyor?</summary>

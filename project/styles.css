@@ -1394,12 +1394,13 @@ a { color: inherit; text-decoration: none; }
   margin-bottom: 14px;
 }
 .pb-num {
-  font-size: 13px;
+  font-size: 16px;
+  font-weight: 500;
   color: var(--text-mute);
   letter-spacing: 0.18em;
 }
 .pb-name {
-  font-size: 16px;
+  font-size: 19px;
   font-weight: 500;
   color: var(--text);
   letter-spacing: -0.01em;
@@ -1407,18 +1408,18 @@ a { color: inherit; text-decoration: none; }
 .pb-big {
   display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 8px;
 }
 .pb-big .num {
-  font-size: 42px;
+  font-size: 46px;
   font-weight: 500;
   letter-spacing: -0.03em;
   color: var(--text);
   line-height: 1;
 }
 .pb-big .u {
-  font-size: 15px;
-  color: var(--text-mute);
+  font-size: 18px;
+  color: var(--text-dim);
 }
 
 /* HERO — Glukoz Tahmini */
@@ -1440,14 +1441,15 @@ a { color: inherit; text-decoration: none; }
 }
 .pb-hero p {
   margin-top: 12px;
-  font-size: 16px;
+  font-size: 19px;
   line-height: 1.55;
-  color: rgba(255,255,255,0.72);
-  max-width: 360px;
+  color: rgba(255,255,255,0.78);
+  max-width: 380px;
 }
 .pb-eyebrow {
-  font-size: 13px;
-  letter-spacing: 0.22em;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
   color: var(--accent);
   text-transform: uppercase;
 }
@@ -1458,13 +1460,14 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
   gap: 8px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 500;
   letter-spacing: 0.18em;
-  color: rgba(255,255,255,0.85);
-  padding: 7px 14px;
+  color: rgba(255,255,255,0.92);
+  padding: 8px 16px;
   border-radius: 100px;
-  background: rgba(230,57,70,0.15);
-  border: 1px solid rgba(230,57,70,0.35);
+  background: rgba(230,57,70,0.18);
+  border: 1px solid rgba(230,57,70,0.4);
   z-index: 2;
 }
 .pb-dot {
@@ -1528,10 +1531,10 @@ a { color: inherit; text-decoration: none; }
 .pb-hero-axis {
   display: flex;
   justify-content: space-between;
-  margin-top: 8px;
-  font-size: 12px;
-  color: rgba(255,255,255,0.5);
-  letter-spacing: 0.1em;
+  margin-top: 10px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 0.08em;
 }
 
 /* PULSE / EKG card */
@@ -1576,13 +1579,13 @@ a { color: inherit; text-decoration: none; }
   gap: 2px;
 }
 .pb-radial-center .num {
-  font-size: 26px;
+  font-size: 30px;
   font-weight: 500;
   letter-spacing: -0.03em;
 }
 .pb-radial-center .u {
-  font-size: 11px;
-  color: var(--text-mute);
+  font-size: 14px;
+  color: var(--text-dim);
 }
 
 /* Temperature */
@@ -1634,12 +1637,13 @@ a { color: inherit; text-decoration: none; }
   gap: 12px;
 }
 .pb-bp-row .lbl {
-  font-size: 11px;
+  font-size: 14px;
+  font-weight: 500;
   letter-spacing: 0.15em;
-  color: var(--text-mute);
+  color: var(--text-dim);
 }
 .pb-bp-row .num {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 500;
   letter-spacing: -0.03em;
 }
@@ -1698,10 +1702,10 @@ a { color: inherit; text-decoration: none; }
 .pb-cal-tick {
   position: absolute;
   right: 0;
-  top: 14px;
-  font-size: 10px;
-  color: var(--text-mute);
-  letter-spacing: 0.1em;
+  top: 16px;
+  font-size: 13px;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
 }
 
 /* HRV sparkline */
@@ -1735,14 +1739,21 @@ a { color: inherit; text-decoration: none; }
 .app-copy .section-eye,
 .app-copy .section-h,
 .app-copy .section-sub { margin-bottom: 20px; }
+.app-copy > p {
+  font-size: 19px;
+  line-height: 1.6;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  max-width: 56ch;
+}
 .app-feature-list {
   margin-top: 36px;
   display: grid;
-  gap: 20px;
+  gap: 24px;
 }
 .app-feat {
   display: grid;
-  grid-template-columns: 36px 1fr;
+  grid-template-columns: 44px 1fr;
   gap: 16px;
   align-items: flex-start;
 }
