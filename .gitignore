@@ -26,3 +26,10 @@ build/
 
 # Local agent state
 .claude/
+
+# Playwright test artefacts (snapshots, console logs, traces)
+.playwright-mcp/
+
+# Local screenshots / scratch images at repo root
+/login-*.png
+/screenshot-*.png
