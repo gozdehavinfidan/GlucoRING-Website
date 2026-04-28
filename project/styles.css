@@ -167,22 +167,31 @@ a { color: inherit; text-decoration: none; }
   color: var(--text-dim);
 }
 .landing-nav-links a:hover { color: var(--text); }
+/* Material 3 button — 8dp grid, min 40dp touch target, type scale label-large */
 .btn-pill {
-  padding: 9px 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 10px 24px;
   border-radius: 999px;
   background: var(--text);
   color: var(--solid-bg);
-  font-size: 13px;
-  font-weight: 600;
-  transition: transform 0.15s, background 0.15s;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 20px;
+  transition: transform 0.15s, background 0.15s, border-color 0.15s, color 0.15s;
 }
 .btn-pill:hover { transform: translateY(-1px); }
 .btn-pill.ghost {
   background: transparent;
-  color: var(--text-dim);
-  border: 1px solid var(--line-2);
+  color: var(--text);
+  border: 1px solid var(--text-dim);
 }
-.btn-pill.ghost:hover { color: var(--text); border-color: var(--text-dim); }
+.btn-pill.ghost:hover { color: var(--accent); border-color: var(--accent); }
+.btn-pill:disabled { opacity: 0.4; cursor: not-allowed; }
 .btn-accent {
   background: var(--accent);
   color: var(--on-accent);
@@ -1707,39 +1716,47 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 56px;
+  margin-bottom: 48px;
 }
+/* M3 type scale — Headline Small (32/40) for the login title */
 .login-card h1 {
   font-size: 32px;
   font-weight: 500;
-  letter-spacing: -0.03em;
-  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+  line-height: 40px;
+  margin: 0 0 12px;
 }
+/* M3 Body Large (16/24) for the supporting paragraph */
 .login-card .sub {
   color: var(--text-dim);
-  font-size: 14.5px;
-  margin-bottom: 36px;
+  font-size: 16px;
+  line-height: 24px;
+  margin: 0 0 32px;
 }
+/* M3 form field — 8dp grid, 48dp text-field height, label-medium overline */
 .field {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 .field label {
   display: block;
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 16px;
   color: var(--text-dim);
   margin-bottom: 8px;
   font-family: 'JetBrains Mono', monospace;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 .field input {
   width: 100%;
-  padding: 14px 16px;
+  min-height: 48px;
+  padding: 12px 16px;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   color: var(--text);
-  font-size: 15px;
+  font-size: 16px;
+  line-height: 24px;
   transition: border 0.15s, background 0.15s;
 }
 .field input:focus {
@@ -1751,36 +1768,67 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 20px;
   color: var(--text-dim);
-  margin: 8px 0 28px;
+  margin: 8px 0 24px;
 }
 .field-row a:hover { color: var(--accent); }
+/* M3 Filled button — 48dp height, label-large 14/20 weight 500 */
 .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  padding: 14px 20px;
+  min-height: 48px;
+  padding: 12px 24px;
   background: var(--accent);
   color: var(--on-accent);
   border-radius: var(--radius-sm);
-  font-weight: 600;
+  font-weight: 500;
   font-size: 14px;
-  letter-spacing: 0.01em;
-  transition: background 0.15s;
+  letter-spacing: 0.05em;
+  line-height: 20px;
+  transition: background 0.15s, opacity 0.15s;
 }
 .btn-primary:hover { background: #f04654; }
 .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 .login-foot {
-  margin-top: 28px;
-  padding-top: 24px;
+  margin-top: 24px;
+  padding-top: 16px;
   border-top: 1px solid var(--line);
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 12px;
+  line-height: 16px;
   color: var(--text-mute);
 }
 .login-foot .lock {
   color: var(--green);
+}
+/* Block-level button (full width of its container) */
+.btn-block { width: 100%; }
+/* Divider between primary submit and secondary toggle, with centered label */
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  color: var(--text-mute);
+}
+.login-divider span {
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+.login-divider em {
+  font-style: normal;
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.12em;
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
 }
 
 .checkbox {

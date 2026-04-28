@@ -78,7 +78,7 @@ const Login = ({ onBack }) => {
         <div className="login-card">
           <div className="top-mark">
             <Logo size={28}/>
-            <button className="btn-pill ghost" onClick={onBack} style={{ fontSize: 12, padding: '6px 12px' }}>← Ana sayfa</button>
+            <button className="btn-pill ghost" onClick={onBack}>← Ana sayfa</button>
           </div>
 
           <div className="hero-eyebrow" style={{ marginBottom: 12 }}>HEKIM ERIŞIMI</div>
@@ -172,20 +172,17 @@ const Login = ({ onBack }) => {
                 : (isSignup ? 'Hesap Oluştur' : 'Güvenli Oturum Aç')}
             </button>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '14px 0 4px' }}>
-              <span style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }}/>
-              <span style={{ fontSize: 11, color: 'var(--text-dim, #8a8d8c)', letterSpacing: 1 }}>
-                {isSignup ? 'ZATEN HESABIM VAR' : 'HENÜZ HESABIM YOK'}
-              </span>
-              <span style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }}/>
+            <div className="login-divider">
+              <span/>
+              <em>{isSignup ? 'ZATEN HESABIM VAR' : 'HENÜZ HESABIM YOK'}</em>
+              <span/>
             </div>
 
             <button
               type="button"
-              className="btn-pill ghost"
+              className="btn-pill ghost btn-block"
               onClick={toggleMode}
               disabled={loading}
-              style={{ width: '100%', justifyContent: 'center', padding: '12px 18px', fontSize: 14 }}
             >
               {isSignup ? 'Giriş Yap' : 'Hesap Oluştur'}
             </button>
