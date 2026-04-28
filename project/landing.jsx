@@ -12,6 +12,7 @@ const APP_SHOTS = [
 const AppGallery = () => {
   const [expanded, setExpanded] = React.useState(false);
   const [active, setActive] = React.useState(0);
+  const galleryRef = React.useRef(null);
   const total = APP_SHOTS.length;
   const prev = () => setActive(i => (i - 1 + total) % total);
   const next = () => setActive(i => (i + 1) % total);
@@ -27,8 +28,20 @@ const AppGallery = () => {
     return () => window.removeEventListener('keydown', onKey);
   }, [expanded]);
 
+  React.useEffect(() => {
+    if (!expanded || !galleryRef.current) return;
+    const frame = window.requestAnimationFrame(() => {
+      galleryRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'nearest',
+      });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [expanded]);
+
   return (
-    <div className={`app-gallery ${expanded ? 'expanded' : ''}`}>
+    <div ref={galleryRef} className={`app-gallery ${expanded ? 'expanded' : ''}`}>
       {!expanded && (
         <button className="app-fan" onClick={() => setExpanded(true)} aria-label="Galeriyi aç">
           <div className={`app-screen s1 ${APP_SHOTS[0].fit || ''}`}><img src={APP_SHOTS[0].src} alt="" loading="lazy" decoding="async"/></div>
@@ -212,7 +225,7 @@ const Landing = ({ onEnter }) => {
         <div className="landing-nav-links">
           <a href="#ring">Yüzük</a>
           <a href="#params">Parametreler</a>
-          <a href="#app">Mobil Uygulama</a>
+          <a href="#mobile-app">Mobil Uygulama</a>
           <a href="#model">Tahmin Modeli</a>
           <a href="#panel">Doktor Paneli</a>
         </div>
@@ -527,7 +540,7 @@ const Landing = ({ onEnter }) => {
       </section>
 
       {/* ===== MOBILE APP ===== */}
-      <section id="app" className="landing-section">
+      <section id="mobile-app" className="landing-section">
         <div className="app-showcase">
           <div className="app-copy">
             <span className="section-eye">III. MOBİL UYGULAMA</span>
@@ -853,7 +866,7 @@ const Landing = ({ onEnter }) => {
             <h6>Ürün</h6>
             <a href="#ring">Yüzük</a>
             <a href="#params">Parametreler</a>
-            <a href="#app">Mobil Uygulama</a>
+            <a href="#mobile-app">Mobil Uygulama</a>
             <a href="#model">Tahmin Modeli</a>
           </div>
           <div className="lf-col">
