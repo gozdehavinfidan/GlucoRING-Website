@@ -44,3 +44,5 @@ build/
 /hw-tighter-*.png
 /app-to-model-transition-*.png
 /gallery-*.png
+/phase*-*.png
+/v[0-9]-*.png
