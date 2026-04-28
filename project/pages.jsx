@@ -22,7 +22,7 @@ const formatRelativeTime = (ms) => {
 };
 
 // Dashboard bento card following the landing /params hero/card pattern.
-const DashCard = ({ index, name, value, unit, hint, tone, icon }) => {
+const DashCard = ({ index, name, value, unit, hint, tone }) => {
   const isText = typeof value === 'string' && !/^[\d\.\-,]+$/.test(value);
   return (
     <div className={`pb-card db-card ${tone ? 'db-card--' + tone : ''}`}>
@@ -30,7 +30,6 @@ const DashCard = ({ index, name, value, unit, hint, tone, icon }) => {
         <span className="pb-num mono">{index}</span>
         <span className="pb-name">{name}</span>
       </div>
-      {icon && <div className="db-card-ico"><I name={icon}/></div>}
       <div className={`pb-big db-big ${isText ? 'is-text' : ''}`}>
         <span className="num mono">{value != null && value !== '' ? value : '—'}</span>
         {unit && value != null && !isText ? <span className="u">{unit}</span> : null}
@@ -75,28 +74,29 @@ const Dashboard = ({ tw, onSelect, onNav }) => {
     return unsub;
   }, [auth.user && auth.user.uid]);
 
-  // For each linked patient, subscribe to last 24h healthMetrics. Cap at 12 patients
-  // so the dashboard doesn't fan out into hundreds of listeners.
+  // For each linked patient, subscribe to recent healthMetrics. Cap at 12 patients.
+  // We pull the last 120 docs and filter the 24h window client-side so a slightly
+  // skewed device clock doesn't hide perfectly fresh data.
   React.useEffect(() => {
     if (!window.fbDb || !links.length) {
       setReadings({});
       return;
     }
     const unsubs = [];
-    const sinceMs = Date.now() - ONE_DAY_MS;
     const visiblePatients = links.slice(0, 12).map((l) => l.patientUid).filter(Boolean);
     visiblePatients.forEach((uid) => {
       const unsub = window.fbDb
         .collection('patients').doc(uid)
         .collection('healthMetrics')
-        .where('timestamp', '>=', sinceMs)
         .orderBy('timestamp', 'desc')
         .limit(120)
         .onSnapshot((snap) => {
           const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          const sinceMs = Date.now() - ONE_DAY_MS;
+          const last24h = docs.filter((d) => (d.timestamp || 0) >= sinceMs);
           setReadings((prev) => ({
             ...prev,
-            [uid]: { latest: docs[0] || null, last24h: docs },
+            [uid]: { latest: docs[0] || null, last24h },
           }));
         }, (err) => {
           console.error('[dashboard] healthMetrics subscribe failed for', uid, err);
@@ -109,8 +109,8 @@ const Dashboard = ({ tw, onSelect, onNav }) => {
   const doctorName = (auth.profile && auth.profile.displayName)
     || (auth.user && auth.user.displayName)
     || (auth.user && auth.user.email && auth.user.email.split('@')[0])
-    || 'Kullanıcı';
-  const greeting = `İyi günler, Dr. ${doctorName}.`;
+    || 'Hekim';
+  const greeting = `Dr. ${doctorName}`;
 
   // Aggregates
   const activeCount = links.length;
@@ -139,15 +139,15 @@ const Dashboard = ({ tw, onSelect, onNav }) => {
         <div>
           <h1>{greeting}</h1>
           <p className="lede">{activeCount > 0
-            ? `${activeCount} aktif eşleşmiş hasta. Son 24 saatte ${allReadings.length} okuma alındı.`
-            : 'Henüz aktif eşleşme yok. QR kod ile bir hasta bağlayın; veri ve uyarılar burada akmaya başlar.'}</p>
+            ? `${activeCount} aktif hasta · son 24 saatte ${allReadings.length} okuma`
+            : 'Aktif hasta yok'}</p>
         </div>
         <div className="row gap-12">
           <button className="btn-pill ghost" style={{ padding: '10px 16px' }} onClick={goToPatients}>
-            <I name="users" size={14}/> Hasta Listesi
+            <I name="users" size={14}/> Hastalar
           </button>
           <button className="btn-pill btn-accent" style={{ padding: '10px 16px' }} onClick={goToPairing}>
-            <I name="plus" size={14}/> Yeni Hasta Eşleştir
+            <I name="plus" size={14}/> Eşleştir
           </button>
         </div>
       </div>
@@ -159,15 +159,15 @@ const Dashboard = ({ tw, onSelect, onNav }) => {
           if (newest && newest.latest) {
             const g = newest.latest.bloodGlucose;
             const status = g == null ? 'gray' : g < HYPO_THRESHOLD ? 'warn' : g > HYPER_THRESHOLD ? 'crit' : 'ok';
-            const trendLabel = g == null ? '—' : g < HYPO_THRESHOLD ? 'Hipoglisemi eşiğinde' : g > HYPER_THRESHOLD ? 'Hiperglisemi eşiğinde' : 'Hedef aralıkta';
+            const statusLabel = g == null ? '—' : g < HYPO_THRESHOLD ? 'Hipoglisemi' : g > HYPER_THRESHOLD ? 'Hiperglisemi' : 'Hedef aralıkta';
             const trendArrow = g == null ? '·' : g < HYPO_THRESHOLD ? '↓' : g > HYPER_THRESHOLD ? '↑' : '→';
             return (
               <div className={`pb-card pb-hero db-hero db-hero--${status}`}>
                 <div className="pb-live"><span className="pb-dot"/>CANLI</div>
                 <div className="pb-hero-top">
                   <span className="pb-eyebrow mono">SON OKUMA · {newest.link.patientName || formatPatientId(newest.link.patientUid)}</span>
-                  <h3>Güncel glukoz<br/>{formatRelativeTime(newest.latest.timestamp)}.</h3>
-                  <p>Aktif {activeCount} hastadan en son veri. {trendLabel.toLowerCase()}.</p>
+                  <h3>Güncel glukoz<br/>{formatRelativeTime(newest.latest.timestamp)}</h3>
+                  <p>{statusLabel} · Kaynak {newest.latest.dataSource || 'RING'}</p>
                 </div>
                 <div className="pb-hero-readout">
                   <div className="pb-hero-val">
@@ -176,7 +176,7 @@ const Dashboard = ({ tw, onSelect, onNav }) => {
                   </div>
                   <div className="pb-hero-trend">
                     <span className="trend-arrow">{trendArrow}</span>
-                    <span className="trend-label">{trendLabel}</span>
+                    <span className="trend-label">{statusLabel}</span>
                   </div>
                 </div>
                 <div className="pb-hero-axis mono">
@@ -189,16 +189,16 @@ const Dashboard = ({ tw, onSelect, onNav }) => {
             );
           }
           return (
-            <div className="pb-card pb-hero db-hero db-hero--ok">
+            <div className="pb-card pb-hero db-hero db-hero--gray">
               <div className="pb-hero-top">
                 <span className="pb-eyebrow mono">PANEL</span>
-                <h3>Klinik izlem<br/>başlasın.</h3>
-                <p>QR kod ile bir hasta eşleştirin; canlı glukoz, fizyoloji ve risk uyarıları bu panele akar.</p>
+                <h3>Aktif hasta yok</h3>
+                <p>QR ile eşleştirin.</p>
               </div>
               <div className="pb-hero-readout">
                 <div className="pb-hero-val">
                   <span className="num mono">{activeCount}</span>
-                  <span className="u">aktif hasta</span>
+                  <span className="u">hasta</span>
                 </div>
               </div>
             </div>
@@ -209,59 +209,53 @@ const Dashboard = ({ tw, onSelect, onNav }) => {
           index="01"
           name="Aktif Hasta"
           value={linksLoading ? '…' : activeCount}
-          unit={activeCount === 1 ? 'hasta' : 'hasta'}
-          icon="users"
+          unit="hasta"
           tone="accent"
-          hint={activeCount > 0 ? `${activeCount} eşleşme canlı izlemede` : 'QR kodla bir hasta eşleştirin'}
+          hint={activeCount > 0 ? 'canlı izlemede' : 'eşleşme yok'}
         />
         <DashCard
           index="02"
           name="Hipoglisemi"
           value={hypoEvents.length}
           unit="olay"
-          icon="arrowDown"
           tone={hypoEvents.length > 0 ? 'warn' : 'ok'}
-          hint={hypoEvents.length > 0 ? `son 24 saat · &lt; ${HYPO_THRESHOLD} mg/dL` : 'son 24 saat · eşik altı yok'}
+          hint={`24 sa · &lt; ${HYPO_THRESHOLD} mg/dL`}
         />
         <DashCard
           index="03"
           name="Hiperglisemi"
           value={hyperEvents.length}
           unit="olay"
-          icon="arrowUp"
           tone={hyperEvents.length > 0 ? 'crit' : 'ok'}
-          hint={hyperEvents.length > 0 ? `son 24 saat · &gt; ${HYPER_THRESHOLD} mg/dL` : 'son 24 saat · eşik üstü yok'}
+          hint={`24 sa · &gt; ${HYPER_THRESHOLD} mg/dL`}
         />
         <DashCard
           index="04"
           name="Son Senkron"
           value={lastSyncLabel}
-          icon="sync"
           tone={lastSyncMs ? 'info' : 'gray'}
-          hint={lastSyncMs ? new Date(lastSyncMs).toLocaleString('tr-TR') : 'henüz okuma alınmadı'}
+          hint={lastSyncMs ? new Date(lastSyncMs).toLocaleString('tr-TR') : '—'}
         />
       </div>
 
       <div className="card mt-28">
         <div className="card-h">
           <h3>Hasta Akışı</h3>
-          <div className="meta mono">canlı · /patients/.../healthMetrics</div>
+          <div className="meta mono">canlı</div>
         </div>
         {linksLoading && (
           <div className="empty" style={{ padding: '48px 16px' }}>
             <div className="ico"><I name="sync"/></div>
-            <h4>Yükleniyor…</h4>
-            <p>Eşleşmeler ve canlı veri okunuyor.</p>
+            <h4>Yükleniyor</h4>
           </div>
         )}
         {!linksLoading && activeCount === 0 && (
           <div className="empty" style={{ padding: '56px 16px' }}>
             <div className="ico"><I name="users"/></div>
             <h4>Aktif eşleşme yok</h4>
-            <p>İzlemek için bir hastayla QR kod üzerinden bağlanın. Onay verince burada satır olarak görünür.</p>
             <div style={{ marginTop: 18 }}>
               <button className="btn-pill btn-accent" style={{ padding: '10px 18px' }} onClick={goToPairing}>
-                <I name="plus" size={14}/> İlk Hastayı Eşleştir
+                <I name="plus" size={14}/> Hasta Eşleştir
               </button>
             </div>
           </div>
@@ -269,8 +263,8 @@ const Dashboard = ({ tw, onSelect, onNav }) => {
         {!linksLoading && activeCount > 0 && feed.length === 0 && (
           <div className="empty" style={{ padding: '48px 16px' }}>
             <div className="ico"><I name="pulse"/></div>
-            <h4>Veri akışı bekleniyor</h4>
-            <p>{activeCount} hasta eşleşmiş ama henüz okuma alınmamış. Yüzükten ilk veri geldiğinde burada akmaya başlar.</p>
+            <h4>Okuma yok</h4>
+            <p>İlk veri geldiğinde burada görünür.</p>
           </div>
         )}
         {!linksLoading && feed.length > 0 && (
@@ -500,50 +494,92 @@ const PatientDetail = ({ patientUid, onBack, tw }) => {
         <div className="crumbs mono"><span>Hastalar</span> <span className="sep">/</span> <span className="now">{patientLabel}</span></div>
       </div>
 
-      <div className="patient-head">
-        <div className="patient-avatar">{patientUid ? patientUid.slice(-2).toUpperCase() : '—'}</div>
-        <div className="patient-meta">
-          <h2>{patientLabel}</h2>
-          <div className="row">
-            <span className="mono" style={{ fontSize: 12, color: 'var(--text-mute)', letterSpacing: '0.04em' }}>{patientUid || 'PT-XXXX'}</span>
+      {(() => {
+        const g = reading?.bloodGlucose;
+        const status = !reading ? 'gray' : g == null ? 'gray' : g < HYPO_THRESHOLD ? 'warn' : g > HYPER_THRESHOLD ? 'crit' : 'ok';
+        const statusLabel = !reading ? (loading ? 'yükleniyor…' : 'veri yok') : g == null ? 'glukoz okuması yok' : g < HYPO_THRESHOLD ? 'Hipoglisemi eşiğinde' : g > HYPER_THRESHOLD ? 'Hiperglisemi eşiğinde' : 'Hedef aralıkta';
+        const trendArrow = g == null ? '·' : g < HYPO_THRESHOLD ? '↓' : g > HYPER_THRESHOLD ? '↑' : '→';
+        return (
+        <div className="patient-bento">
+          <div className={`pb-card pb-hero db-hero db-hero--${status} pd-hero`}>
+            <div className="pb-live"><span className="pb-dot"/>{reading ? 'CANLI' : 'BEKLENİYOR'}</div>
+            <div className="pb-hero-top">
+              <span className="pb-eyebrow mono">HASTA · {patientLabel}</span>
+              <h3>Güncel glukoz<br/>{reading ? lastSync : '—'}.</h3>
+              <p>{statusLabel}. {reading?.dataSource ? `Kaynak: ${reading.dataSource}.` : ''}</p>
+            </div>
+            <div className="pb-hero-readout">
+              <div className="pb-hero-val">
+                <span className="num mono">{g != null ? g : '—'}</span>
+                <span className="u">mg/dL</span>
+              </div>
+              <div className="pb-hero-trend">
+                <span className="trend-arrow">{trendArrow}</span>
+                <span className="trend-label">{statusLabel}</span>
+              </div>
+            </div>
+            <div className="pb-hero-axis mono">
+              <span>Outlier: {reading ? (reading.isOutlier ? 'EVET' : 'HAYIR') : '—'}</span>
+              <span>Adım: {fmt(reading?.stepCount)}</span>
+              <span>Kalori: {fmt(reading?.caloriesBurned, 1)}</span>
+              <span>Mesafe: {fmt(reading?.distance, 2)} km</span>
+            </div>
+          </div>
+
+          <DashCard
+            index="01"
+            name="Kalp Atışı"
+            value={reading?.heartRate != null ? Math.round(reading.heartRate) : null}
+            unit="bpm"
+            tone="crit"
+            hint={reading ? 'son okuma · yüzükten' : 'veri bekleniyor'}
+          />
+          <DashCard
+            index="02"
+            name="SpO₂"
+            value={reading?.oxygenSaturation != null ? Math.round(reading.oxygenSaturation) : null}
+            unit="%"
+            tone="info"
+            hint={reading ? 'oksijen doygunluğu' : 'veri bekleniyor'}
+          />
+          <DashCard
+            index="03"
+            name="Vücut Sıc."
+            value={reading?.bodyTemperature != null ? Number(reading.bodyTemperature).toFixed(1) : null}
+            unit="°C"
+            tone="warn"
+            hint={reading ? 'cilt sıcaklığı' : 'veri bekleniyor'}
+          />
+          <DashCard
+            index="04"
+            name="HRV (SDNN)"
+            value={reading?.hrvSdnn != null ? Math.round(reading.hrvSdnn) : null}
+            unit="ms"
+            tone="ok"
+            hint={reading?.hrvStressLevel != null ? `stres skoru ${reading.hrvStressLevel}` : 'kalp ritim varyabilitesi'}
+          />
+        </div>
+        );
+      })()}
+
+      <div className="card mb-20" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: 240 }}>
+          <div className="card-h" style={{ marginBottom: 8 }}>
+            <h3 style={{ fontSize: 'var(--m3-title-l-size)' }}>{patientLabel}</h3>
             <span className="pill gray"><span className="pdot"/> {reading ? 'aktif veri akışı' : (loading ? 'yükleniyor…' : 'veri yok')}</span>
           </div>
-          <div className="row mt-12">
-            <span className="item"><span className="lbl">Kaynak:</span> {reading?.dataSource || '—'}</span>
-            <span className="item"><span className="lbl">Son Senkron:</span> {lastSync}</span>
-            <span className="item"><span className="lbl">Aykırı:</span> {reading?.isOutlier ? 'evet' : reading ? 'hayır' : '—'}</span>
-            <span className="item"><span className="lbl">Adım:</span> {fmt(reading?.stepCount)}</span>
-          </div>
+          <div className="mono" style={{ fontSize: 13, color: 'var(--text-mute)', letterSpacing: '0.04em' }}>{patientUid || 'PT-XXXX'}</div>
         </div>
-        <div className="patient-actions">
+        <div className="row gap-12">
+          <div style={{ textAlign: 'center', minWidth: 84 }}>
+            <div className="mono" style={{ fontSize: 11, color: 'var(--text-mute)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>Aktif Sezon</div>
+            <div style={{ fontSize: 14, fontWeight: 600 }}>{seasonInfo.name}</div>
+            <div className="mono" style={{ fontSize: 12, color: 'var(--accent)' }}>{seasonInfo.filter}</div>
+          </div>
           <button className="icon-btn" title="Yenile"><I name="refresh" size={16}/></button>
-          <button className="icon-btn" title="Rapor"><I name="report" size={16}/></button>
           <button className="btn-pill btn-accent" style={{ padding: '10px 16px' }}>
             <I name="download" size={14}/> PDF Rapor
           </button>
-        </div>
-      </div>
-
-      <div className="glucose-hero">
-        <div className="glucose-now">
-          <div className="lbl">GÜNCEL GLUKOZ</div>
-          <div className="val mono">{fmt(reading?.bloodGlucose)} <span className="unit">mg/dL</span></div>
-          <div className="trend mono"><I name="arrow" size={14}/> {reading ? lastSync : 'veri bekleniyor'}</div>
-        </div>
-        <div className="predict-grid">
-          {['5', '15', '30'].map(h => (
-            <div key={h} className="predict-tile">
-              <div className="horizon">+{h} DK TAHMİN</div>
-              <div className="v mono">—</div>
-              <div className="delta mono">model bekleniyor</div>
-            </div>
-          ))}
-        </div>
-        <div className="season-card">
-          <div className="lbl"><I name={seasonInfo.icon} size={12}/> AKTIF SEZON</div>
-          <div className="model">{seasonInfo.name}</div>
-          <div className="filter mono">{seasonInfo.filter}</div>
-          <div className="updated mono">Güncellendi · {lastSync}</div>
         </div>
       </div>
 
@@ -573,34 +609,6 @@ const PatientDetail = ({ patientUid, onBack, tw }) => {
         </div>
       </div>
 
-      <div className="card mb-20">
-        <div className="card-h">
-          <h3>Fizyolojik Parametreler · Akıllı Yüzük</h3>
-          <div className="meta mono">son 1 saat</div>
-        </div>
-        <div className="vitals-grid">
-          <div className="vital">
-            <div className="h"><span className="ico"><I name="heart" size={14}/></span> Kalp Atışı</div>
-            <div className="v mono">{fmt(reading?.heartRate)} <span className="u">bpm</span></div>
-            <div className="spark"><Sparkline/></div>
-          </div>
-          <div className="vital">
-            <div className="h"><span className="ico"><I name="temp" size={14}/></span> Vücut Sıc.</div>
-            <div className="v mono">{fmt(reading?.bodyTemperature, 1)} <span className="u">°C</span></div>
-            <div className="spark"><Sparkline color="#f5b73d"/></div>
-          </div>
-          <div className="vital">
-            <div className="h"><span className="ico"><I name="spo2" size={14}/></span> SpO₂</div>
-            <div className="v mono">{fmt(reading?.oxygenSaturation)} <span className="u">%</span></div>
-            <div className="spark"><Sparkline color="#34c38f"/></div>
-          </div>
-          <div className="vital">
-            <div className="h"><span className="ico"><I name="activity" size={14}/></span> HRV (SDNN)</div>
-            <div className="v mono">{fmt(reading?.hrvSdnn)} <span className="u">ms</span></div>
-            <div className="spark"><Sparkline color="#9aa0aa"/></div>
-          </div>
-        </div>
-      </div>
 
       <div className="split-2">
         <div className="card">

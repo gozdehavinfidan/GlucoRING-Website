@@ -3481,13 +3481,26 @@ a { color: inherit; text-decoration: none; }
   margin-top: 6px;
 }
 
-/* ===== Dashboard bento (M3, mirrors landing /params bento) ===== */
-.dash-bento {
+/* ===== Dashboard / Patient detail bento (M3, mirrors landing /params bento) ===== */
+.dash-bento,
+.patient-bento {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-auto-rows: 200px;
   gap: var(--space-4);
-  margin-bottom: var(--space-7);
+  margin-bottom: var(--space-6);
+}
+.patient-bento { grid-auto-rows: 180px; }
+.patient-bento .pb-hero { grid-column: span 2; grid-row: span 2; }
+.patient-bento .pd-hero .pb-hero-top h3 { font-size: clamp(26px, 2.6vw, 32px); }
+.patient-bento .pd-hero .pb-hero-val .num { font-size: clamp(56px, 5.2vw, 76px); }
+@media (max-width: 1200px) {
+  .patient-bento { grid-template-columns: repeat(2, 1fr); }
+  .patient-bento .pb-hero { grid-column: span 2; }
+}
+@media (max-width: 600px) {
+  .patient-bento { grid-template-columns: 1fr; }
+  .patient-bento .pb-hero { grid-column: span 1; }
 }
 .dash-bento .pb-hero {
   grid-column: span 2;
