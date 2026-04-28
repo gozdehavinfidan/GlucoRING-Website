@@ -1115,16 +1115,16 @@ a { color: inherit; text-decoration: none; }
 
 /* Ring spec grid */
 /* ===== Hardware bento grid =====
-   Layout (desktop):
-     Row 1-2: [PHOTO LG (cols 1-2, rows 1-2)] [DARK MD (cols 3-4, row 1)]
-                                              [BLE  MD (cols 3-4, row 2)]
-     Row 3-4: [PHOTO LG2 spans full width (cols 1-4, rows 3-4)]
-     Row 5  : [BATTERY WIDE]
+   Layout (desktop, 3-col):
+     Row 1-2: [PHOTO LG cols 1-2, rows 1-2] [DARK MD col 3, row 1]
+                                            [BLE  MD col 3, row 2]
+     Row 3-4: [PHOTO LG2 spans cols 1-3, rows 3-4]
+   The md cards live in a narrow right column so they read denser, not sparse.
 */
 .hw-bento {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 200px;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 220px;
   gap: 16px;
 }
 .hw-card {
@@ -1148,25 +1148,36 @@ a { color: inherit; text-decoration: none; }
   border-color: rgba(230,57,70,0.3);
 }
 
-/* Sizing */
+/* Sizing — 3-col grid */
 .hw-card--lg { grid-column: span 2; grid-row: span 2; }
-.hw-card--md { grid-column: span 2; grid-row: span 1; }
-.hw-card--wide { grid-column: span 4; grid-row: span 1; }
-.hw-card--photo.hw-card--lg { grid-column: span 4; grid-row: span 2; min-height: 360px; }
+.hw-card--md { grid-column: span 1; grid-row: span 1; }
+.hw-card--wide { grid-column: span 3; grid-row: span 1; }
+.hw-card--photo.hw-card--lg { grid-column: span 3; grid-row: span 2; min-height: 360px; }
 
-/* Photo cards: dark gradient overlay so text reads */
+/* Photo cards: subtle gradient + glass surface around the text */
 .hw-card[style*="background-image"]::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 35%, rgba(0,0,0,0.05) 70%, rgba(0,0,0,0.6) 100%);
+  background: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.05) 60%, rgba(0,0,0,0.45) 100%);
   z-index: 1;
+}
+/* Photo card text gets a frosted-glass capsule so it reads against any imagery
+   without needing a heavy gradient scrim across the whole image. */
+.hw-card[style*="background-image"] .hw-card-text {
+  background: rgba(0, 0, 0, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 18px;
+  padding: 22px 24px;
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: 0 16px 32px -16px rgba(0, 0, 0, 0.45);
 }
 
 .hw-card-text {
   position: relative;
   z-index: 2;
-  max-width: 380px;
+  max-width: 420px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -1202,15 +1213,16 @@ a { color: inherit; text-decoration: none; }
 .hw-card--dark h3, .hw-card--ble h3, .hw-card--battery h3 { color: #f4f5f7; }
 
 .hw-card--md .hw-card-text {
-  max-width: calc(100% - 220px);
+  max-width: 100%;
 }
+.hw-card--md h3 { font-size: 26px; }
+.hw-card--md p { font-size: 16px; max-width: 100%; }
 .hw-pulse-viz {
   position: absolute;
-  right: 24px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 180px;
-  height: 180px;
+  right: 18px;
+  bottom: 18px;
+  width: 92px;
+  height: 92px;
   z-index: 1;
 }
 .hw-pulse-viz .pv-ring {
@@ -1226,10 +1238,10 @@ a { color: inherit; text-decoration: none; }
   position: absolute;
   left: 50%; top: 50%;
   transform: translate(-50%,-50%);
-  width: 28px; height: 28px;
+  width: 18px; height: 18px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 40px var(--accent), 0 0 80px var(--accent-glow);
+  box-shadow: 0 0 24px var(--accent), 0 0 56px var(--accent-glow);
   animation: hw-core 2.6s ease-in-out infinite;
 }
 @keyframes hw-pulse {
@@ -1244,11 +1256,10 @@ a { color: inherit; text-decoration: none; }
 /* BLE wave viz */
 .hw-ble-viz {
   position: absolute;
-  right: 24px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 200px;
-  height: 200px;
+  right: 18px;
+  bottom: 18px;
+  width: 92px;
+  height: 92px;
   z-index: 1;
   pointer-events: none;
 }
@@ -1791,7 +1802,8 @@ a { color: inherit; text-decoration: none; }
   aspect-ratio: 1224 / 2570;
   border-radius: 32px;
   overflow: hidden;
-  box-shadow: 0 40px 80px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04);
+  background: #000;
+  box-shadow: 0 40px 80px -20px rgba(0,0,0,0.8);
   transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 .app-fan .app-screen img {
@@ -1800,11 +1812,14 @@ a { color: inherit; text-decoration: none; }
   object-fit: cover;
   object-position: center;
   display: block;
+  /* Crop any white padding baked into the source PNG so light-UI screens
+     don't show a halo around the rounded phone frame. */
+  transform: scale(1.04);
 }
 .app-fan .app-screen.s1 { transform: translate(-150px, 30px) rotate(-8deg); z-index: 2; }
 .app-fan .app-screen.s2 {
   transform: translate(0, -24px); z-index: 3;
-  box-shadow: 0 60px 100px -20px rgba(230,57,70,0.18), 0 40px 80px -20px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.06);
+  box-shadow: 0 60px 100px -20px rgba(230,57,70,0.18), 0 40px 80px -20px rgba(0,0,0,0.9);
 }
 .app-fan .app-screen.s3 { transform: translate(150px, 30px) rotate(8deg); z-index: 2; }
 .app-fan:hover .app-screen.s1 { transform: translate(-180px, 20px) rotate(-10deg); }
@@ -1899,10 +1914,10 @@ a { color: inherit; text-decoration: none; }
   aspect-ratio: 1224 / 2570;
   padding: 0;
   border: none;
-  background: transparent;
+  background: #000;
   border-radius: 32px;
   overflow: hidden;
-  box-shadow: 0 40px 80px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04);
+  box-shadow: 0 40px 80px -20px rgba(0,0,0,0.8);
   cursor: pointer;
   transition: transform 0.5s cubic-bezier(.22,.9,.3,1.1), opacity 0.4s ease, filter 0.4s ease, box-shadow 0.4s ease;
   will-change: transform, opacity;
@@ -1914,9 +1929,11 @@ a { color: inherit; text-decoration: none; }
   object-fit: cover;
   object-position: center;
   display: block;
+  /* Crop any white padding baked into source PNG */
+  transform: scale(1.04);
 }
 .cover-item.active {
-  box-shadow: 0 60px 120px -20px rgba(230,57,70,0.25), 0 40px 80px -20px rgba(0,0,0,0.9), 0 0 0 1px rgba(230,57,70,0.2);
+  box-shadow: 0 60px 120px -20px rgba(230,57,70,0.25), 0 40px 80px -20px rgba(0,0,0,0.9);
 }
 .app-screen.fit-tight img,
 .cover-item.fit-tight img {
@@ -2387,14 +2404,14 @@ a { color: inherit; text-decoration: none; }
 }
 
 @media (max-width: 960px) {
-  .hw-bento { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 240px; }
+  .hw-bento { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 220px; }
   .hw-card,
   .hw-card--lg,
   .hw-card--md,
   .hw-card--wide,
   .hw-card--photo.hw-card--lg { grid-column: span 2; grid-row: span 1; }
   .hw-card--lg { grid-row: span 2; }
-  .hw-card--photo.hw-card--lg { grid-row: span 2; min-height: 360px; }
+  .hw-card--photo.hw-card--lg { grid-row: span 2; min-height: 320px; }
   .hw-card--battery { flex-direction: column; align-items: stretch; gap: 20px; }
   .hw-card--battery .hw-card-text { max-width: none; }
   .hw-card h3 { font-size: 24px; }
