@@ -35,4 +35,12 @@ build/
 /screenshot-*.png
 /*-current.png
 /*-after.png
+/after-*.png
+/audit-*.png
+/final-*.png
+/v3-*.png
+/cta-hero*.png
+/model-rich-*.png
+/hw-tighter-*.png
+/app-to-model-transition-*.png
 /gallery-*.png

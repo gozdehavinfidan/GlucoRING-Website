@@ -31,9 +31,9 @@ const AppGallery = () => {
     <div className={`app-gallery ${expanded ? 'expanded' : ''}`}>
       {!expanded && (
         <button className="app-fan" onClick={() => setExpanded(true)} aria-label="Galeriyi aç">
-          <div className={`app-screen s1 ${APP_SHOTS[0].fit || ''}`}><img src={APP_SHOTS[0].src} alt=""/></div>
-          <div className={`app-screen s2 ${APP_SHOTS[1].fit || ''}`}><img src={APP_SHOTS[1].src} alt=""/></div>
-          <div className={`app-screen s3 ${APP_SHOTS[2].fit || ''}`}><img src={APP_SHOTS[2].src} alt=""/></div>
+          <div className={`app-screen s1 ${APP_SHOTS[0].fit || ''}`}><img src={APP_SHOTS[0].src} alt="" loading="lazy" decoding="async"/></div>
+          <div className={`app-screen s2 ${APP_SHOTS[1].fit || ''}`}><img src={APP_SHOTS[1].src} alt="" loading="lazy" decoding="async"/></div>
+          <div className={`app-screen s3 ${APP_SHOTS[2].fit || ''}`}><img src={APP_SHOTS[2].src} alt="" loading="lazy" decoding="async"/></div>
           <span className="fan-hint">
             <I name="arrow" size={14}/> Tüm ekranları gör
           </span>
@@ -76,7 +76,7 @@ const AppGallery = () => {
                   aria-label={s.t}
                   tabIndex={abs === 0 ? 0 : -1}
                 >
-                  <img src={s.src} alt={s.t}/>
+                  <img src={s.src} alt={s.t} loading="lazy" decoding="async"/>
                 </button>
               );
             })}
@@ -532,7 +532,7 @@ const Landing = ({ onEnter }) => {
           <div className="app-copy">
             <span className="section-eye">III. MOBİL UYGULAMA</span>
             <h2 className="section-h">Hastanın cebinde <em>tüm sistem</em>.</h2>
-            <p>GlucoRING mobil uygulaması; akıllı yüzük ile kablosuz olarak haberleşir, verileri yerel olarak işler ve doktor paneline güvenli şekilde aktarır. İnternet bağlantısı gerektirmeden çalışır. bağlantısı gerektirmeden çalışır.</p>
+            <p>GlucoRING mobil uygulaması; akıllı yüzük ile kablosuz olarak haberleşir, verileri yerel olarak işler ve doktor paneline güvenli şekilde aktarır. İnternet bağlantısı gerektirmeden çalışır.</p>
             <div className="app-feature-list">
               <div className="app-feat">
                 <span className="af-ico"><I name="bluetooth" size={16}/></span>
@@ -576,37 +576,104 @@ const Landing = ({ onEnter }) => {
           <p className="section-sub">Gelişmiş tahmin algoritmalarımız, her hastanın kendine özel glukoz seyrini öğrenerek erken risk uyarısı üretir. 5, 15 ve 30 dakikalık tahminler birlikte çalışır.</p>
         </div>
         <div className="model-grid">
-          <div className="model-card">
-            <div className="horizon mono">5 dk</div>
-            <div className="model-name">Anlık Tahmin</div>
-            <div className="model-desc">Kısa dönem glukoz hareketleri ve anlık kararlar için.</div>
-            <div className="model-stat mono">Yakın vade <span>5 dakika</span></div>
-          </div>
-          <div className="model-card">
-            <div className="horizon mono">15 dk</div>
-            <div className="model-name">Kısa Vadeli Tahmin</div>
-            <div className="model-desc">Yemek ve aktivite sonrası geçişleri önceden görür.</div>
-            <div className="model-stat mono">Orta vade <span>15 dakika</span></div>
-          </div>
-          <div className="model-card">
-            <div className="horizon mono">30 dk</div>
-            <div className="model-name">Erken Uyarı</div>
-            <div className="model-desc">Düşük veya yüksek glukoz risklerini erkenden işaretler.</div>
-            <div className="model-stat mono">Uzun vade <span>30 dakika</span></div>
-          </div>
+          <article className="model-card">
+            <div className="model-card-head">
+              <span className="horizon mono">5 dk</span>
+            </div>
+            <div className="model-name">Yakın vade tahmin</div>
+            <div className="model-desc">Yemek bolus'u, hızlı egzersiz öncesi ve uyku sırasında glukoz hareketinin anlık yönü için.</div>
+            <svg className="model-chart" viewBox="0 0 200 60" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M0,40 L25,38 L50,36 L75,32 L100,30 L125,26 L150,24 L175,22 L200,20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              <circle cx="200" cy="20" r="4" fill="currentColor"/>
+            </svg>
+            <ul className="model-bullets">
+              <li>Hata payı düşük</li>
+              <li>BLE ile gecikmesiz</li>
+            </ul>
+          </article>
+          <article className="model-card">
+            <div className="model-card-head">
+              <span className="horizon mono">15 dk</span>
+            </div>
+            <div className="model-name">Orta vade öngörü</div>
+            <div className="model-desc">Yemek sonrası glukoz tepkisi, aktivite/dinlenme geçişleri ve mevsimsel insülin yanıtı için.</div>
+            <svg className="model-chart" viewBox="0 0 200 60" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M0,42 L25,40 L50,32 L75,22 L100,18 L125,22 L150,28 L175,26 L200,24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              <circle cx="200" cy="24" r="4" fill="currentColor"/>
+            </svg>
+            <ul className="model-bullets">
+              <li>Yemek pencereli</li>
+              <li>Mevsim profili</li>
+            </ul>
+          </article>
+          <article className="model-card">
+            <div className="model-card-head">
+              <span className="horizon mono">30 dk</span>
+            </div>
+            <div className="model-name">Uzun vade risk</div>
+            <div className="model-desc">Hipo/hiperglisemi olaylarını yarım saat öncesinden işaretler — klinik müdahale penceresi açar.</div>
+            <svg className="model-chart" viewBox="0 0 200 60" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M0,30 L25,32 L50,28 L75,20 L100,14 L125,10 L150,8 L175,6 L200,4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              <circle cx="200" cy="4" r="4" fill="currentColor"/>
+              <circle cx="200" cy="4" r="9" fill="currentColor" opacity="0.3"/>
+            </svg>
+            <ul className="model-bullets">
+              <li>Otomatik bildirim</li>
+              <li>Hekim panelinde kayıt</li>
+            </ul>
+          </article>
         </div>
-        <div className="season-banner">
-          <div>
+        <section className="season-section">
+          <div className="season-head">
             <span className="sb-eye mono">MEVSİM MODELİ</span>
-            <h3>Yaz · Kış · Kişiselleştirilmiş</h3>
-            <p>Sistem, hastanın aktivite örüntüsüne ve çevresel koşullara göre sezon profili arasında otomatik geçiş yapar. Zamanla kişisel model ağırlık kazanır.</p>
+            <h3>Vücut, mevsime göre <em>farklı tepki</em> verir.</h3>
+            <p>Sıcakta damarlar genişler, terle birlikte glukoz dengesi değişir; soğukta tam tersi olur. GlucoRING; ortam ve aktivite verilerinizi okur, üç farklı tahmin profili arasında otomatik geçiş yapar — zamanla en doğru olanı kişisel verinizden öğrenir.</p>
           </div>
-          <div className="sb-tracks">
-            <div className="sb-track"><span className="dot"/>Yaz Modeli <span className="ts mono">Sıcak hava</span></div>
-            <div className="sb-track"><span className="dot"/>Kış Modeli <span className="ts mono">Soğuk hava</span></div>
-            <div className="sb-track"><span className="dot"/>Kişiselleştirilmiş <span className="ts mono">Hastaya özel</span></div>
+          <div className="season-grid">
+            <article className="season-card season-card--summer">
+              <div className="season-ico" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+              </div>
+              <div className="season-tag mono">YAZ PROFİLİ</div>
+              <h4>Sıcak hava modeli</h4>
+              <p>Sıcakta dolaşım hızlanır, glukoz emilimi artar. Model, hızlı düşüşleri ve hipoglisemi riskini erken algılayacak biçimde uyarlanır.</p>
+              <ul className="season-stats">
+                <li><span className="mono">Sıcak</span> Ortam profili</li>
+                <li><span className="mono">Hızlı</span> Vücut tepkisi</li>
+                <li><span className="mono">Erken</span> Risk algısı</li>
+              </ul>
+            </article>
+            <article className="season-card season-card--winter">
+              <div className="season-ico" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12h20M12 2v20M4.5 4.5l15 15M19.5 4.5l-15 15"/></svg>
+              </div>
+              <div className="season-tag mono">KIŞ PROFİLİ</div>
+              <h4>Soğuk hava modeli</h4>
+              <p>Soğukta damarlar daralır, insülin yanıtı yavaşlar. Model, gecikmeli yükselişleri ve hiperglisemi pencerelerini öngörecek biçimde ayarlanır.</p>
+              <ul className="season-stats">
+                <li><span className="mono">Soğuk</span> Ortam profili</li>
+                <li><span className="mono">Yavaş</span> Vücut tepkisi</li>
+                <li><span className="mono">Gecikmeli</span> Risk algısı</li>
+              </ul>
+            </article>
+            <article className="season-card season-card--personal">
+              <div className="season-ico" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              </div>
+              <div className="season-tag mono">KİŞİSEL PROFİL</div>
+              <h4>Hastaya özel model</h4>
+              <p>Sistem zaman içinde kişisel hareket, uyku ve fizyolojik ritminizi öğrenir. Hibrit model, sizin verinize göre en doğru çıkanı ön plana çıkarır.</p>
+              <ul className="season-stats">
+                <li><span className="mono">Sürekli</span> Öğrenme</li>
+                <li><span className="mono">Çoklu sinyal</span> Girdi</li>
+                <li><span className="mono">Hibrit</span> Model ağırlığı</li>
+              </ul>
+            </article>
           </div>
-        </div>
+          <div className="season-foot mono">
+            <span className="dot s-dot"/>OTOMATİK GEÇİŞ · Sıcaklık &amp; aktivite eşiklerine bağlı, manuel ayar gerekmez
+          </div>
+        </section>
       </section>
 
       {/* ===== SECURITY ===== */}
@@ -642,25 +709,171 @@ const Landing = ({ onEnter }) => {
         </div>
       </section>
 
+      {/* ===== HOW IT WORKS — 3-step flow that reads top-to-bottom ===== */}
+      <section className="landing-howitworks">
+        <div className="section-head narrow">
+          <span className="section-eye">VI. NASIL ÇALIŞIR</span>
+          <h2 className="section-h">Hasta ile doktor arasında <em>üç adım</em>.</h2>
+          <p className="section-sub">Tüm akış, kullanıcı dostu olacak şekilde tasarlandı: yüzüğü tak, uygulamayı kur, doktor panelinde QR ile eşleş.</p>
+        </div>
+        <ol className="hiw-steps">
+          <li className="hiw-step">
+            <div className="hiw-num mono">01</div>
+            <h4>Yüzüğü tak, uygulamayı aç</h4>
+            <p>Mobil uygulama yüzüğü otomatik bulur, BLE 5.0 üzerinden eşleştirme tek dokunuşla biter. Kalibrasyon gerekmez.</p>
+          </li>
+          <li className="hiw-step">
+            <div className="hiw-num mono">02</div>
+            <h4>Doktor panelindeki QR'ı tara</h4>
+            <p>Hasta, uygulamasındaki tarayıcı ile doktorun panelindeki QR kodunu tarar, paylaşımı tek dokunuşla onaylar. Erişimi istediği an iptal edebilir.</p>
+          </li>
+          <li className="hiw-step">
+            <div className="hiw-num mono">03</div>
+            <h4>Veri klinik panelde canlı görünür</h4>
+            <p>Şifreli kanaldan gelen fizyolojik akış, hekimin gösterge tablosuna gerçek zamanlı işlenir. 5/15/30 dk glukoz tahminleri ile risk uyarıları otomatik üretilir.</p>
+          </li>
+        </ol>
+      </section>
+
+      {/* ===== FOR-CLINICIANS VALUE PROPS — what the panel actually delivers ===== */}
+      <section className="landing-value">
+        <div className="section-head narrow">
+          <span className="section-eye">VII. KLİNİSYEN İÇİN</span>
+          <h2 className="section-h">Klinik karar desteği, <em>tek panelde</em>.</h2>
+          <p className="section-sub">GlucoRING doktor paneli; hasta listenizi, fizyolojik trendleri ve glukoz risk olaylarını tek bir okunabilir arayüzde toplar.</p>
+        </div>
+        <div className="value-grid">
+          <article className="value-card value-card--primary">
+            <div className="value-ico"><I name="pulse" size={20}/></div>
+            <h3>Sürekli izleme</h3>
+            <p>Yüzükten gelen 9 parametre, hasta bazında 24 saatlik trend grafikleriyle özetlenir. Ölçüm aralıklarına manuel müdahale gerekmez.</p>
+            <span className="value-meta mono">9 parametre · 24 saat</span>
+          </article>
+          <article className="value-card value-card--secondary">
+            <div className="value-ico"><I name="bell" size={20}/></div>
+            <h3>Erken uyarı bildirimleri</h3>
+            <p>30 dakika öncesinden öngörülen düşük/yüksek glukoz olayları panelinizde sıralı bildirim olarak görünür. Eyleme dönük, sayısal eşiklerle.</p>
+            <span className="value-meta mono">5 / 15 / 30 dk</span>
+          </article>
+          <article className="value-card value-card--tertiary">
+            <div className="value-ico"><I name="shield" size={20}/></div>
+            <h3>KVKK uyumlu paylaşım</h3>
+            <p>Her veri akışı hasta onayına bağlıdır, uçtan uca şifrelenir ve denetim kaydı tutulur. Üçüncü taraf erişimi yoktur.</p>
+            <span className="value-meta mono">Uçtan uca şifreli</span>
+          </article>
+          <article className="value-card value-card--warning">
+            <div className="value-ico"><I name="line" size={20}/></div>
+            <h3>Klinik raporlama</h3>
+            <p>Hasta bazlı haftalık ve aylık rapor çıktısı; muayene öncesi tek bakışta seyir özeti almanızı sağlar.</p>
+            <span className="value-meta mono">Haftalık · Aylık · PDF</span>
+          </article>
+        </div>
+      </section>
+
+      {/* ===== FAQ — user-voiced questions, GlucoRING-positioned answers ===== */}
+      <section className="landing-faq">
+        <div className="section-head narrow">
+          <span className="section-eye">VIII. SIK SORULAR</span>
+          <h2 className="section-h">Bilmek istediğiniz <em>her şey</em>.</h2>
+        </div>
+        <div className="faq-grid">
+          <details className="faq-item">
+            <summary>GlucoRING'in klasik parmak delgisinden farkı ne?</summary>
+            <p>Parmak delgisinde gün içinde sadece birkaç ölçüm yapabiliyorsunuz; aralarda ne olduğunu bilemezsiniz. GlucoRING ise yüzüğün içindeki sensörlerle <strong>7 gün 24 saat</strong> nabız, oksijen, sıcaklık, hareket gibi 9 fizyolojik sinyali sürekli okur ve bu sinyallerden glukoz tahmini üretir. İğne yok, kan örneği yok — yüzük parmağınızda durduğu sürece veri akıyor.</p>
+          </details>
+          <details className="faq-item">
+            <summary>Mevsime özel tahmin tam olarak nasıl çalışıyor?</summary>
+            <p>Vücudunuz yazın ve kışın aynı insülin tepkisini vermez: sıcakta damarlar genişler, glukoz emilimi hızlanır; soğukta tam tersi olur. GlucoRING bunu önemser — <strong>Yaz, Kış ve Kişisel</strong> olmak üzere üç ayrı tahmin modeli vardır. Sistem ortam sıcaklığınızı ve hareket örüntünüzü okur, hangi modelin sizin için en doğru tahmini ürettiğini öğrenir, otomatik olarak aralarında geçiş yapar. Bunu siz ayarlamazsınız.</p>
+          </details>
+          <details className="faq-item">
+            <summary>Verilerimi benim dışımda kim görebilir?</summary>
+            <p>Sadece <strong>siz onayladığınız doktor</strong>, sadece siz onayladığınız sürece. Süreç şöyle: doktorunuzun panelinde bir QR kodu çıkar, GlucoRING uygulamanızla bu kodu tararsınız, tek dokunuşla onaylarsınız. O andan itibaren doktorunuz verilerinizi görür. İstediğiniz an aynı uygulamadan tek dokunuşla iptal edebilirsiniz; doktorunuzun erişimi anında kapanır. GlucoRING ekibi dahil hiç kimse, sizin onayınız olmadan verilerinize bakamaz.</p>
+          </details>
+          <details className="faq-item">
+            <summary>Yüzük şarj gerektiriyor mu, ne kadar dayanıyor?</summary>
+            <p>Düşük enerji tüketimli sensör mimarisi sayesinde tek şarjla <strong>5–7 gün</strong> kullanırsınız. Yatağınızın yanındaki magnetik şarj kaidesinin üzerine bırakırsınız, <strong>90 dakikada</strong> tam dolar — yani genelde duş aldığınız sürede zaten şarj olur, gün içinde bir kez bile aklınıza gelmez.</p>
+          </details>
+          <details className="faq-item">
+            <summary>Yemek bolus'u veya tedavi kararını GlucoRING'e göre alabilir miyim?</summary>
+            <p>GlucoRING erken uyarı ve trend takibi için tasarlanmıştır — bir sonraki 30 dakikada glukozunuzun nereye gittiğini söyler. Ancak <strong>tedavi kararları (insülin dozu, ilaç düzenlemesi) hekim ve laboratuvar ölçümlerine</strong> bağlıdır. GlucoRING'in işi, bu kararları doğru zamanda almanız için sizi ve doktorunuzu erken bilgilendirmektir.</p>
+          </details>
+          <details className="faq-item">
+            <summary>İnternet kesilirse ne oluyor, veri kaybı yaşar mıyım?</summary>
+            <p>Hayır. Yüzükten gelen veri önce telefonunuzdaki uygulamada <strong>yerel olarak işlenir</strong>; tahminler ve uyarılar internet olmadan da çalışmaya devam eder. İnternet geri geldiğinde uygulama, biriken kayıtları sizin onayınız doğrultusunda doktor paneline senkronize eder. Yani uçakta, kırsalda, asansörde — fark etmez.</p>
+          </details>
+          <details className="faq-item">
+            <summary>Yüzük 24 saat parmağımda kalıyor, hijyen ve konfor nasıl?</summary>
+            <p>Hipoalerjenik medikal sınıf gövde, su geçirmez (IP68) yapı — duşa, denize, bulaşığa girebilirsiniz. Sensör yüzeyleri parmak terini doğal olarak buharlaştıracak biçimde tasarlandı, gece de takabilirsiniz; uyku kalitenizi ölçen başlıca veri zaten gece toplanır.</p>
+          </details>
+          <details className="faq-item">
+            <summary>Hangi telefonlarda çalışıyor?</summary>
+            <p>iOS 15+ veya Android 9+ olan her telefonda. Doktor paneli ise tarayıcıdan açılır — Chrome, Safari, Edge — kurulum gerekmez. Bilgisayarınız yoksa hekiminiz tablete veya telefona da girebilir.</p>
+          </details>
+        </div>
+      </section>
+
+      {/* ===== Final CTA — full-width illustrated hero with content overlaid ===== */}
       <section className="landing-cta">
-        <span className="section-eye center">DOKTOR PANELİ</span>
-        <h2>Hastalarınızı tek panelden izleyin.</h2>
-        <p>Kayıtlı hastalarınızın glukoz seyrini, fizyolojik trendlerini ve risk olaylarını güvenli ve okunabilir bir klinik arayüzde takip edin.</p>
-        <div className="ctas">
-          <button className="btn-pill btn-accent" onClick={onEnter}>Doktor Paneline Giriş</button>
-          <button className="btn-pill ghost">Akademik Dokümanlar</button>
+        <div className="cta-bg" aria-hidden="true">
+          <div className="cta-blob cta-blob-1"/>
+          <div className="cta-blob cta-blob-2"/>
+          <div className="cta-blob cta-blob-3"/>
+          <div className="cta-grid"/>
+          <div className="cta-scrim"/>
+          <div className="cta-pill cta-pill-1 mono"><span className="dot"/>Glukoz · 112 mg/dL</div>
+          <div className="cta-pill cta-pill-2 mono"><span className="dot"/>SpO₂ · 97%</div>
+          <div className="cta-pill cta-pill-3 mono"><span className="dot"/>Nabız · 78 bpm</div>
+          <div className="cta-pill cta-pill-4 mono"><span className="dot"/>HRV · 68 ms</div>
+          <div className="cta-pill cta-pill-5 mono"><span className="dot"/>Sıcaklık · 36.5°C</div>
+          <div className="cta-pill cta-pill-6 mono"><span className="dot"/>Tansiyon · 118/76</div>
+        </div>
+        <div className="cta-copy">
+          <span className="section-eye">DOKTOR PANELİ</span>
+          <h2>Hastalarınızı <em>tek panelden</em> izleyin.</h2>
+          <p>Kayıtlı hastalarınızın glukoz seyrini, fizyolojik trendlerini ve risk olaylarını güvenli, okunabilir bir klinik arayüzde takip edin. Kurulum gerekmez — tarayıcıdan giriş yapmanız yeterli.</p>
+          <div className="ctas">
+            <button className="btn-pill btn-accent" onClick={onEnter}>Doktor Paneline Giriş</button>
+            <button className="btn-pill ghost">Akademik Dokümanlar</button>
+          </div>
+          <ul className="cta-trust">
+            <li><span className="dot"/>KVKK uyumlu</li>
+            <li><span className="dot"/>Uçtan uca şifreli</li>
+            <li><span className="dot"/>Tarayıcı tabanlı, kurulum gerekmez</li>
+          </ul>
         </div>
       </section>
 
       <footer className="landing-foot">
-        <div className="row gap-12">
-          <Logo size={20}/>
-          <span>© 2026 GlucoRING Research</span>
+        <div className="lf-grid">
+          <div className="lf-brand">
+            <Logo size={28}/>
+            <p>Giyilebilir glukoz tahmin ekosistemi. Akıllı yüzük + mobil uygulama + klinik panel.</p>
+          </div>
+          <div className="lf-col">
+            <h6>Ürün</h6>
+            <a href="#ring">Yüzük</a>
+            <a href="#params">Parametreler</a>
+            <a href="#app">Mobil Uygulama</a>
+            <a href="#model">Tahmin Modeli</a>
+          </div>
+          <div className="lf-col">
+            <h6>Klinisyen</h6>
+            <a href="#panel">Güvenlik & Paylaşım</a>
+            <a onClick={onEnter} role="button">Doktor Paneline Giriş</a>
+            <a>Klinik Yönerge</a>
+            <a>Akademik Dokümanlar</a>
+          </div>
+          <div className="lf-col">
+            <h6>Yasal</h6>
+            <a>KVKK Aydınlatma</a>
+            <a>Kullanım Koşulları</a>
+            <a>Çerez Politikası</a>
+            <a>İletişim</a>
+          </div>
         </div>
-        <div className="row gap-20">
-          <span>KVKK</span>
-          <span>Klinik Yönerge</span>
-          <span>v0.9.2-beta</span>
+        <div className="lf-bottom">
+          <span>© 2026 GlucoRING Research · Tüm hakları saklıdır.</span>
+          <span className="mono">v0.9.2-beta</span>
         </div>
       </footer>
     </div>
