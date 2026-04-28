@@ -171,23 +171,29 @@ const Login = ({ onBack }) => {
                 ? (isSignup ? 'Hesap oluşturuluyor…' : 'Doğrulanıyor…')
                 : (isSignup ? 'Hesap Oluştur' : 'Güvenli Oturum Aç')}
             </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '14px 0 4px' }}>
+              <span style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }}/>
+              <span style={{ fontSize: 11, color: 'var(--text-dim, #8a8d8c)', letterSpacing: 1 }}>
+                {isSignup ? 'ZATEN HESABIM VAR' : 'HENÜZ HESABIM YOK'}
+              </span>
+              <span style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }}/>
+            </div>
+
+            <button
+              type="button"
+              className="btn-pill ghost"
+              onClick={toggleMode}
+              disabled={loading}
+              style={{ width: '100%', justifyContent: 'center', padding: '12px 18px', fontSize: 14 }}
+            >
+              {isSignup ? 'Giriş Yap' : 'Hesap Oluştur'}
+            </button>
           </form>
 
-          <div className="login-foot" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span className="lock"><I name="lock" size={14}/></span>
-              <span>TLS 1.3 ile şifrelenmiştir · ISO 27001 · KVKK Uyumlu</span>
-            </div>
-            <div style={{ fontSize: 13 }}>
-              {isSignup ? 'Zaten hesabınız var mı? ' : 'Hesabınız yok mu? '}
-              <a
-                href="#"
-                onClick={(e) => { e.preventDefault(); toggleMode(); }}
-                style={{ fontWeight: 600 }}
-              >
-                {isSignup ? 'Giriş yap' : 'Hesap oluştur'}
-              </a>
-            </div>
+          <div className="login-foot">
+            <span className="lock"><I name="lock" size={14}/></span>
+            <span>TLS 1.3 ile şifrelenmiştir · ISO 27001 · KVKK Uyumlu</span>
           </div>
         </div>
       </div>
