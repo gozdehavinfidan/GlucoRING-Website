@@ -14,13 +14,13 @@ const ChartGrid = ({ width = 600, height = 240, padding = { l: 44, r: 16, t: 12,
             <line x1={padding.l} x2={width - padding.r} y1={y} y2={y}
               stroke={v === 70 || v === 180 ? 'rgba(230,57,70,0.25)' : 'rgba(255,255,255,0.05)'}
               strokeDasharray={v === 70 || v === 180 ? '4 4' : '0'}/>
-            <text x={padding.l - 8} y={y + 3} fill="#5b616c" fontSize="10" fontFamily="JetBrains Mono" textAnchor="end">{v}</text>
+            <text x={padding.l - 8} y={y + 3} fill="#7a808a" fontSize="11" fontFamily="JetBrains Mono" textAnchor="end">{v}</text>
           </g>
         );
       })}
       {labelsX.map((l, i) => {
         const x = padding.l + (i / (labelsX.length - 1)) * innerW;
-        return <text key={l} x={x} y={height - 8} fill="#5b616c" fontSize="10" fontFamily="JetBrains Mono" textAnchor="middle">{l}</text>;
+        return <text key={l} x={x} y={height - 8} fill="#7a808a" fontSize="11" fontFamily="JetBrains Mono" textAnchor="middle">{l}</text>;
       })}
     </g>
   );
@@ -79,12 +79,12 @@ const GlucoseChart = ({ style = 'line', height = 280 }) => {
 
       {/* "Now" line */}
       <line x1={padding.l + innerW * 0.7} x2={padding.l + innerW * 0.7} y1={padding.t} y2={h - padding.b} stroke="rgba(255,255,255,0.15)" strokeDasharray="3 3"/>
-      <text x={padding.l + innerW * 0.7 + 6} y={padding.t + 12} fill="rgba(255,255,255,0.4)" fontSize="10" fontFamily="JetBrains Mono">NOW</text>
+      <text x={padding.l + innerW * 0.7 + 6} y={padding.t + 12} fill="rgba(255,255,255,0.55)" fontSize="11" fontFamily="JetBrains Mono" fontWeight="600">NOW</text>
 
       {/* Empty-state badge */}
       <g transform={`translate(${w / 2}, ${h / 2})`}>
         <rect x="-100" y="-22" width="200" height="44" rx="22" fill="rgba(0,0,0,0.6)" stroke="rgba(255,255,255,0.08)"/>
-        <text x="0" y="2" fill="#9aa0aa" fontSize="11" fontFamily="JetBrains Mono" textAnchor="middle" letterSpacing="0.05em">
+        <text x="0" y="2" fill="#cdd2da" fontSize="12" fontFamily="JetBrains Mono" fontWeight="600" textAnchor="middle" letterSpacing="0.06em">
           AWAITING REAL-TIME DATA
         </text>
         <circle cx="-78" cy="0" r="3" fill="#e63946">

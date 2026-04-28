@@ -632,7 +632,7 @@ const Landing = ({ onEnter }) => {
           <div className="season-grid">
             <article className="season-card season-card--summer">
               <div className="season-ico" aria-hidden="true">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4.2" fill="currentColor" fillOpacity="0.18"/><path d="M12 2v2.5M12 19.5V22M4.22 4.22l1.77 1.77M18.01 18.01l1.77 1.77M2 12h2.5M19.5 12H22M4.22 19.78l1.77-1.77M18.01 5.99l1.77-1.77"/></svg>
               </div>
               <div className="season-tag mono">YAZ PROFİLİ</div>
               <h4>Sıcak hava modeli</h4>
@@ -645,7 +645,7 @@ const Landing = ({ onEnter }) => {
             </article>
             <article className="season-card season-card--winter">
               <div className="season-ico" aria-hidden="true">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12h20M12 2v20M4.5 4.5l15 15M19.5 4.5l-15 15"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M3.34 7l17.32 10M3.34 17l17.32-10"/><path d="M9 4l3 2 3-2M9 20l3-2 3 2M3.5 9l1.5 2.5L3.5 14M20.5 9L19 11.5l1.5 2.5M9.5 12l2.5 1.5 2.5-1.5"/></svg>
               </div>
               <div className="season-tag mono">KIŞ PROFİLİ</div>
               <h4>Soğuk hava modeli</h4>
@@ -658,7 +658,7 @@ const Landing = ({ onEnter }) => {
             </article>
             <article className="season-card season-card--personal">
               <div className="season-ico" aria-hidden="true">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 3c0 5 16 5 16 8s-16 3-16 8"/><path d="M20 3c0 5-16 5-16 8s16 3 16 8"/><path d="M7 7h10M7 17h10M9 11h6"/></svg>
               </div>
               <div className="season-tag mono">KİŞİSEL PROFİL</div>
               <h4>Hastaya özel model</h4>

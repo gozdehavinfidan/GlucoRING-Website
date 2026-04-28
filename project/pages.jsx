@@ -146,10 +146,10 @@ const Patients = ({ onOpen }) => {
             <tr style={{ opacity: 0.35, cursor: 'default' }} onClick={(e) => e.stopPropagation()}>
               <td style={{ paddingLeft: 22 }}>
                 <div className="row gap-12">
-                  <div className="patient-avatar" style={{ width: 32, height: 32, fontSize: 12 }}>—</div>
+                  <div className="patient-avatar" style={{ width: 32, height: 32, fontSize: 14 }}>—</div>
                   <div>
                     <div className="name">Ad Soyad</div>
-                    <div className="mono" style={{ fontSize: 11, color: 'var(--text-mute)' }}>PT-XXXX</div>
+                    <div className="mono" style={{ fontSize: 12, color: 'var(--text-mute)', letterSpacing: '0.04em' }}>PT-XXXX</div>
                   </div>
                 </div>
               </td>
@@ -179,7 +179,7 @@ const PatientDetail = ({ onBack, tw }) => {
   return (
     <>
       <div className="row gap-12 mb-20">
-        <button className="btn-pill ghost" style={{ padding: '8px 14px', fontSize: 12 }} onClick={onBack}>
+        <button className="btn-pill ghost" style={{ padding: '8px 14px', fontSize: 14 }} onClick={onBack}>
           ← Hasta Listesi
         </button>
         <div className="crumbs mono"><span>Hastalar</span> <span className="sep">/</span> <span className="now">— Boş Profil</span></div>
@@ -190,7 +190,7 @@ const PatientDetail = ({ onBack, tw }) => {
         <div className="patient-meta">
           <h2>Hasta Profili Boş</h2>
           <div className="row">
-            <span className="mono" style={{ fontSize: 11, color: 'var(--text-mute)' }}>PT-XXXX</span>
+            <span className="mono" style={{ fontSize: 12, color: 'var(--text-mute)', letterSpacing: '0.04em' }}>PT-XXXX</span>
             <span className="pill gray"><span className="pdot"/> Veri akışı bekleniyor</span>
           </div>
           <div className="row mt-12">
@@ -251,7 +251,7 @@ const PatientDetail = ({ onBack, tw }) => {
         <div className="chart-shell" style={{ height: 320 }}>
           <GlucoseChart style={tw.chartStyle || 'line'} height={320}/>
         </div>
-        <div className="row gap-20 mt-12" style={{ fontSize: 11.5, color: 'var(--text-dim)', fontFamily: 'JetBrains Mono' }}>
+        <div className="row gap-20 mt-12" style={{ fontSize: 13, color: 'var(--text-dim)', fontFamily: 'JetBrains Mono' }}>
           <span><span style={{ color: '#e63946' }}>━━</span> Öngörülen · +{horizon} dk</span>
           <span><span style={{ color: 'rgba(255,255,255,0.4)' }}>┄┄</span> Gerçek glukoz</span>
           <span><span style={{ color: 'rgba(230,57,70,0.4)' }}>┈┈</span> Hipo (≤70) / Hiper (≥180) eşikleri</span>
@@ -314,7 +314,7 @@ const PatientDetail = ({ onBack, tw }) => {
             <textarea placeholder="Klinik takip notu ekleyin… (tedavi önerisi değil)"/>
           </div>
           <div className="row" style={{ justifyContent: 'flex-end', marginTop: 8 }}>
-            <button className="btn-pill btn-accent" style={{ padding: '8px 16px', fontSize: 12 }}>Kaydet</button>
+            <button className="btn-pill btn-accent" style={{ padding: '8px 16px', fontSize: 14 }}>Kaydet</button>
           </div>
         </div>
       </div>
