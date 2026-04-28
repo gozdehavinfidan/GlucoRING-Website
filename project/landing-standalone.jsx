@@ -6,8 +6,8 @@ const APP_SHOTS = [
   { src: 'assets/app/pairing.png', t: 'Eşleştirme' },
   { src: 'assets/app/medicine reminder.png', t: 'İlaç Hatırlatma' },
   { src: 'assets/app/new medicine reminder.png', t: 'Yeni Hatırlatma' },
-  { src: "assets/app/ma'n.png", t: 'Ana Ekran' },
-  { src: 'assets/app/pic-2.png', t: 'Profil' },
+  { src: "assets/app/ma'n.png", t: 'Ana Ekran', fit: 'fit-tight-left' },
+  { src: 'assets/app/pic-2.png', t: 'Profil', fit: 'fit-tight' },
 ];
 
 const AppGallery = () => {
@@ -32,9 +32,9 @@ const AppGallery = () => {
     <div className={`app-gallery ${expanded ? 'expanded' : ''}`}>
       {!expanded && (
         <button className="app-fan" onClick={() => setExpanded(true)} aria-label="Galeriyi aç">
-          <div className="app-screen s1"><img src={APP_SHOTS[0].src} alt=""/></div>
-          <div className="app-screen s2"><img src={APP_SHOTS[1].src} alt=""/></div>
-          <div className="app-screen s3"><img src={APP_SHOTS[2].src} alt=""/></div>
+          <div className={`app-screen s1 ${APP_SHOTS[0].fit || ''}`}><img src={APP_SHOTS[0].src} alt=""/></div>
+          <div className={`app-screen s2 ${APP_SHOTS[1].fit || ''}`}><img src={APP_SHOTS[1].src} alt=""/></div>
+          <div className={`app-screen s3 ${APP_SHOTS[2].fit || ''}`}><img src={APP_SHOTS[2].src} alt=""/></div>
           <span className="fan-hint">
             <I name="arrow" size={14}/> Tüm ekranları gör
           </span>
@@ -65,7 +65,7 @@ const AppGallery = () => {
               return (
                 <button
                   key={i}
-                  className={`cover-item ${abs === 0 ? 'active' : ''}`}
+                  className={`cover-item ${s.fit || ''} ${abs === 0 ? 'active' : ''}`}
                   onClick={() => setActive(i)}
                   style={{
                     transform: `translate(-50%, -50%) translateX(${tx}px) scale(${scale}) rotateY(${rot}deg)`,

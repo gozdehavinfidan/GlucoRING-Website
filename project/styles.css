@@ -1276,6 +1276,7 @@ a { color: inherit; text-decoration: none; }
 .app-fan .app-screen {
   position: absolute;
   width: 260px;
+  aspect-ratio: 1224 / 2570;
   border-radius: 32px;
   overflow: hidden;
   box-shadow: 0 40px 80px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04);
@@ -1283,7 +1284,9 @@ a { color: inherit; text-decoration: none; }
 }
 .app-fan .app-screen img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
   display: block;
 }
 .app-fan .app-screen.s1 { transform: translate(-150px, 30px) rotate(-8deg); z-index: 2; }
@@ -1381,23 +1384,35 @@ a { color: inherit; text-decoration: none; }
   left: 50%;
   top: 50%;
   width: 260px;
+  aspect-ratio: 1224 / 2570;
   padding: 0;
   border: none;
   background: transparent;
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow: 0 40px 80px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04);
   cursor: pointer;
-  transition: transform 0.5s cubic-bezier(.22,.9,.3,1.1), opacity 0.4s ease, filter 0.4s ease;
+  transition: transform 0.5s cubic-bezier(.22,.9,.3,1.1), opacity 0.4s ease, filter 0.4s ease, box-shadow 0.4s ease;
   will-change: transform, opacity;
   transform-origin: center center;
 }
 .cover-item img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
   display: block;
-  border-radius: 32px;
-  box-shadow: 0 40px 80px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04);
 }
-.cover-item.active img {
+.cover-item.active {
   box-shadow: 0 60px 120px -20px rgba(230,57,70,0.25), 0 40px 80px -20px rgba(0,0,0,0.9), 0 0 0 1px rgba(230,57,70,0.2);
+}
+.app-screen.fit-tight img,
+.cover-item.fit-tight img {
+  transform: scale(1.08);
+}
+.app-screen.fit-tight-left img,
+.cover-item.fit-tight-left img {
+  transform: scale(1.13) translateX(-2%);
 }
 
 .cover-dots {
