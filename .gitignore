@@ -33,3 +33,6 @@ build/
 # Local screenshots / scratch images at repo root
 /login-*.png
 /screenshot-*.png
+/*-current.png
+/*-after.png
+/gallery-*.png
