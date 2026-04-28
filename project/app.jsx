@@ -15,7 +15,6 @@ const App = () => {
   const tw = { values: v, set: setTweak };
 
   // Firebase auth state — drives route transitions on sign-in/sign-out.
-  // Defensive fallback honors the codebase pattern at line 14 above (useTweaks).
   const auth = (typeof useFirebaseAuth === 'function')
     ? useFirebaseAuth()
     : { user: null, profile: null, ready: true };

@@ -1,11 +1,10 @@
-// QR Pairing flow — wired to Firestore /linkSessions per the DiaSAGE
-// backend contract (qr-link.js:147-211 in the sibling repo). Generates a
-// real session doc, renders a real QR via qrcodejs, and listens for
-// patient-app confirmation via onSnapshot. Deep-link scheme is
-// `diaagent://link?sessionId=…&token=…` (shared with DiaSAGE so the same
-// mobile companion app handles both sites).
+// QR Pairing flow — wired to Firestore /linkSessions. Generates a real
+// session doc, renders a real QR via qrcodejs, and listens for patient-app
+// confirmation via onSnapshot. Deep-link scheme is
+// `diaagent://link?sessionId=…&token=…`, which the mobile companion app
+// resolves to authorize data sharing.
 
-const QR_SESSION_TTL_MS = 30 * 60 * 1000; // 30 minutes — must match DiaSAGE
+const QR_SESSION_TTL_MS = 30 * 60 * 1000; // 30 minutes
 
 const generateHexToken = (lenBytes) => {
   const arr = new Uint8Array(lenBytes);
@@ -35,8 +34,7 @@ const QrPairing = ({ onDone }) => {
   const qrRef = React.useRef(null);
 
   // Effect 1 — create a Firestore session whenever `version` bumps (or on
-  // mount). Uses the EXACT DiaSAGE schema (qr-link.js:147-155 verbatim
-  // field names) so the same mobile companion app can confirm.
+  // mount). The doc shape is what the mobile companion app expects.
   React.useEffect(() => {
     if (!auth.ready) return;
     const user = auth.user;

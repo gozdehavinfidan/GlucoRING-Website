@@ -1,10 +1,7 @@
 // Authentication + Firestore helpers + useFirebaseAuth hook.
 // Loaded as <script type="text/babel"> AFTER firebase-config.js. Exposes
 // imperative helpers and a React hook on window so JSX modules can call
-// them without an import system (no build step in this codebase).
-//
-// Mirrors DiaSAGE's src/features/auth/auth.js + the doctor-doc upsert
-// pattern from src/features/dashboard/qr-link.js:97-104.
+// them without an import system.
 
 (function () {
   const firebaseUnavailable = () => (
@@ -32,7 +29,7 @@
   };
 
   // Register a new doctor. Creates the Auth user, sets displayName, then
-  // upserts /doctors/{uid} with the same shape DiaSAGE uses.
+  // upserts /doctors/{uid} with the doctor profile.
   window.signUp = async function (email, password, displayName) {
     if (firebaseUnavailable()) throw missingFirebaseError();
     const cred = await window.fbAuth.createUserWithEmailAndPassword(email, password);
@@ -57,8 +54,7 @@
     return window.fbAuth.sendPasswordResetEmail(email);
   };
 
-  // Turkish error messages — codes lifted from DiaSAGE qr-link.js:114-118
-  // plus the rest of the common Firebase Auth error surface.
+  // Turkish error messages for the common Firebase Auth error surface.
   window.mapAuthError = function (code) {
     switch (code) {
       case 'auth/invalid-email':
@@ -92,7 +88,7 @@
   //   profile : doctors-doc data | null (displayName, email, …; null if no doc)
   //   ready   : boolean                 (true after the first auth snapshot)
   //
-  // Defensive callers (per codebase convention, see app.jsx:14):
+  // Defensive callers:
   //   const { user, profile, ready } = (typeof useFirebaseAuth === 'function')
   //     ? useFirebaseAuth()
   //     : { user: null, profile: null, ready: true };
