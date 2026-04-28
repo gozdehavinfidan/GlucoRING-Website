@@ -161,12 +161,29 @@ a { color: inherit; text-decoration: none; }
   background: var(--nav-bg);
   border-bottom: 1px solid var(--nav-line);
 }
+/* M3 top app bar nav — label-large 14/20 weight 500, 40dp tap target */
 .landing-nav-links {
-  display: flex; gap: 32px;
-  font-size: 13.5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   color: var(--text-dim);
 }
-.landing-nav-links a:hover { color: var(--text); }
+.landing-nav-links a {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.01em;
+  transition: color 0.15s, background 0.15s;
+}
+.landing-nav-links a:hover {
+  color: var(--text);
+  background: var(--nav-line);
+}
 /* Material 3 button — 8dp grid, min 40dp touch target, type scale label-large */
 .btn-pill {
   display: inline-flex;
