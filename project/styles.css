@@ -3490,7 +3490,7 @@ a { color: inherit; text-decoration: none; }
   gap: var(--space-4);
   margin-bottom: var(--space-6);
 }
-.patient-bento { grid-auto-rows: 180px; }
+.patient-bento { grid-auto-rows: 220px; }
 .patient-bento .pb-hero { grid-column: span 2; grid-row: span 2; }
 .patient-bento .pd-hero .pb-hero-top h3 { font-size: clamp(26px, 2.6vw, 32px); }
 .patient-bento .pd-hero .pb-hero-val .num { font-size: clamp(56px, 5.2vw, 76px); }
@@ -3785,6 +3785,171 @@ a { color: inherit; text-decoration: none; }
   font-size: var(--m3-body-s-size);
   line-height: var(--m3-body-s-line);
   color: var(--text-dim);
+}
+
+/* ===== Patient detail toolbar + panels ===== */
+.pd-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-4) var(--space-5);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--m3-shape-lg);
+  margin-bottom: var(--space-5);
+  flex-wrap: wrap;
+}
+.pd-id { display: flex; flex-direction: column; gap: 2px; }
+.pd-id-name {
+  font-size: var(--m3-headline-s-size);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.pd-id-uid {
+  font-size: var(--m3-label-s-size);
+  color: var(--text-mute);
+  letter-spacing: 0.04em;
+  word-break: break-all;
+  max-width: 320px;
+}
+.pd-toolbar-meta {
+  display: flex; align-items: center; gap: var(--space-4);
+  margin-left: auto;
+  margin-right: var(--space-4);
+}
+.pd-season {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  padding: 6px 12px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  font-size: var(--m3-label-m-size);
+  color: var(--text);
+}
+.pd-season-lbl {
+  font-size: var(--m3-label-s-size);
+  letter-spacing: 0.16em;
+  font-weight: 700;
+  color: var(--text-mute);
+}
+
+/* ===== Detail panels (Notes / Alerts) ===== */
+.pd-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--m3-shape-xl);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  position: relative;
+  overflow: hidden;
+}
+.pd-panel--alerts::before,
+.pd-panel--notes::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 200px; height: 120px;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+}
+.pd-panel--alerts::before { background: rgba(245,183,61,0.18); }
+.pd-panel--notes::before  { background: rgba(109,177,255,0.18); }
+.pd-panel > * { position: relative; z-index: 1; }
+.pd-panel-h {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.pd-panel-h h3 {
+  font-size: var(--m3-title-l-size);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  margin: 0;
+}
+.pd-panel-sub {
+  font-size: var(--m3-body-s-size);
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.pd-count {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-mute);
+  letter-spacing: -0.02em;
+}
+.pd-panel--alerts .pd-count { color: var(--m3-warning); }
+.pd-panel--notes  .pd-count { color: var(--m3-secondary); }
+
+.pd-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-7) var(--space-4);
+  color: var(--text-mute);
+  gap: var(--space-2);
+}
+.pd-empty-art {
+  width: 64px;
+  height: 64px;
+  margin-bottom: var(--space-2);
+  color: var(--text-mute);
+  opacity: 0.7;
+}
+.pd-panel--alerts .pd-empty-art { color: var(--m3-tertiary); opacity: 0.85; }
+.pd-panel--notes  .pd-empty-art { color: var(--m3-secondary); opacity: 0.85; }
+.pd-empty h4 {
+  font-size: var(--m3-title-m-size);
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+.pd-empty p {
+  font-size: var(--m3-body-s-size);
+  line-height: var(--m3-body-l-line);
+  color: var(--text-dim);
+  max-width: 36ch;
+  margin: 0;
+}
+
+.pd-note-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: auto;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+.pd-note-editor textarea {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--m3-shape-md);
+  padding: var(--space-3) var(--space-4);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--m3-body-m-size);
+  line-height: var(--m3-body-m-line);
+  resize: vertical;
+  min-height: 76px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.pd-note-editor textarea:focus { border-color: color-mix(in srgb, var(--m3-secondary) 50%, var(--line-2)); }
+.pd-note-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.pd-note-meta {
+  font-size: var(--m3-label-s-size);
+  color: var(--text-mute);
+  letter-spacing: 0.04em;
 }
 
 /* ===== Patient feed ===== */

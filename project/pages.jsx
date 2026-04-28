@@ -63,16 +63,68 @@ const DashGfxSync = () => (
   </svg>
 );
 
-const DashGfx = ({ kind }) => {
+// EKG-style heart rate trace
+const DashGfxEKG = () => (
+  <svg className="db-gfx" viewBox="0 0 160 60" preserveAspectRatio="none" aria-hidden="true">
+    <polyline
+      points="0,30 30,30 38,30 42,18 48,42 54,12 60,30 90,30 98,18 104,42 110,12 116,30 160,30"
+      fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"
+    />
+  </svg>
+);
+
+// Circular ring meter for SpO2 (value 0-100 → arc fill)
+const DashGfxRing = ({ value }) => {
+  const v = value != null ? Math.max(0, Math.min(100, Number(value))) : 0;
+  const r = 24;
+  const c = 2 * Math.PI * r;
+  const filled = c * (v / 100);
+  return (
+    <svg className="db-gfx" viewBox="0 0 60 60" aria-hidden="true">
+      <circle cx="30" cy="30" r={r} fill="none" stroke="currentColor" strokeWidth="4" opacity="0.18"/>
+      <circle cx="30" cy="30" r={r} fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round"
+        strokeDasharray={`${filled} ${c - filled}`} strokeDashoffset={c / 4} transform="rotate(-90 30 30)"/>
+    </svg>
+  );
+};
+
+// Vertical thermometer with current value mark
+const DashGfxThermo = ({ value }) => {
+  const v = value != null ? Math.max(34, Math.min(40, Number(value))) : 36.5;
+  const pct = (v - 34) / 6; // 34..40 → 0..1
+  const fillH = 30 * pct;
+  return (
+    <svg className="db-gfx" viewBox="0 0 160 60" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <rect x="60" y="6" width="40" height="36" rx="6" fill="none" stroke="currentColor" strokeWidth="2" opacity="0.35"/>
+      <rect x="60" y={6 + (30 - fillH)} width="40" height={fillH + 6} rx="4" fill="currentColor" opacity="0.85"/>
+      <circle cx="80" cy="48" r="9" fill="currentColor"/>
+    </svg>
+  );
+};
+
+// HRV bars
+const DashGfxHRV = () => (
+  <svg className="db-gfx" viewBox="0 0 160 60" preserveAspectRatio="none" aria-hidden="true">
+    {[14, 22, 18, 28, 32, 24, 36, 30, 40, 26, 34, 38, 30, 24, 32, 28, 22, 30].map((h, i) => (
+      <rect key={i} x={i * 9 + 4} y={50 - h} width="5" height={h} rx="2" fill="currentColor" opacity={0.4 + (i % 3) * 0.18}/>
+    ))}
+  </svg>
+);
+
+const DashGfx = ({ kind, value }) => {
   if (kind === 'patients') return <DashGfxPatients/>;
   if (kind === 'hypo')     return <DashGfxHypo/>;
   if (kind === 'hyper')    return <DashGfxHyper/>;
   if (kind === 'sync')     return <DashGfxSync/>;
+  if (kind === 'ekg')      return <DashGfxEKG/>;
+  if (kind === 'ring')     return <DashGfxRing value={value}/>;
+  if (kind === 'thermo')   return <DashGfxThermo value={value}/>;
+  if (kind === 'hrv')      return <DashGfxHRV/>;
   return null;
 };
 
 // Dashboard bento card following the landing /params hero/card pattern.
-const DashCard = ({ index, name, value, unit, hint, tone, gfx }) => {
+const DashCard = ({ index, name, value, unit, hint, tone, gfx, gfxValue }) => {
   const isText = typeof value === 'string' && !/^[\d\.\-,]+$/.test(value);
   return (
     <div className={`pb-card db-card ${tone ? 'db-card--' + tone : ''}`}>
@@ -80,7 +132,7 @@ const DashCard = ({ index, name, value, unit, hint, tone, gfx }) => {
         <span className="pb-num mono">{index}</span>
         <span className="pb-name">{name}</span>
       </div>
-      {gfx && <div className="db-gfx-wrap"><DashGfx kind={gfx}/></div>}
+      {gfx && <div className="db-gfx-wrap"><DashGfx kind={gfx} value={gfxValue}/></div>}
       <div className={`pb-big db-big ${isText ? 'is-text' : ''}`}>
         <span className="num mono">{value != null && value !== '' ? value : '—'}</span>
         {unit && value != null && !isText ? <span className="u">{unit}</span> : null}
@@ -531,9 +583,9 @@ const PatientDetail = ({ patientUid, onBack, tw }) => {
   }, [patientUid]);
 
   const seasonInfo = {
-    summer: { name: 'Yaz Modeli (Summer)', filter: 'KF + Q-Learning', icon: 'sun' },
-    winter: { name: 'Kış Modeli (Winter)', filter: 'EKF + Q-Learning', icon: 'snow' },
-    personal: { name: 'Kişiselleştirilmiş Sezonsal', filter: 'UKF + Q-Learning', icon: 'spark' },
+    summer: { name: 'Yaz Modeli', icon: 'sun' },
+    winter: { name: 'Kış Modeli', icon: 'snow' },
+    personal: { name: 'Kişiselleştirilmiş', icon: 'spark' },
   }[tw.seasonModel || 'personal'];
 
   const fmt = (v, digits = 0) => v == null ? '—' : Number(v).toFixed(digits);
@@ -587,7 +639,8 @@ const PatientDetail = ({ patientUid, onBack, tw }) => {
             value={reading?.heartRate != null ? Math.round(reading.heartRate) : null}
             unit="bpm"
             tone="crit"
-            hint={reading ? 'son okuma · yüzükten' : 'veri bekleniyor'}
+            gfx="ekg"
+            hint={reading ? 'yüzükten anlık' : '—'}
           />
           <DashCard
             index="02"
@@ -595,7 +648,9 @@ const PatientDetail = ({ patientUid, onBack, tw }) => {
             value={reading?.oxygenSaturation != null ? Math.round(reading.oxygenSaturation) : null}
             unit="%"
             tone="info"
-            hint={reading ? 'oksijen doygunluğu' : 'veri bekleniyor'}
+            gfx="ring"
+            gfxValue={reading?.oxygenSaturation}
+            hint={reading ? 'oksijen doygunluğu' : '—'}
           />
           <DashCard
             index="03"
@@ -603,7 +658,9 @@ const PatientDetail = ({ patientUid, onBack, tw }) => {
             value={reading?.bodyTemperature != null ? Number(reading.bodyTemperature).toFixed(1) : null}
             unit="°C"
             tone="warn"
-            hint={reading ? 'cilt sıcaklığı' : 'veri bekleniyor'}
+            gfx="thermo"
+            gfxValue={reading?.bodyTemperature}
+            hint={reading ? 'cilt sıcaklığı' : '—'}
           />
           <DashCard
             index="04"
@@ -611,26 +668,23 @@ const PatientDetail = ({ patientUid, onBack, tw }) => {
             value={reading?.hrvSdnn != null ? Math.round(reading.hrvSdnn) : null}
             unit="ms"
             tone="ok"
-            hint={reading?.hrvStressLevel != null ? `stres skoru ${reading.hrvStressLevel}` : 'kalp ritim varyabilitesi'}
+            gfx="hrv"
+            hint={reading?.hrvStressLevel != null ? `stres skoru ${reading.hrvStressLevel}` : '—'}
           />
         </div>
         );
       })()}
 
-      <div className="card mb-20" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', flexWrap: 'wrap' }}>
-        <div style={{ flex: 1, minWidth: 240 }}>
-          <div className="card-h" style={{ marginBottom: 8 }}>
-            <h3 style={{ fontSize: 'var(--m3-title-l-size)' }}>{patientLabel}</h3>
-            <span className="pill gray"><span className="pdot"/> {reading ? 'aktif veri akışı' : (loading ? 'yükleniyor…' : 'veri yok')}</span>
-          </div>
-          <div className="mono" style={{ fontSize: 13, color: 'var(--text-mute)', letterSpacing: '0.04em' }}>{patientUid || 'PT-XXXX'}</div>
+      <div className="pd-toolbar">
+        <div className="pd-id">
+          <div className="pd-id-name">{patientLabel}</div>
+          <div className="pd-id-uid mono">{patientUid || '—'}</div>
+        </div>
+        <div className="pd-toolbar-meta">
+          <span className="pill gray"><span className="pdot"/> {reading ? 'aktif veri akışı' : (loading ? 'yükleniyor' : 'veri yok')}</span>
+          <span className="pd-season"><span className="pd-season-lbl mono">SEZON</span> <span>{seasonInfo.name}</span></span>
         </div>
         <div className="row gap-12">
-          <div style={{ textAlign: 'center', minWidth: 84 }}>
-            <div className="mono" style={{ fontSize: 11, color: 'var(--text-mute)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>Aktif Sezon</div>
-            <div style={{ fontSize: 14, fontWeight: 600 }}>{seasonInfo.name}</div>
-            <div className="mono" style={{ fontSize: 12, color: 'var(--accent)' }}>{seasonInfo.filter}</div>
-          </div>
           <button className="icon-btn" title="Yenile"><I name="refresh" size={16}/></button>
           <button className="btn-pill btn-accent" style={{ padding: '10px 16px' }}>
             <I name="download" size={14}/> PDF Rapor
@@ -666,33 +720,50 @@ const PatientDetail = ({ patientUid, onBack, tw }) => {
 
 
       <div className="split-2">
-        <div className="card">
-          <div className="card-h">
-            <h3>Risk & Uyarı Geçmişi</h3>
-            <div className="meta mono">stream · /alerts</div>
+        <div className="pd-panel pd-panel--alerts">
+          <div className="pd-panel-h">
+            <div>
+              <h3>Risk & Uyarı Geçmişi</h3>
+              <div className="pd-panel-sub">Hipoglisemi/hiperglisemi öngörü kayıtları</div>
+            </div>
+            <span className="pd-count mono">0</span>
           </div>
-          <div className="empty" style={{ padding: '40px 16px' }}>
-            <div className="ico"><I name="bell"/></div>
-            <h4>Uyarı yok</h4>
-            <p>Hipoglisemi veya hiperglisemi öngörüldüğünde burada listelenir.</p>
-            <span className="hint mono">/patients/{`{id}`}/alerts</span>
+          <div className="pd-empty pd-empty--alerts">
+            <svg viewBox="0 0 64 64" className="pd-empty-art" aria-hidden="true">
+              <circle cx="32" cy="32" r="28" fill="currentColor" opacity="0.1"/>
+              <path d="M22 32 L30 40 L44 26" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <h4>Aktif uyarı yok</h4>
+            <p>Glukoz hipo/hiperglisemi eşiklerini geçtiğinde burada otomatik kayıt oluşur.</p>
           </div>
         </div>
-        <div className="card">
-          <div className="card-h">
-            <h3>Klinik Notlar</h3>
-            <button className="icon-btn" style={{ width: 28, height: 28 }}><I name="plus" size={14}/></button>
+
+        <div className="pd-panel pd-panel--notes">
+          <div className="pd-panel-h">
+            <div>
+              <h3>Klinik Notlar</h3>
+              <div className="pd-panel-sub">Doktor takip notları</div>
+            </div>
+            <span className="pd-count mono">0</span>
           </div>
-          <div className="empty" style={{ padding: '32px 16px' }}>
-            <div className="ico"><I name="notes"/></div>
+          <div className="pd-empty">
+            <svg viewBox="0 0 64 64" className="pd-empty-art" aria-hidden="true">
+              <rect x="14" y="14" width="36" height="44" rx="4" fill="none" stroke="currentColor" strokeWidth="2.5" opacity="0.5"/>
+              <line x1="22" y1="26" x2="42" y2="26" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+              <line x1="22" y1="34" x2="42" y2="34" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+              <line x1="22" y1="42" x2="34" y2="42" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+            </svg>
             <h4>Henüz not yok</h4>
-            <p>Klinik takip notlarınız tarih ve hekim adı ile kaydedilir.</p>
+            <p>Aşağıdan ekleyin. Tarih ve hekim adı ile kaydedilir.</p>
           </div>
-          <div className="note-input">
-            <textarea placeholder="Klinik takip notu ekleyin… (tedavi önerisi değil)"/>
-          </div>
-          <div className="row" style={{ justifyContent: 'flex-end', marginTop: 8 }}>
-            <button className="btn-pill btn-accent" style={{ padding: '8px 16px', fontSize: 14 }}>Kaydet</button>
+          <div className="pd-note-editor">
+            <textarea placeholder="Klinik takip notu ekleyin…"/>
+            <div className="pd-note-actions">
+              <span className="pd-note-meta mono">{new Date().toLocaleDateString('tr-TR')}</span>
+              <button className="btn-pill btn-accent" style={{ padding: '8px 16px', fontSize: 14 }}>
+                <I name="plus" size={14}/> Kaydet
+              </button>
+            </div>
           </div>
         </div>
       </div>
