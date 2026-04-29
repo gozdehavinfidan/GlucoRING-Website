@@ -318,7 +318,7 @@ const Landing = ({ onEnter }) => {
         <div className="section-head">
           <span className="section-eye">I. DONANIM</span>
           <h2 className="section-h">Kompakt sağlık takip <em>yüzüğü</em>.</h2>
-          <p className="section-sub">GlucoRING ekosisteminin çekirdek giyilebilir cihazı. Parmağınızdan kesintisiz fizyolojik veri toplar, BLE 5.0 ile mobil uygulamaya senkronize eder. Glukoz tahmin modelimizin anahtarı bu yüzüktür.</p>
+          <p className="section-sub">GlucoRING ekosisteminin çekirdek giyilebilir cihazı. Parmağınızdan kesintisiz fizyolojik veri toplar ve mobil uygulamayla otomatik eşleşir. Glukoz tahmin modelimizin anahtarı bu yüzüktür.</p>
         </div>
         <div className="hw-bento">
           <article className="hw-card hw-card--lg" style={{backgroundImage: `url(${window.__resources.photoPodium})`}}>
@@ -629,19 +629,19 @@ const Landing = ({ onEnter }) => {
         <div className="security-split">
           <div>
             <span className="section-eye">V. GÜVENLİK & PAYLAŞIM</span>
-            <h2 className="section-h">Hasta verisi, <em>hastanın iznine</em> bağlı.</h2>
-            <p className="section-sub">Her veri paylaşımı hasta tarafında QR onayı ile başlar, istenildiği an iptal edilebilir. GlucoRING, KVKK ve klinik veri saklama standartları doğrultusunda çalışır.</p>
+            <h2 className="section-h">Klinik takip, <em>hasta onayıyla</em> başlar.</h2>
+            <p className="section-sub">Doktor paneline veri akışı QR onayıyla etkinleşir; paylaşım izinleri uygulama üzerinden güvenli şekilde yönetilir. GlucoRING, KVKK ve klinik veri saklama standartları doğrultusunda çalışır.</p>
           </div>
           <div className="security-cards">
             <div className="sec-card">
               <div className="sec-ico"><I name="qr" size={18}/></div>
               <h4>QR ile yetkilendirme</h4>
-              <p>Doktor paneldeki kodu hastanın uygulaması tarar — eşleşme hasta tarafından onaylanır.</p>
+              <p>Panelde oluşturulan tek kullanımlık QR kod, hastanın uygulamasında onaylanır; hekim-hasta eşleşmesi güvenli şekilde başlar.</p>
             </div>
             <div className="sec-card">
               <div className="sec-ico"><I name="lock" size={18}/></div>
-              <h4>Uçtan uca şifreli</h4>
-              <p>Veri hem aktarımda hem depoda şifrelidir. Üst düzey güvenlik standartları uygulanır.</p>
+              <h4>Güvenli veri aktarımı</h4>
+              <p>Hastanın onayladığı ölçümler doktor paneline güvenli şekilde ulaşır; panelde yalnızca takip için gerekli bilgiler gösterilir.</p>
             </div>
             <div className="sec-card">
               <div className="sec-ico"><I name="shield" size={18}/></div>
@@ -650,8 +650,8 @@ const Landing = ({ onEnter }) => {
             </div>
             <div className="sec-card">
               <div className="sec-ico"><I name="x" size={18}/></div>
-              <h4>Anında iptal</h4>
-              <p>Hasta, uygulamasından doktor erişimini tek dokunuşla durdurabilir.</p>
+              <h4>Paylaşım kontrolü</h4>
+              <p>Hasta, veri paylaşım iznini uygulamasından güncelleyebilir; erişim durumu panele anında ve net biçimde yansır.</p>
             </div>
           </div>
         </div>

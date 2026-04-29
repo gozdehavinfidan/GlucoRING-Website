@@ -2656,7 +2656,7 @@ a { color: inherit; text-decoration: none; }
   40%, 60% { opacity: 0.85; }
 }
 
-/* Toggle card — knob slides between OFF and ON, with tap pulse */
+/* Toggle card — knob slides between closed and active states, with tap pulse */
 .sec-tart-knob,
 .sec-tart-knob-inner {
   animation: sec-tart-toggle-slide 4s cubic-bezier(.5,.2,.3,1) infinite;
@@ -2696,35 +2696,6 @@ a { color: inherit; text-decoration: none; }
   color: var(--text-dim);
   margin: 0;
 }
-.sec-tcard-pill {
-  position: relative;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  letter-spacing: 0.16em;
-  font-weight: 700;
-  color: color-mix(in srgb, var(--tone) 78%, var(--text));
-  padding: 10px 16px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--tone) 10%, transparent);
-  border: 1px solid color-mix(in srgb, var(--tone) 24%, transparent);
-  align-self: flex-start;
-  margin-top: 6px;
-}
-.sec-pill-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--tone);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tone) 22%, transparent);
-  animation: sec-pill-blink 1.6s ease-in-out infinite;
-}
-@keyframes sec-pill-blink {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 3px color-mix(in srgb, var(--tone) 22%, transparent); }
-  50%      { opacity: 0.4; box-shadow: 0 0 0 6px color-mix(in srgb, var(--tone) 8%, transparent); }
-}
-
 /* ================================================================
    VI. NASIL ÇALIŞIR — Process flow with connecting glowing rail
    ================================================================ */

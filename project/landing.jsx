@@ -316,7 +316,7 @@ const Landing = ({ onEnter }) => {
         <div className="section-head">
           <span className="section-eye">I. DONANIM</span>
           <h2 className="section-h">Kompakt sağlık takip <em>yüzüğü</em>.</h2>
-          <p className="section-sub">GlucoRING ekosisteminin çekirdek giyilebilir cihazı. Parmağınızdan kesintisiz fizyolojik veri toplar, BLE 5.0 ile mobil uygulamaya senkronize eder. Glukoz tahmin modelimizin anahtarı bu yüzüktür.</p>
+          <p className="section-sub">GlucoRING ekosisteminin çekirdek giyilebilir cihazı. Parmağınızdan kesintisiz fizyolojik veri toplar ve mobil uygulamayla otomatik eşleşir. Glukoz tahmin modelimizin anahtarı bu yüzüktür.</p>
         </div>
         <div className="hw-bento">
           <article className="hw-card hw-card--lg" style={{backgroundImage: 'url(assets/photos/ring-podium.png)'}}>
@@ -680,8 +680,8 @@ const Landing = ({ onEnter }) => {
       <section id="panel" className="landing-section bg-panel sec-section">
         <div className="section-head narrow">
           <span className="section-eye">V. GÜVENLİK & PAYLAŞIM</span>
-          <h2 className="section-h">Hasta verisi, <em>hastanın iznine</em> bağlı.</h2>
-          <p className="section-sub">Her paylaşım QR onayıyla başlar, istenildiği an iptal edilebilir. KVKK ve klinik veri saklama standartları doğrultusunda çalışır.</p>
+          <h2 className="section-h">Klinik takip, <em>hasta onayıyla</em> başlar.</h2>
+          <p className="section-sub">Doktor paneline veri akışı QR onayıyla etkinleşir; paylaşım izinleri uygulama üzerinden güvenli şekilde yönetilir. KVKK ve klinik veri saklama standartları doğrultusunda çalışır.</p>
         </div>
         <div className="sec-tgrid">
           {/* Card 1 — QR Authorization */}
@@ -732,12 +732,7 @@ const Landing = ({ onEnter }) => {
             </div>
 
             <h3 className="sec-tcard-name">QR ile yetkilendirme</h3>
-            <p className="sec-tcard-desc">Doktor panelinde oluşan tek-kullanımlık kodu hasta uygulamasıyla tarar; eşleşme yalnızca hasta onayıyla aktif olur.</p>
-
-            <div className="sec-tcard-pill mono">
-              <span className="sec-pill-dot" aria-hidden="true"/>
-              TEK KULLANIMLIK · 60 SN GEÇERLİ
-            </div>
+            <p className="sec-tcard-desc">Panelde oluşturulan tek kullanımlık QR kod, hastanın uygulamasında onaylanır; hekim-hasta eşleşmesi güvenli şekilde başlar.</p>
           </article>
 
           {/* Card 2 — End-to-End Encryption */}
@@ -796,13 +791,8 @@ const Landing = ({ onEnter }) => {
               </svg>
             </div>
 
-            <h3 className="sec-tcard-name">Uçtan uca şifreli</h3>
-            <p className="sec-tcard-desc">Veri yüzükten panele kadar şifrelenmiş kanaldan akar; hem aktarımda hem depoda standart endüstri kriptografisi uygulanır.</p>
-
-            <div className="sec-tcard-pill mono">
-              <span className="sec-pill-dot" aria-hidden="true"/>
-              TLS · AES · TRANSIT + REST
-            </div>
+            <h3 className="sec-tcard-name">Güvenli veri aktarımı</h3>
+            <p className="sec-tcard-desc">Hastanın onayladığı ölçümler doktor paneline güvenli şekilde ulaşır; panelde yalnızca takip için gerekli bilgiler gösterilir.</p>
           </article>
 
           {/* Card 3 — Instant Revoke */}
@@ -819,11 +809,11 @@ const Landing = ({ onEnter }) => {
 
             <div className="sec-tcard-art" aria-hidden="true">
               <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" className="sec-tart">
-                {/* Toggle switch — animated between ON / OFF states */}
+                {/* Toggle switch — animated between active / closed states */}
                 <g className="sec-tart-toggle">
                   {/* Label rail */}
-                  <text x="40" y="38" fontFamily="JetBrains Mono" fontSize="11" fill="currentColor"
-                        opacity="0.45" letterSpacing="0.16em" fontWeight="700">OFF</text>
+                  <text x="34" y="38" fontFamily="JetBrains Mono" fontSize="10" fill="currentColor"
+                        opacity="0.45" letterSpacing="0.12em" fontWeight="700">KAPALI</text>
                   <text x="120" y="38" fontFamily="JetBrains Mono" fontSize="11" fill="currentColor"
                         letterSpacing="0.16em" fontWeight="700">AKTİF</text>
 
@@ -844,13 +834,8 @@ const Landing = ({ onEnter }) => {
               </svg>
             </div>
 
-            <h3 className="sec-tcard-name">Anında iptal</h3>
-            <p className="sec-tcard-desc">Hasta uygulamadan tek dokunuşla doktor erişimini durdurabilir; iptal anında etkili olur, geçmiş veri akışı kapanır.</p>
-
-            <div className="sec-tcard-pill mono">
-              <span className="sec-pill-dot" aria-hidden="true"/>
-              HASTA KONTROLÜ · ANINDA
-            </div>
+            <h3 className="sec-tcard-name">Paylaşım kontrolü</h3>
+            <p className="sec-tcard-desc">Hasta, veri paylaşım iznini uygulamasından güncelleyebilir; erişim durumu panele anında ve net biçimde yansır.</p>
           </article>
         </div>
       </section>
@@ -860,7 +845,7 @@ const Landing = ({ onEnter }) => {
         <div className="section-head narrow">
           <span className="section-eye">VI. NASIL ÇALIŞIR</span>
           <h2 className="section-h">Hasta ile doktor arasında <em>üç adım</em>.</h2>
-          <p className="section-sub">Yüzüğü tak, uygulamayı kur, panelde QR ile eşleş — üç durakla biten doğrusal bir akış.</p>
+          <p className="section-sub">Hekim panelden eşleştirmeyi başlatır; hasta onayıyla ölçümler klinik takip ekranına düşer.</p>
         </div>
         <ol className="hiw-rgrid">
           {/* Connecting rail — glowing line behind all steps */}
@@ -874,12 +859,12 @@ const Landing = ({ onEnter }) => {
           {/* Step 1 — Wear ring + open app */}
           <li className="hiw-rstep hiw-rstep--red">
             <div className="hiw-rstep-num">
-              <span className="mono hiw-rstep-num-prefix">STEP</span>
+              <span className="mono hiw-rstep-num-prefix">ADIM</span>
               <span className="hiw-rstep-num-big mono">01</span>
             </div>
             <div className="hiw-rstep-art" aria-hidden="true">
               <svg viewBox="0 0 220 120" preserveAspectRatio="xMidYMid meet" className="hiw-rart">
-                {/* Ring outline with BLE wave */}
+                {/* Ring outline with wireless wave */}
                 <g transform="translate(110, 60)">
                   <ellipse cx="0" cy="0" rx="34" ry="26" fill="none" stroke="currentColor" strokeWidth="3"/>
                   <ellipse cx="0" cy="0" rx="22" ry="16" fill="none" stroke="currentColor" strokeWidth="2" opacity="0.4"/>
@@ -890,26 +875,25 @@ const Landing = ({ onEnter }) => {
                     <animate attributeName="opacity" values="0.6;0;0.6" dur="2.4s" repeatCount="indefinite"/>
                   </circle>
                 </g>
-                {/* BLE waves emanating from right */}
+                {/* Wireless waves emanating from right */}
                 {[0, 1, 2].map((i) => (
                   <path key={i}
                         d={`M ${158 + i * 12} 50 Q ${168 + i * 12} 60 ${158 + i * 12} 70`}
                         fill="none" stroke="currentColor" strokeWidth="2"
                         opacity={0.7 - i * 0.2} strokeLinecap="round"/>
                 ))}
-                {/* "BLE" tag */}
-                <text x="200" y="64" fontFamily="JetBrains Mono" fontSize="9" fill="currentColor"
-                      fontWeight="700" letterSpacing="0.16em" textAnchor="end" opacity="0.7">BLE</text>
+                <text x="200" y="64" fontFamily="JetBrains Mono" fontSize="8" fill="currentColor"
+                      fontWeight="700" letterSpacing="0.08em" textAnchor="end" opacity="0.7">BAĞLANTI</text>
               </svg>
             </div>
-            <h4 className="hiw-rstep-name">Yüzüğü tak, uygulamayı aç</h4>
-            <p className="hiw-rstep-desc">Mobil uygulama yüzüğü otomatik bulur, BLE 5.0 üzerinden tek dokunuşla eşleşir. Kalibrasyon gerekmez.</p>
+            <h4 className="hiw-rstep-name">Yüzük uygulamayla eşleşir</h4>
+            <p className="hiw-rstep-desc">Hasta yüzüğü taktığında mobil uygulama cihazı otomatik bulur. Tek dokunuşla bağlantı kurulur; ek kalibrasyon gerekmez.</p>
           </li>
 
           {/* Step 2 — Scan QR */}
           <li className="hiw-rstep hiw-rstep--blue">
             <div className="hiw-rstep-num">
-              <span className="mono hiw-rstep-num-prefix">STEP</span>
+              <span className="mono hiw-rstep-num-prefix">ADIM</span>
               <span className="hiw-rstep-num-big mono">02</span>
             </div>
             <div className="hiw-rstep-art" aria-hidden="true">
@@ -949,14 +933,14 @@ const Landing = ({ onEnter }) => {
                 ))}
               </svg>
             </div>
-            <h4 className="hiw-rstep-name">Doktor panelinden QR'ı tara</h4>
-            <p className="hiw-rstep-desc">Hasta, uygulamadaki tarayıcı ile panel QR'ını okur ve paylaşımı tek dokunuşla onaylar.</p>
+            <h4 className="hiw-rstep-name">Eşleştirmeyi hekim başlatır</h4>
+            <p className="hiw-rstep-desc">Hekim, gerekli olduğunda hastanın uygulamasındaki QR kodu panelden okutarak eşleştirme isteği oluşturur. Hasta onay verdiğinde veri paylaşımı başlar.</p>
           </li>
 
           {/* Step 3 — Live data on panel */}
           <li className="hiw-rstep hiw-rstep--green">
             <div className="hiw-rstep-num">
-              <span className="mono hiw-rstep-num-prefix">STEP</span>
+              <span className="mono hiw-rstep-num-prefix">ADIM</span>
               <span className="hiw-rstep-num-big mono">03</span>
             </div>
             <div className="hiw-rstep-art" aria-hidden="true">
@@ -994,7 +978,7 @@ const Landing = ({ onEnter }) => {
               </svg>
             </div>
             <h4 className="hiw-rstep-name">Veri klinik panelde canlı</h4>
-            <p className="hiw-rstep-desc">Şifreli kanaldan gelen fizyolojik akış doktor paneline gerçek zamanlı işlenir. 5/15/30 dk tahminleri otomatik üretilir.</p>
+            <p className="hiw-rstep-desc">Onaylanan ölçümler doktor panelinde canlı olarak görünür. Hekim glukoz eğilimini ve kısa vadeli risk tahminlerini tek ekranda takip eder.</p>
           </li>
         </ol>
       </section>
@@ -1163,7 +1147,7 @@ const Landing = ({ onEnter }) => {
           </details>
           <details className="faq-item">
             <summary>Verilerimi benim dışımda kim görebilir?</summary>
-            <p>Sadece <strong>siz onayladığınız doktor</strong>, sadece siz onayladığınız sürece. Süreç şöyle: doktorunuzun panelinde bir QR kodu çıkar, GlucoRING uygulamanızla bu kodu tararsınız, tek dokunuşla onaylarsınız. O andan itibaren doktorunuz verilerinizi görür. İstediğiniz an aynı uygulamadan tek dokunuşla iptal edebilirsiniz; doktorunuzun erişimi anında kapanır. GlucoRING ekibi dahil hiç kimse, sizin onayınız olmadan verilerinize bakamaz.</p>
+            <p>Sadece <strong>siz onayladığınız doktor</strong>, sadece siz onayladığınız sürece. Süreç şöyle: doktorunuzun panelinde bir QR kodu çıkar, GlucoRING uygulamanızla bu kodu tararsınız, tek dokunuşla onaylarsınız. O andan itibaren doktorunuz verilerinizi görür. Paylaşım izninizi uygulamadan güncellediğinizde panel erişimi aynı anda buna göre düzenlenir. GlucoRING ekibi dahil hiç kimse, sizin onayınız olmadan verilerinize bakamaz.</p>
           </details>
           <details className="faq-item">
             <summary>Yüzük şarj gerektiriyor mu, ne kadar dayanıyor?</summary>
@@ -1213,7 +1197,7 @@ const Landing = ({ onEnter }) => {
           </div>
           <ul className="cta-trust">
             <li><span className="dot"/>KVKK uyumlu</li>
-            <li><span className="dot"/>Uçtan uca şifreli</li>
+            <li><span className="dot"/>Güvenli veri aktarımı</li>
             <li><span className="dot"/>Tarayıcı tabanlı, kurulum gerekmez</li>
           </ul>
         </div>
