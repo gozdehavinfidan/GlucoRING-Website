@@ -50,8 +50,39 @@ const App = () => {
 
   React.useEffect(() => {
     // Sidebar width
-    document.documentElement.style.setProperty('--sidebar-w', v.sidebarCompact ? '72px' : '248px');
+    document.documentElement.style.setProperty('--sidebar-w', v.sidebarCompact ? '72px' : '280px');
   }, [v.sidebarCompact]);
+
+  // Browser history integration — make the back button work and reflect the
+  // current route/page in the URL hash. We use replaceState on first mount so
+  // we own the current entry, then pushState on every subsequent navigation.
+  // popstate listener mirrors history state into our local state.
+  const isFirstMount = React.useRef(true);
+  React.useEffect(() => {
+    if (isFirstMount.current) {
+      window.history.replaceState({ route, page }, '', `#${route}/${page}`);
+      isFirstMount.current = false;
+      return;
+    }
+    const cur = window.history.state || {};
+    if (cur.route === route && cur.page === page) return;
+    window.history.pushState({ route, page }, '', `#${route}/${page}`);
+  }, [route, page]);
+
+  React.useEffect(() => {
+    const onPop = (e) => {
+      const s = e.state;
+      if (s && s.route) {
+        setRoute(s.route);
+        if (s.page) setPage(s.page);
+      } else {
+        // No state means user navigated to the very first entry (likely landing).
+        setRoute('landing');
+      }
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
   const renderPage = () => {
     switch (page) {
@@ -110,7 +141,10 @@ const App = () => {
 
   return (
     <>
-      {route === 'landing' && <Landing onEnter={() => setRoute('login')}/>}
+      {route === 'landing' && <Landing onEnter={() => {
+        if (auth.user) { setRoute('app'); setPage('dashboard'); }
+        else { setRoute('login'); }
+      }}/>}
       {route === 'login' && <Login onBack={() => setRoute('landing')}/>}
       {route === 'qr' && <QrPairing onDone={() => { setRoute('app'); setPage('dashboard'); }}/>}
       {route === 'app' && (
@@ -122,6 +156,7 @@ const App = () => {
             userName={userName}
             userEmail={userEmail}
             onSignOut={handleSignOut}
+            onBrandClick={() => setRoute('landing')}
           />
           <main className="main">
             <Topbar crumbs={crumbsMap[page] || ['Klinik İzlem']}/>

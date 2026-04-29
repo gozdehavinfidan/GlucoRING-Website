@@ -12,14 +12,19 @@ const NAV_BOTTOM = [
   { id: 'settings', label: 'Ayarlar', icon: 'settings' },
 ];
 
-const Sidebar = ({ current, onNav, compact, userName, userEmail, onSignOut }) => {
+const Sidebar = ({ current, onNav, compact, userName, userEmail, onSignOut, onBrandClick }) => {
   const displayName = (userName && String(userName).trim()) || 'Kullanıcı';
   const initials = (displayName.split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase()) || 'DR';
   return (
     <aside className="sidebar">
-      <div className="sidebar-brand">
+      <button
+        type="button"
+        className="sidebar-brand sidebar-brand--btn"
+        onClick={onBrandClick}
+        title="Ana sayfaya dön"
+        aria-label="Ana sayfaya dön">
         {compact ? <Mono size={28}/> : <Logo size={28}/>}
-      </div>
+      </button>
       <div className="sidebar-section">İzlem</div>
       {NAV_ITEMS.map(it => (
         <div key={it.id} className={`nav-item ${current === it.id ? 'active' : ''}`} onClick={() => onNav(it.id)}>

@@ -88,16 +88,47 @@ const DashGfxRing = ({ value }) => {
   );
 };
 
-// Vertical thermometer with current value mark
+// Classic clinical thermometer, sized to fill the gfx area: wide stem,
+// large bulb, full-height mercury column. Mercury rises proportional to the
+// 34–40°C temperature range. Tick marks on the right and a 37.5°C fever
+// reference on the left make the reading interpretable at a glance.
 const DashGfxThermo = ({ value }) => {
   const v = value != null ? Math.max(34, Math.min(40, Number(value))) : 36.5;
-  const pct = (v - 34) / 6; // 34..40 → 0..1
-  const fillH = 30 * pct;
+  const stemTop = 4, stemBottom = 42, stemRange = stemBottom - stemTop;
+  const fillTopY = stemTop + (1 - (v - 34) / 6) * stemRange;
+  const refY = stemTop + (1 - (37.5 - 34) / 6) * stemRange;
   return (
     <svg className="db-gfx" viewBox="0 0 160 60" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-      <rect x="60" y="6" width="40" height="36" rx="6" fill="none" stroke="currentColor" strokeWidth="2" opacity="0.35"/>
-      <rect x="60" y={6 + (30 - fillH)} width="40" height={fillH + 6} rx="4" fill="currentColor" opacity="0.85"/>
-      <circle cx="80" cy="48" r="9" fill="currentColor"/>
+      {/* Outer outline: wider capsule stem + larger round bulb. Drawn as two
+          overlapping shapes — the bulb starts at y=30 and the stem extends to
+          y=42, so a ~12px overlap gives a clean fused-glass appearance. */}
+      <g fill="none" stroke="currentColor" strokeWidth="2.25" opacity="0.6">
+        <rect x="68" y="4" width="24" height="40" rx="12"/>
+        <circle cx="80" cy="44" r="15"/>
+      </g>
+      {/* Mercury bulb — always solid, sized to leave a glass rim */}
+      <circle cx="80" cy="44" r="11.5" fill="currentColor"/>
+      {/* Mercury stem — rises with temperature, narrower than outer glass */}
+      <rect x="72" y={fillTopY} width="16" height={stemBottom - fillTopY + 4}
+            rx="6" fill="currentColor"/>
+      {/* Tick marks on the right, alternating long/short for scale feel */}
+      {[0.15, 0.30, 0.45, 0.60, 0.75, 0.90].map((p, i) => {
+        const y = stemTop + (1 - p) * stemRange;
+        const long = i % 2 === 0;
+        return (
+          <line key={i} x1="94" x2={long ? 104 : 100} y1={y} y2={y}
+                stroke="currentColor" strokeWidth="1.5"
+                opacity={long ? 0.6 : 0.4}/>
+        );
+      })}
+      {/* Fever reference at 37.5°C — dashed line + label on the left */}
+      <line x1="52" x2="67" y1={refY} y2={refY}
+            stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 2" opacity="0.55"/>
+      <text x="50" y={refY + 4} fill="currentColor" fontSize="11" fontFamily="JetBrains Mono"
+            fontWeight="700" textAnchor="end" opacity="0.75" letterSpacing="-0.02em">37.5</text>
+      {/* Subtle glass highlight on the left edge for depth */}
+      <line x1="73" x2="73" y1="8" y2="38" stroke="currentColor" strokeWidth="1.5"
+            opacity="0.22" strokeLinecap="round"/>
     </svg>
   );
 };
@@ -594,7 +625,7 @@ const PatientDetail = ({ patientUid, onBack, tw }) => {
 
   return (
     <>
-      <div className="row gap-12 mb-20">
+      <div className="row gap-12" style={{ marginBottom: 12 }}>
         <button className="btn-pill ghost" style={{ padding: '8px 14px', fontSize: 14 }} onClick={onBack}>
           ← Hasta Listesi
         </button>
@@ -678,7 +709,10 @@ const PatientDetail = ({ patientUid, onBack, tw }) => {
       <div className="pd-toolbar">
         <div className="pd-id">
           <div className="pd-id-name">{patientLabel}</div>
-          <div className="pd-id-uid mono">{patientUid || '—'}</div>
+          <div className="pd-id-uid mono">
+            Son senkron: {lastSync}
+            {reading?.dataSource ? ` · ${reading.dataSource}` : ''}
+          </div>
         </div>
         <div className="pd-toolbar-meta">
           <span className="pill gray"><span className="pdot"/> {reading ? 'aktif veri akışı' : (loading ? 'yükleniyor' : 'veri yok')}</span>
@@ -692,7 +726,7 @@ const PatientDetail = ({ patientUid, onBack, tw }) => {
         </div>
       </div>
 
-      <div className="card mb-20">
+      <div className="card" style={{ marginBottom: 12 }}>
         <div className="card-h">
           <h3>Glukoz Tahmini · Gerçek vs Öngörülen</h3>
           <div className="row gap-12">
@@ -708,50 +742,96 @@ const PatientDetail = ({ patientUid, onBack, tw }) => {
             </div>
           </div>
         </div>
-        <div className="chart-shell" style={{ height: 320 }}>
-          <GlucoseChart style={tw.chartStyle || 'line'} height={320}/>
+        <div className="chart-shell" style={{ height: 280, maxWidth: 1180, marginInline: 'auto', width: '100%' }}>
+          <GlucoseChart style={tw.chartStyle || 'line'} height={280} history={history} horizon={horizon}/>
         </div>
-        <div className="row gap-20 mt-12" style={{ fontSize: 13, color: 'var(--text-dim)', fontFamily: 'JetBrains Mono' }}>
-          <span><span style={{ color: '#e63946' }}>━━</span> Öngörülen · +{horizon} dk</span>
-          <span><span style={{ color: 'rgba(255,255,255,0.4)' }}>┄┄</span> Gerçek glukoz</span>
-          <span><span style={{ color: 'rgba(230,57,70,0.4)' }}>┈┈</span> Hipo (≤70) / Hiper (≥180) eşikleri</span>
+        <div className="row gap-20 mt-12" style={{ fontSize: 15, color: 'var(--text-dim)', fontFamily: 'JetBrains Mono', flexWrap: 'wrap', rowGap: 8 }}>
+          <span><span style={{ color: 'var(--chart-line)', fontWeight: 700 }}>━━</span> Gerçek glukoz</span>
+          <span><span style={{ color: 'var(--chart-line)', opacity: 0.65 }}>┄┄</span> Öngörülen · +{horizon} dk</span>
+          <span><span style={{ color: 'var(--chart-line)' }}>○</span> Sensör ölçümü</span>
+          <span><span style={{ color: 'var(--chart-hyper)', fontWeight: 700 }}>┄┄</span> Hiper ≥ 180</span>
+          <span><span style={{ color: 'var(--chart-hypo)', fontWeight: 700 }}>┄┄</span> Hipo ≤ 70</span>
+          <span><span style={{ color: 'var(--chart-gap-line)' }}>▦</span> Veri yok</span>
         </div>
       </div>
 
 
       <div className="split-2">
         <div className="pd-panel pd-panel--alerts">
+          <span className="pd-stripe" aria-hidden="true"/>
           <div className="pd-panel-h">
-            <div>
+            <div className="pd-panel-h-text">
+              <span className="pd-eyebrow mono"><span className="pd-eyebrow-dot"/> RİSK GEÇMİŞİ</span>
               <h3>Risk & Uyarı Geçmişi</h3>
               <div className="pd-panel-sub">Hipoglisemi/hiperglisemi öngörü kayıtları</div>
             </div>
-            <span className="pd-count mono">0</span>
+            <div className="pd-count-wrap">
+              <span className="pd-count mono">0</span>
+              <span className="pd-count-lbl mono">olay</span>
+            </div>
           </div>
           <div className="pd-empty pd-empty--alerts">
-            <svg viewBox="0 0 64 64" className="pd-empty-art" aria-hidden="true">
-              <circle cx="32" cy="32" r="28" fill="currentColor" opacity="0.1"/>
-              <path d="M22 32 L30 40 L44 26" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg viewBox="0 0 96 96" className="pd-empty-art" aria-hidden="true">
+              <defs>
+                <radialGradient id="alerts-glow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="currentColor" stopOpacity="0.22"/>
+                  <stop offset="100%" stopColor="currentColor" stopOpacity="0"/>
+                </radialGradient>
+              </defs>
+              <circle cx="48" cy="48" r="46" fill="url(#alerts-glow)"/>
+              <circle cx="48" cy="48" r="34" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="2 5" opacity="0.55"/>
+              <circle cx="48" cy="48" r="26" fill="currentColor" opacity="0.14"/>
+              <path d="M34 48 L44 58 L62 38" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <h4>Aktif uyarı yok</h4>
             <p>Glukoz hipo/hiperglisemi eşiklerini geçtiğinde burada otomatik kayıt oluşur.</p>
           </div>
+          <div className="pd-foot mono">
+            <span className="pd-foot-cell">
+              <span className="pd-foot-k">Eşik · Hipo</span>
+              <span className="pd-foot-v">≤ 70 mg/dL</span>
+            </span>
+            <span className="pd-foot-sep" aria-hidden="true"/>
+            <span className="pd-foot-cell">
+              <span className="pd-foot-k">Eşik · Hiper</span>
+              <span className="pd-foot-v">≥ 180 mg/dL</span>
+            </span>
+            <span className="pd-foot-sep" aria-hidden="true"/>
+            <span className="pd-foot-cell">
+              <span className="pd-foot-k">Son tarama</span>
+              <span className="pd-foot-v">{lastSync}</span>
+            </span>
+          </div>
         </div>
 
         <div className="pd-panel pd-panel--notes">
+          <span className="pd-stripe" aria-hidden="true"/>
           <div className="pd-panel-h">
-            <div>
+            <div className="pd-panel-h-text">
+              <span className="pd-eyebrow mono"><span className="pd-eyebrow-dot"/> DOKTOR NOTLARI</span>
               <h3>Klinik Notlar</h3>
-              <div className="pd-panel-sub">Doktor takip notları</div>
+              <div className="pd-panel-sub">Hekim takip ve gözlem kayıtları</div>
             </div>
-            <span className="pd-count mono">0</span>
+            <div className="pd-count-wrap">
+              <span className="pd-count mono">0</span>
+              <span className="pd-count-lbl mono">not</span>
+            </div>
           </div>
           <div className="pd-empty">
-            <svg viewBox="0 0 64 64" className="pd-empty-art" aria-hidden="true">
-              <rect x="14" y="14" width="36" height="44" rx="4" fill="none" stroke="currentColor" strokeWidth="2.5" opacity="0.5"/>
-              <line x1="22" y1="26" x2="42" y2="26" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-              <line x1="22" y1="34" x2="42" y2="34" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-              <line x1="22" y1="42" x2="34" y2="42" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+            <svg viewBox="0 0 96 96" className="pd-empty-art" aria-hidden="true">
+              <defs>
+                <linearGradient id="notes-glow" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stopColor="currentColor" stopOpacity="0.22"/>
+                  <stop offset="100%" stopColor="currentColor" stopOpacity="0.04"/>
+                </linearGradient>
+              </defs>
+              <rect x="20" y="14" width="56" height="68" rx="6" fill="url(#notes-glow)" stroke="currentColor" strokeWidth="1.5" opacity="0.85"/>
+              <rect x="28" y="22" width="32" height="6" rx="3" fill="currentColor" opacity="0.55"/>
+              <line x1="28" y1="38" x2="68" y2="38" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" opacity="0.6"/>
+              <line x1="28" y1="48" x2="68" y2="48" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" opacity="0.45"/>
+              <line x1="28" y1="58" x2="58" y2="58" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" opacity="0.32"/>
+              <circle cx="68" cy="74" r="9" fill="currentColor" opacity="0.85"/>
+              <path d="M64 74 L67 77 L73 71" fill="none" stroke="var(--panel)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <h4>Henüz not yok</h4>
             <p>Aşağıdan ekleyin. Tarih ve hekim adı ile kaydedilir.</p>

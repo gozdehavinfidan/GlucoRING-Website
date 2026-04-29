@@ -368,7 +368,7 @@ const Landing = ({ onEnter }) => {
         <div className="section-head">
           <span className="section-eye">II. PARAMETRELER</span>
           <h2 className="section-h">Gerçek zamanlı <em>sağlık takibi</em>.</h2>
-          <p className="section-sub">Akıllı yüzük ve opsiyonel akıllı saat kombinasyonundan toplanan verilerin birleşimiyle toplamda <strong>9 farklı sağlık parametresini</strong> sürekli olarak izleyin.</p>
+          <p className="section-sub">Akıllı yüzükten toplanan fizyolojik verilerle toplamda <strong>9 farklı sağlık parametresini</strong> sürekli olarak izleyin.</p>
         </div>
         <div className="params-bento">
           {/* Featured hero — Glukoz Tahmini */}
@@ -421,54 +421,57 @@ const Landing = ({ onEnter }) => {
             </svg>
           </div>
 
-          {/* SpO2 — radial */}
+          {/* SpO2 — value centered, semi-arc gauge as graphic below */}
           <div className="pb-card pb-spo2-card">
             <div className="pb-card-head">
               <span className="pb-num mono">02</span>
               <span className="pb-name">SpO₂</span>
             </div>
-            <div className="pb-radial">
-              <svg viewBox="0 0 100 100" aria-hidden="true">
-                <circle cx="50" cy="50" r="42" fill="none" stroke="var(--line)" strokeWidth="6"/>
-                <circle cx="50" cy="50" r="42" fill="none" stroke="var(--accent)" strokeWidth="6" strokeLinecap="round" strokeDasharray="263.9" strokeDashoffset="7.9" transform="rotate(-90 50 50)"/>
-              </svg>
-              <div className="pb-radial-center">
-                <span className="num mono">97</span>
-                <span className="u">%</span>
-              </div>
+            <div className="pb-big">
+              <span className="num mono">97</span>
+              <span className="u">%</span>
             </div>
+            <svg className="pb-spo2-arc" viewBox="0 0 200 60" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+              <path d="M 14 54 C 14 4 186 4 186 54" fill="none" stroke="var(--line)" strokeWidth="6" strokeLinecap="round"/>
+              <path d="M 14 54 C 14 4 186 4 186 54" fill="none" stroke="var(--accent)" strokeWidth="6"
+                    strokeLinecap="round" pathLength="100" strokeDasharray="100" strokeDashoffset="3"/>
+              <circle cx="186" cy="54" r="4" fill="var(--accent)"/>
+            </svg>
           </div>
 
-          {/* Vücut Sıcaklığı — thermometer */}
+          {/* Vücut Sıcaklığı — value centered, horizontal thermometer bar below */}
           <div className="pb-card pb-temp-card">
             <div className="pb-card-head">
               <span className="pb-num mono">03</span>
               <span className="pb-name">Sıcaklık</span>
             </div>
-            <div className="pb-temp">
-              <div className="pb-thermo">
-                <div className="pb-thermo-fill"/>
-                <span className="pb-thermo-mark" style={{bottom:'30%'}}/>
-                <span className="pb-thermo-mark" style={{bottom:'60%'}}/>
-              </div>
-              <div className="pb-big">
-                <span className="num mono">36.5</span>
-                <span className="u">°C</span>
+            <div className="pb-big">
+              <span className="num mono">36.5</span>
+              <span className="u">°C</span>
+            </div>
+            <div className="pb-thermo-bar" aria-hidden="true">
+              <div className="pb-thermo-bar-fill"/>
+              <span className="pb-thermo-bar-mark" style={{ left: '50%' }}/>
+              <span className="pb-thermo-bar-mark pb-thermo-bar-mark--key" style={{ left: '62.5%' }}/>
+              <div className="pb-thermo-bar-axis mono">
+                <span>34</span>
+                <span>37.5</span>
+                <span>40</span>
               </div>
             </div>
           </div>
 
-          {/* Tansiyon */}
+          {/* Tansiyon — combined sys/dia value centered, range bar below */}
           <div className="pb-card pb-bp-card">
             <div className="pb-card-head">
               <span className="pb-num mono">04</span>
               <span className="pb-name">Tansiyon</span>
             </div>
-            <div className="pb-bp">
-              <div className="pb-bp-row"><span className="lbl mono">SİS</span><span className="num mono">118</span></div>
-              <div className="pb-bp-row"><span className="lbl mono">DİA</span><span className="num mono">76</span></div>
-              <div className="pb-bp-bar"><div className="fill"/></div>
+            <div className="pb-big">
+              <span className="num mono">118<span className="bp-sep">/</span>76</span>
+              <span className="u">mmHg</span>
             </div>
+            <div className="pb-bp-bar"><div className="fill"/></div>
           </div>
 
           {/* Adım — bar chart */}
@@ -519,22 +522,22 @@ const Landing = ({ onEnter }) => {
             </svg>
           </div>
 
-          {/* Uyku — moon arc */}
+          {/* Uyku — value centered, sleep arc as graphic below */}
           <div className="pb-card pb-sleep-card">
             <div className="pb-card-head">
               <span className="pb-num mono">08</span>
               <span className="pb-name">Uyku</span>
             </div>
-            <div className="pb-sleep">
-              <svg viewBox="0 0 120 60" aria-hidden="true">
-                <path d="M10,55 A50,50 0 0,1 110,55" fill="none" stroke="var(--line)" strokeWidth="4"/>
-                <path d="M10,55 A50,50 0 0,1 110,55" fill="none" stroke="var(--accent)" strokeWidth="4" strokeLinecap="round" strokeDasharray="157" strokeDashoffset="20"/>
-              </svg>
-              <div className="pb-big">
-                <span className="num mono">7.5</span>
-                <span className="u">sa</span>
-              </div>
+            <div className="pb-big">
+              <span className="num mono">7.5</span>
+              <span className="u">sa</span>
             </div>
+            <svg className="pb-sleep-arc" viewBox="0 0 200 60" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+              <path d="M 14 54 C 14 4 186 4 186 54" fill="none" stroke="var(--line)" strokeWidth="5" strokeLinecap="round"/>
+              <path d="M 14 54 C 14 4 186 4 186 54" fill="none" stroke="var(--accent)" strokeWidth="5"
+                    strokeLinecap="round" pathLength="100" strokeDasharray="100" strokeDashoffset="22"/>
+              <circle cx="174" cy="22" r="4" fill="var(--accent)"/>
+            </svg>
           </div>
         </div>
       </section>
@@ -551,14 +554,14 @@ const Landing = ({ onEnter }) => {
                 <span className="af-ico"><I name="bluetooth" size={16}/></span>
                 <div>
                   <h5>Kablosuz eşleştirme</h5>
-                  <p>Akıllı saat veya yüzük ile tek dokunuşla bağlanır, otomatik senkronize olur.</p>
+                  <p>Yüzük ile tek dokunuşla bağlanır, otomatik senkronize olur.</p>
                 </div>
               </div>
               <div className="app-feat">
                 <span className="af-ico"><I name="bell" size={16}/></span>
                 <div>
                   <h5>İlaç hatırlatıcıları</h5>
-                  <p>Doz, birim, kullanım saati ve bildirim yönetimi. Hafta bazında takip.</p>
+                  <p>Doz, birim, kullanım saati ve bildirim yönetimi. Sürekli takip.</p>
                 </div>
               </div>
               <div className="app-feat">
@@ -572,7 +575,7 @@ const Landing = ({ onEnter }) => {
                 <span className="af-ico"><I name="qr" size={16}/></span>
                 <div>
                   <h5>QR ile doktor eşleşmesi</h5>
-                  <p>Doktor panelindeki QR kodu uygulamadan tarayarak veri paylaşımını etkinleştirin.</p>
+                  <p>Doktor panelindeki QR kodu GlucoRING mobil uygulamasından tarayarak veri paylaşımını etkinleştirin.</p>
                 </div>
               </div>
             </div>
@@ -581,204 +584,564 @@ const Landing = ({ onEnter }) => {
         </div>
       </section>
 
-      {/* ===== PREDICTION MODEL ===== */}
+      {/* ===== PREDICTION MODEL — merged with seasonal sub-section ===== */}
       <section id="model" className="landing-section bg-panel">
         <div className="section-head narrow">
           <span className="section-eye">IV. TAHMİN MODELİ</span>
           <h2 className="section-h">Mevsime duyarlı <em>hibrit tahmin</em>.</h2>
-          <p className="section-sub">Gelişmiş tahmin algoritmalarımız, her hastanın kendine özel glukoz seyrini öğrenerek erken risk uyarısı üretir. 5, 15 ve 30 dakikalık tahminler birlikte çalışır.</p>
+          <p className="section-sub">Tahmin modeli <strong>mevsime göre otomatik adapte olur</strong>; her tahmin sizin verinize özelleştirilir. 5, 15 ve 30 dakikalık öngörüler birlikte üretilir.</p>
         </div>
-        <div className="model-grid">
-          <article className="model-card">
-            <div className="model-card-head">
-              <span className="horizon mono">5 dk</span>
+        <div className="season-grid">
+          <article className="season-card season-card--summer">
+            <div className="season-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4.2" fill="currentColor" fillOpacity="0.18"/><path d="M12 2v2.5M12 19.5V22M4.22 4.22l1.77 1.77M18.01 18.01l1.77 1.77M2 12h2.5M19.5 12H22M4.22 19.78l1.77-1.77M18.01 5.99l1.77-1.77"/></svg>
             </div>
-            <div className="model-name">Yakın vade tahmin</div>
-            <div className="model-desc">Yemek bolus'u, hızlı egzersiz öncesi ve uyku sırasında glukoz hareketinin anlık yönü için.</div>
-            <svg className="model-chart" viewBox="0 0 200 60" preserveAspectRatio="none" aria-hidden="true">
-              <path d="M0,40 L25,38 L50,36 L75,32 L100,30 L125,26 L150,24 L175,22 L200,20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-              <circle cx="200" cy="20" r="4" fill="currentColor"/>
-            </svg>
-            <ul className="model-bullets">
-              <li>Hata payı düşük</li>
-              <li>BLE ile gecikmesiz</li>
-            </ul>
+            <div className="season-tag mono">YAZ PROFİLİ</div>
+            <h4>Sıcak hava modeli</h4>
+            <p>Sıcak iklim koşullarına ayarlanmış tahmin profili.</p>
+            <div className="season-curve-wrap">
+              <svg className="season-curve" viewBox="0 0 220 60" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="seasonCurveSummer" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stopColor="currentColor" stopOpacity="0.30"/>
+                    <stop offset="100%" stopColor="currentColor" stopOpacity="0"/>
+                  </linearGradient>
+                </defs>
+                <line x1="6" x2="214" y1="22" y2="22" stroke="currentColor" strokeWidth="0.75" strokeDasharray="2 4" opacity="0.32"/>
+                <path d="M6,42 C 30,42 50,40 70,28 C 90,16 100,8 116,8 C 130,8 138,30 158,46 C 180,52 198,50 214,48"
+                      fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M6,42 C 30,42 50,40 70,28 C 90,16 100,8 116,8 C 130,8 138,30 158,46 C 180,52 198,50 214,48 L 214,60 L 6,60 Z"
+                      fill="url(#seasonCurveSummer)"/>
+                <circle cx="116" cy="8" r="3" fill="currentColor"/>
+              </svg>
+              <span className="season-curve-cap mono">YAZ MODELİ · TEMSİLİ ÇIKTI</span>
+            </div>
           </article>
-          <article className="model-card">
-            <div className="model-card-head">
-              <span className="horizon mono">15 dk</span>
+          <article className="season-card season-card--winter">
+            <div className="season-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M3.34 7l17.32 10M3.34 17l17.32-10"/><path d="M9 4l3 2 3-2M9 20l3-2 3 2M3.5 9l1.5 2.5L3.5 14M20.5 9L19 11.5l1.5 2.5M9.5 12l2.5 1.5 2.5-1.5"/></svg>
             </div>
-            <div className="model-name">Orta vade öngörü</div>
-            <div className="model-desc">Yemek sonrası glukoz tepkisi, aktivite/dinlenme geçişleri ve mevsimsel insülin yanıtı için.</div>
-            <svg className="model-chart" viewBox="0 0 200 60" preserveAspectRatio="none" aria-hidden="true">
-              <path d="M0,42 L25,40 L50,32 L75,22 L100,18 L125,22 L150,28 L175,26 L200,24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-              <circle cx="200" cy="24" r="4" fill="currentColor"/>
-            </svg>
-            <ul className="model-bullets">
-              <li>Yemek pencereli</li>
-              <li>Mevsim profili</li>
-            </ul>
+            <div className="season-tag mono">KIŞ PROFİLİ</div>
+            <h4>Soğuk hava modeli</h4>
+            <p>Soğuk iklim koşullarına ayarlanmış tahmin profili.</p>
+            <div className="season-curve-wrap">
+              <svg className="season-curve" viewBox="0 0 220 60" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="seasonCurveWinter" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stopColor="currentColor" stopOpacity="0.30"/>
+                    <stop offset="100%" stopColor="currentColor" stopOpacity="0"/>
+                  </linearGradient>
+                </defs>
+                <line x1="6" x2="214" y1="22" y2="22" stroke="currentColor" strokeWidth="0.75" strokeDasharray="2 4" opacity="0.32"/>
+                <path d="M6,46 C 28,46 50,44 76,40 C 102,36 124,30 146,22 C 168,14 188,12 214,12"
+                      fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M6,46 C 28,46 50,44 76,40 C 102,36 124,30 146,22 C 168,14 188,12 214,12 L 214,60 L 6,60 Z"
+                      fill="url(#seasonCurveWinter)"/>
+                <circle cx="214" cy="12" r="3" fill="currentColor"/>
+              </svg>
+              <span className="season-curve-cap mono">KIŞ MODELİ · TEMSİLİ ÇIKTI</span>
+            </div>
           </article>
-          <article className="model-card">
-            <div className="model-card-head">
-              <span className="horizon mono">30 dk</span>
+          <article className="season-card season-card--personal">
+            <div className="season-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 3c0 5 16 5 16 8s-16 3-16 8"/><path d="M20 3c0 5-16 5-16 8s16 3 16 8"/><path d="M7 7h10M7 17h10M9 11h6"/></svg>
             </div>
-            <div className="model-name">Uzun vade risk</div>
-            <div className="model-desc">Hipo/hiperglisemi olaylarını yarım saat öncesinden işaretler — klinik müdahale penceresi açar.</div>
-            <svg className="model-chart" viewBox="0 0 200 60" preserveAspectRatio="none" aria-hidden="true">
-              <path d="M0,30 L25,32 L50,28 L75,20 L100,14 L125,10 L150,8 L175,6 L200,4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-              <circle cx="200" cy="4" r="4" fill="currentColor"/>
-              <circle cx="200" cy="4" r="9" fill="currentColor" opacity="0.3"/>
-            </svg>
-            <ul className="model-bullets">
-              <li>Otomatik bildirim</li>
-              <li>Hekim panelinde kayıt</li>
-            </ul>
+            <div className="season-tag mono">KİŞİSEL PROFİL</div>
+            <h4>Size özel model</h4>
+            <p>Vücut ritminizi öğrenir, her zaman kişiselleştirilmiş tahmin üretir.</p>
+            <div className="season-curve-wrap">
+              <svg className="season-curve" viewBox="0 0 220 60" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="seasonCurvePersonal" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stopColor="currentColor" stopOpacity="0.30"/>
+                    <stop offset="100%" stopColor="currentColor" stopOpacity="0"/>
+                  </linearGradient>
+                </defs>
+                <line x1="6" x2="214" y1="22" y2="22" stroke="currentColor" strokeWidth="0.75" strokeDasharray="2 4" opacity="0.32"/>
+                <path d="M6,30 C 28,28 44,18 66,18 C 88,18 102,30 124,32 C 146,34 162,22 184,22 C 200,22 208,28 214,28"
+                      fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M6,30 C 28,28 44,18 66,18 C 88,18 102,30 124,32 C 146,34 162,22 184,22 C 200,22 208,28 214,28 L 214,60 L 6,60 Z"
+                      fill="url(#seasonCurvePersonal)"/>
+                <circle cx="214" cy="28" r="3" fill="currentColor"/>
+              </svg>
+              <span className="season-curve-cap mono">KİŞİSEL MODEL · TEMSİLİ ÇIKTI</span>
+            </div>
           </article>
         </div>
-        <section className="season-section">
-          <div className="season-head">
-            <span className="sb-eye mono">MEVSİM MODELİ</span>
-            <h3>Vücut, mevsime göre <em>farklı tepki</em> verir.</h3>
-            <p>Sıcakta damarlar genişler, terle birlikte glukoz dengesi değişir; soğukta tam tersi olur. GlucoRING; ortam ve aktivite verilerinizi okur, üç farklı tahmin profili arasında otomatik geçiş yapar — zamanla en doğru olanı kişisel verinizden öğrenir.</p>
-          </div>
-          <div className="season-grid">
-            <article className="season-card season-card--summer">
-              <div className="season-ico" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4.2" fill="currentColor" fillOpacity="0.18"/><path d="M12 2v2.5M12 19.5V22M4.22 4.22l1.77 1.77M18.01 18.01l1.77 1.77M2 12h2.5M19.5 12H22M4.22 19.78l1.77-1.77M18.01 5.99l1.77-1.77"/></svg>
-              </div>
-              <div className="season-tag mono">YAZ PROFİLİ</div>
-              <h4>Sıcak hava modeli</h4>
-              <p>Sıcakta dolaşım hızlanır, glukoz emilimi artar. Model, hızlı düşüşleri ve hipoglisemi riskini erken algılayacak biçimde uyarlanır.</p>
-              <ul className="season-stats">
-                <li><span className="mono">Sıcak</span> Ortam profili</li>
-                <li><span className="mono">Hızlı</span> Vücut tepkisi</li>
-                <li><span className="mono">Erken</span> Risk algısı</li>
-              </ul>
-            </article>
-            <article className="season-card season-card--winter">
-              <div className="season-ico" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M3.34 7l17.32 10M3.34 17l17.32-10"/><path d="M9 4l3 2 3-2M9 20l3-2 3 2M3.5 9l1.5 2.5L3.5 14M20.5 9L19 11.5l1.5 2.5M9.5 12l2.5 1.5 2.5-1.5"/></svg>
-              </div>
-              <div className="season-tag mono">KIŞ PROFİLİ</div>
-              <h4>Soğuk hava modeli</h4>
-              <p>Soğukta damarlar daralır, insülin yanıtı yavaşlar. Model, gecikmeli yükselişleri ve hiperglisemi pencerelerini öngörecek biçimde ayarlanır.</p>
-              <ul className="season-stats">
-                <li><span className="mono">Soğuk</span> Ortam profili</li>
-                <li><span className="mono">Yavaş</span> Vücut tepkisi</li>
-                <li><span className="mono">Gecikmeli</span> Risk algısı</li>
-              </ul>
-            </article>
-            <article className="season-card season-card--personal">
-              <div className="season-ico" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 3c0 5 16 5 16 8s-16 3-16 8"/><path d="M20 3c0 5-16 5-16 8s16 3 16 8"/><path d="M7 7h10M7 17h10M9 11h6"/></svg>
-              </div>
-              <div className="season-tag mono">KİŞİSEL PROFİL</div>
-              <h4>Hastaya özel model</h4>
-              <p>Sistem zaman içinde kişisel hareket, uyku ve fizyolojik ritminizi öğrenir. Hibrit model, sizin verinize göre en doğru çıkanı ön plana çıkarır.</p>
-              <ul className="season-stats">
-                <li><span className="mono">Sürekli</span> Öğrenme</li>
-                <li><span className="mono">Çoklu sinyal</span> Girdi</li>
-                <li><span className="mono">Hibrit</span> Model ağırlığı</li>
-              </ul>
-            </article>
-          </div>
-          <div className="season-foot mono">
-            <span className="dot s-dot"/>OTOMATİK GEÇİŞ · Sıcaklık &amp; aktivite eşiklerine bağlı, manuel ayar gerekmez
-          </div>
-        </section>
-      </section>
-
-      {/* ===== SECURITY ===== */}
-      <section id="panel" className="landing-section">
-        <div className="security-split">
-          <div>
-            <span className="section-eye">V. GÜVENLİK & PAYLAŞIM</span>
-            <h2 className="section-h">Hasta verisi, <em>hastanın iznine</em> bağlı.</h2>
-            <p className="section-sub">Her veri paylaşımı hasta tarafında QR onayı ile başlar, istenildiği an iptal edilebilir. GlucoRING, KVKK ve klinik veri saklama standartları doğrultusunda çalışır.</p>
-          </div>
-          <div className="security-cards">
-            <div className="sec-card">
-              <div className="sec-ico"><I name="qr" size={18}/></div>
-              <h4>QR ile yetkilendirme</h4>
-              <p>Doktor paneldeki kodu hastanın uygulaması tarar — eşleşme hasta tarafından onaylanır.</p>
-            </div>
-            <div className="sec-card">
-              <div className="sec-ico"><I name="lock" size={18}/></div>
-              <h4>Uçtan uca şifreli</h4>
-              <p>Veri hem aktarımda hem depoda şifrelidir. Üst düzey güvenlik standartları uygulanır.</p>
-            </div>
-            <div className="sec-card">
-              <div className="sec-ico"><I name="shield" size={18}/></div>
-              <h4>KVKK uyumlu</h4>
-              <p>Hasta onayı olmadan hiçbir üçüncü tarafa veri aktarılmaz.</p>
-            </div>
-            <div className="sec-card">
-              <div className="sec-ico"><I name="x" size={18}/></div>
-              <h4>Anında iptal</h4>
-              <p>Hasta, uygulamasından doktor erişimini tek dokunuşla durdurabilir.</p>
-            </div>
-          </div>
+        <div className="season-disclaimer">
+          Yukarıdaki grafikler model davranışını anlatan temsili çıktıdır. Bireysel glikoz yanıtı kişiden kişiye farklılık gösterir.
+        </div>
+        <div className="season-foot mono">
+          <span className="dot s-dot"/>OTOMATİK GEÇİŞ · Manuel ayar gerekmez, sistem verinizden öğrenir
         </div>
       </section>
 
-      {/* ===== HOW IT WORKS — 3-step flow that reads top-to-bottom ===== */}
-      <section className="landing-howitworks">
+      {/* ===== V. GÜVENLİK & PAYLAŞIM — Trust console ===== */}
+      <section id="panel" className="landing-section bg-panel sec-section">
+        <div className="section-head narrow">
+          <span className="section-eye">V. GÜVENLİK & PAYLAŞIM</span>
+          <h2 className="section-h">Hasta verisi, <em>hastanın iznine</em> bağlı.</h2>
+          <p className="section-sub">Her paylaşım QR onayıyla başlar, istenildiği an iptal edilebilir. KVKK ve klinik veri saklama standartları doğrultusunda çalışır.</p>
+        </div>
+        <div className="sec-tgrid">
+          {/* Card 1 — QR Authorization */}
+          <article className="sec-tcard sec-tcard--red">
+            <span className="sec-tcard-grain" aria-hidden="true"/>
+            <span className="sec-tcard-aura" aria-hidden="true"/>
+            <span className="sec-tcard-scan" aria-hidden="true"/>
+
+            <header className="sec-tcard-rail">
+              <span className="mono sec-stage">A1</span>
+              <span className="sec-stage-rule" aria-hidden="true"/>
+              <span className="mono sec-stage-label">YETKİLENDİRME</span>
+            </header>
+
+            <div className="sec-tcard-art" aria-hidden="true">
+              <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" className="sec-tart">
+                {/* QR-style 5×5 grid with 3 corner finders */}
+                {/* Corner finders */}
+                {[
+                  [10, 10], [142, 10], [10, 70],
+                ].map(([cx, cy], i) => (
+                  <g key={`f${i}`}>
+                    <rect x={cx} y={cy} width="40" height="40" rx="4" fill="none" stroke="currentColor" strokeWidth="3"/>
+                    <rect x={cx + 10} y={cy + 10} width="20" height="20" rx="2" fill="currentColor"/>
+                  </g>
+                ))}
+                {/* Random data squares filling the rest */}
+                {[
+                  [70, 22], [86, 22], [102, 22], [118, 22],
+                  [70, 38], [102, 38], [118, 38],
+                  [70, 54], [86, 54], [118, 54],
+                  [60, 80], [76, 80], [92, 80], [108, 80], [124, 80], [140, 80], [156, 80], [172, 80],
+                  [60, 96], [92, 96], [124, 96], [156, 96], [172, 96],
+                  [60, 112], [76, 112], [108, 112], [140, 112], [172, 112],
+                ].map(([x, y], i) => (
+                  <rect key={`d${i}`} x={x} y={y} width="10" height="10" fill="currentColor" opacity={0.55 + (i % 3) * 0.15}/>
+                ))}
+                {/* Animated scan beam */}
+                <rect className="sec-tart-scan" x="0" y="0" width="200" height="3" fill="currentColor"/>
+                {/* Auth checkmark badge in lower-right corner */}
+                <g transform="translate(150, 70)">
+                  <circle cx="22" cy="22" r="20" fill="currentColor" opacity="0.18"/>
+                  <circle cx="22" cy="22" r="14" fill="currentColor"/>
+                  <path d="M 16 22 L 21 27 L 30 17" fill="none" stroke="var(--panel)" strokeWidth="3"
+                        strokeLinecap="round" strokeLinejoin="round"/>
+                </g>
+              </svg>
+            </div>
+
+            <h3 className="sec-tcard-name">QR ile yetkilendirme</h3>
+            <p className="sec-tcard-desc">Doktor panelinde oluşan tek-kullanımlık kodu hasta uygulamasıyla tarar; eşleşme yalnızca hasta onayıyla aktif olur.</p>
+
+            <div className="sec-tcard-pill mono">
+              <span className="sec-pill-dot" aria-hidden="true"/>
+              TEK KULLANIMLIK · 60 SN GEÇERLİ
+            </div>
+          </article>
+
+          {/* Card 2 — End-to-End Encryption */}
+          <article className="sec-tcard sec-tcard--blue">
+            <span className="sec-tcard-grain" aria-hidden="true"/>
+            <span className="sec-tcard-aura" aria-hidden="true"/>
+            <span className="sec-tcard-scan" aria-hidden="true"/>
+
+            <header className="sec-tcard-rail">
+              <span className="mono sec-stage">A2</span>
+              <span className="sec-stage-rule" aria-hidden="true"/>
+              <span className="mono sec-stage-label">VERİ KORUMA</span>
+            </header>
+
+            <div className="sec-tcard-art" aria-hidden="true">
+              <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" className="sec-tart">
+                {/* Two endpoints with glow + connecting encrypted channel */}
+                <g>
+                  {/* Left endpoint — phone */}
+                  <rect x="14" y="34" width="32" height="52" rx="6" fill="none" stroke="currentColor" strokeWidth="2.5"/>
+                  <rect x="20" y="42" width="20" height="30" fill="currentColor" opacity="0.25"/>
+                  <circle cx="30" cy="80" r="2" fill="currentColor"/>
+
+                  {/* Right endpoint — server/cloud */}
+                  <g transform="translate(154, 34)">
+                    <rect x="0" y="0" width="32" height="52" rx="6" fill="none" stroke="currentColor" strokeWidth="2.5"/>
+                    <line x1="6" y1="14" x2="26" y2="14" stroke="currentColor" strokeWidth="2"/>
+                    <line x1="6" y1="26" x2="26" y2="26" stroke="currentColor" strokeWidth="2"/>
+                    <line x1="6" y1="38" x2="26" y2="38" stroke="currentColor" strokeWidth="2"/>
+                    <circle cx="9" cy="14" r="1.5" fill="currentColor"/>
+                    <circle cx="9" cy="26" r="1.5" fill="currentColor"/>
+                    <circle cx="9" cy="38" r="1.5" fill="currentColor"/>
+                  </g>
+
+                  {/* Channel connecting both — multiple lines for "encrypted" feel */}
+                  <line x1="46" y1="56" x2="154" y2="56" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.5"/>
+                  <line x1="46" y1="64" x2="154" y2="64" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.5"/>
+
+                  {/* Lock badge centered on channel */}
+                  <g transform="translate(80, 44)">
+                    <rect x="0" y="0" width="40" height="32" rx="6" fill="var(--panel)" stroke="currentColor" strokeWidth="2"/>
+                    <path d="M 14 14 V 11 a 6 6 0 0 1 12 0 V 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    <rect x="11" y="14" width="18" height="13" rx="2" fill="currentColor"/>
+                    <circle cx="20" cy="20" r="1.5" fill="var(--panel)"/>
+                    <line x1="20" y1="20" x2="20" y2="24" stroke="var(--panel)" strokeWidth="1.5"/>
+                  </g>
+
+                  {/* Animated encrypted bits flowing */}
+                  <g className="sec-tart-bits">
+                    <text x="60" y="20" fontFamily="JetBrains Mono" fontSize="8" fill="currentColor" opacity="0.55">01101010</text>
+                    <text x="120" y="20" fontFamily="JetBrains Mono" fontSize="8" fill="currentColor" opacity="0.4">11001011</text>
+                    <text x="60" y="106" fontFamily="JetBrains Mono" fontSize="8" fill="currentColor" opacity="0.4">10110100</text>
+                    <text x="120" y="106" fontFamily="JetBrains Mono" fontSize="8" fill="currentColor" opacity="0.55">01011001</text>
+                  </g>
+                </g>
+              </svg>
+            </div>
+
+            <h3 className="sec-tcard-name">Uçtan uca şifreli</h3>
+            <p className="sec-tcard-desc">Veri yüzükten panele kadar şifrelenmiş kanaldan akar; hem aktarımda hem depoda standart endüstri kriptografisi uygulanır.</p>
+
+            <div className="sec-tcard-pill mono">
+              <span className="sec-pill-dot" aria-hidden="true"/>
+              TLS · AES · TRANSIT + REST
+            </div>
+          </article>
+
+          {/* Card 3 — Instant Revoke */}
+          <article className="sec-tcard sec-tcard--green">
+            <span className="sec-tcard-grain" aria-hidden="true"/>
+            <span className="sec-tcard-aura" aria-hidden="true"/>
+            <span className="sec-tcard-scan" aria-hidden="true"/>
+
+            <header className="sec-tcard-rail">
+              <span className="mono sec-stage">A3</span>
+              <span className="sec-stage-rule" aria-hidden="true"/>
+              <span className="mono sec-stage-label">KONTROL</span>
+            </header>
+
+            <div className="sec-tcard-art" aria-hidden="true">
+              <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" className="sec-tart">
+                {/* Toggle switch — animated between ON / OFF states */}
+                <g className="sec-tart-toggle">
+                  {/* Label rail */}
+                  <text x="40" y="38" fontFamily="JetBrains Mono" fontSize="11" fill="currentColor"
+                        opacity="0.45" letterSpacing="0.16em" fontWeight="700">OFF</text>
+                  <text x="120" y="38" fontFamily="JetBrains Mono" fontSize="11" fill="currentColor"
+                        letterSpacing="0.16em" fontWeight="700">AKTİF</text>
+
+                  {/* Toggle track */}
+                  <rect x="40" y="50" width="120" height="36" rx="18" fill="none" stroke="currentColor" strokeWidth="2.5" opacity="0.6"/>
+                  <rect x="44" y="54" width="112" height="28" rx="14" fill="currentColor" opacity="0.12"/>
+
+                  {/* Toggle knob — animated sliding */}
+                  <circle className="sec-tart-knob" cx="140" cy="68" r="14" fill="currentColor"/>
+                  <circle className="sec-tart-knob-inner" cx="140" cy="68" r="6" fill="var(--panel)"/>
+
+                  {/* Tap indicator finger */}
+                  <g className="sec-tart-tap" transform="translate(118, 92)">
+                    <circle cx="14" cy="14" r="14" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="3 2" opacity="0.5"/>
+                    <circle cx="14" cy="14" r="6" fill="currentColor"/>
+                  </g>
+                </g>
+              </svg>
+            </div>
+
+            <h3 className="sec-tcard-name">Anında iptal</h3>
+            <p className="sec-tcard-desc">Hasta uygulamadan tek dokunuşla doktor erişimini durdurabilir; iptal anında etkili olur, geçmiş veri akışı kapanır.</p>
+
+            <div className="sec-tcard-pill mono">
+              <span className="sec-pill-dot" aria-hidden="true"/>
+              HASTA KONTROLÜ · ANINDA
+            </div>
+          </article>
+        </div>
+      </section>
+
+      {/* ===== VI. NASIL ÇALIŞIR — Process flow with connecting glowing rail ===== */}
+      <section className="landing-howitworks hiw-radical">
         <div className="section-head narrow">
           <span className="section-eye">VI. NASIL ÇALIŞIR</span>
           <h2 className="section-h">Hasta ile doktor arasında <em>üç adım</em>.</h2>
-          <p className="section-sub">Tüm akış, kullanıcı dostu olacak şekilde tasarlandı: yüzüğü tak, uygulamayı kur, doktor panelinde QR ile eşleş.</p>
+          <p className="section-sub">Yüzüğü tak, uygulamayı kur, panelde QR ile eşleş — üç durakla biten doğrusal bir akış.</p>
         </div>
-        <ol className="hiw-steps">
-          <li className="hiw-step">
-            <div className="hiw-num mono">01</div>
-            <h4>Yüzüğü tak, uygulamayı aç</h4>
-            <p>Mobil uygulama yüzüğü otomatik bulur, BLE 5.0 üzerinden eşleştirme tek dokunuşla biter. Kalibrasyon gerekmez.</p>
+        <ol className="hiw-rgrid">
+          {/* Connecting rail — glowing line behind all steps */}
+          <span className="hiw-rgrid-rail" aria-hidden="true">
+            <span className="hiw-rgrid-rail-fill"/>
+            <span className="hiw-rgrid-packet hiw-rgrid-packet--1"/>
+            <span className="hiw-rgrid-packet hiw-rgrid-packet--2"/>
+            <span className="hiw-rgrid-packet hiw-rgrid-packet--3"/>
+          </span>
+
+          {/* Step 1 — Wear ring + open app */}
+          <li className="hiw-rstep hiw-rstep--red">
+            <div className="hiw-rstep-num">
+              <span className="mono hiw-rstep-num-prefix">STEP</span>
+              <span className="hiw-rstep-num-big mono">01</span>
+            </div>
+            <div className="hiw-rstep-art" aria-hidden="true">
+              <svg viewBox="0 0 220 120" preserveAspectRatio="xMidYMid meet" className="hiw-rart">
+                {/* Ring outline with BLE wave */}
+                <g transform="translate(110, 60)">
+                  <ellipse cx="0" cy="0" rx="34" ry="26" fill="none" stroke="currentColor" strokeWidth="3"/>
+                  <ellipse cx="0" cy="0" rx="22" ry="16" fill="none" stroke="currentColor" strokeWidth="2" opacity="0.4"/>
+                  {/* Inner sensor dot */}
+                  <circle cx="0" cy="14" r="4" fill="currentColor"/>
+                  <circle cx="0" cy="14" r="9" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.5">
+                    <animate attributeName="r" values="4;14;4" dur="2.4s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0.6;0;0.6" dur="2.4s" repeatCount="indefinite"/>
+                  </circle>
+                </g>
+                {/* BLE waves emanating from right */}
+                {[0, 1, 2].map((i) => (
+                  <path key={i}
+                        d={`M ${158 + i * 12} 50 Q ${168 + i * 12} 60 ${158 + i * 12} 70`}
+                        fill="none" stroke="currentColor" strokeWidth="2"
+                        opacity={0.7 - i * 0.2} strokeLinecap="round"/>
+                ))}
+                {/* "BLE" tag */}
+                <text x="200" y="64" fontFamily="JetBrains Mono" fontSize="9" fill="currentColor"
+                      fontWeight="700" letterSpacing="0.16em" textAnchor="end" opacity="0.7">BLE</text>
+              </svg>
+            </div>
+            <h4 className="hiw-rstep-name">Yüzüğü tak, uygulamayı aç</h4>
+            <p className="hiw-rstep-desc">Mobil uygulama yüzüğü otomatik bulur, BLE 5.0 üzerinden tek dokunuşla eşleşir. Kalibrasyon gerekmez.</p>
           </li>
-          <li className="hiw-step">
-            <div className="hiw-num mono">02</div>
-            <h4>Doktor panelindeki QR'ı tara</h4>
-            <p>Hasta, uygulamasındaki tarayıcı ile doktorun panelindeki QR kodunu tarar, paylaşımı tek dokunuşla onaylar. Erişimi istediği an iptal edebilir.</p>
+
+          {/* Step 2 — Scan QR */}
+          <li className="hiw-rstep hiw-rstep--blue">
+            <div className="hiw-rstep-num">
+              <span className="mono hiw-rstep-num-prefix">STEP</span>
+              <span className="hiw-rstep-num-big mono">02</span>
+            </div>
+            <div className="hiw-rstep-art" aria-hidden="true">
+              <svg viewBox="0 0 220 120" preserveAspectRatio="xMidYMid meet" className="hiw-rart">
+                {/* Phone with QR scan beam */}
+                <g transform="translate(80, 14)">
+                  <rect x="0" y="0" width="60" height="92" rx="8" fill="none" stroke="currentColor" strokeWidth="2.5"/>
+                  <rect x="6" y="10" width="48" height="68" rx="3" fill="currentColor" opacity="0.10"/>
+                  {/* QR mini inside */}
+                  <g transform="translate(18, 22)">
+                    <rect x="0" y="0" width="9" height="9" fill="currentColor"/>
+                    <rect x="15" y="0" width="9" height="9" fill="currentColor"/>
+                    <rect x="0" y="15" width="9" height="9" fill="currentColor"/>
+                    <rect x="18" y="18" width="6" height="6" fill="currentColor" opacity="0.6"/>
+                    <rect x="9" y="9" width="3" height="3" fill="currentColor" opacity="0.55"/>
+                    <rect x="6" y="21" width="3" height="3" fill="currentColor" opacity="0.7"/>
+                    <rect x="21" y="9" width="3" height="3" fill="currentColor" opacity="0.55"/>
+                  </g>
+                  {/* Speaker grill at top */}
+                  <line x1="22" y1="5" x2="38" y2="5" stroke="currentColor" strokeWidth="1.5" opacity="0.5"/>
+                  <circle cx="48" cy="5" r="1.5" fill="currentColor" opacity="0.5"/>
+                </g>
+                {/* Animated scan beam crossing horizontally over phone */}
+                <line className="hiw-rart-beam" x1="86" y1="40" x2="134" y2="40"
+                      stroke="currentColor" strokeWidth="2" opacity="0.8"/>
+                {/* Corner brackets */}
+                {[
+                  { x: 18, y: 32, dx: 1, dy: 1 },
+                  { x: 202, y: 32, dx: -1, dy: 1 },
+                  { x: 18, y: 88, dx: 1, dy: -1 },
+                  { x: 202, y: 88, dx: -1, dy: -1 },
+                ].map((c, i) => (
+                  <path key={i}
+                        d={`M ${c.x} ${c.y + c.dy * 14} L ${c.x} ${c.y} L ${c.x + c.dx * 14} ${c.y}`}
+                        fill="none" stroke="currentColor" strokeWidth="2.5"
+                        strokeLinecap="round" opacity="0.55"/>
+                ))}
+              </svg>
+            </div>
+            <h4 className="hiw-rstep-name">Doktor panelinden QR'ı tara</h4>
+            <p className="hiw-rstep-desc">Hasta, uygulamadaki tarayıcı ile panel QR'ını okur ve paylaşımı tek dokunuşla onaylar.</p>
           </li>
-          <li className="hiw-step">
-            <div className="hiw-num mono">03</div>
-            <h4>Veri klinik panelde canlı görünür</h4>
-            <p>Şifreli kanaldan gelen fizyolojik akış, hekimin gösterge tablosuna gerçek zamanlı işlenir. 5/15/30 dk glukoz tahminleri ile risk uyarıları otomatik üretilir.</p>
+
+          {/* Step 3 — Live data on panel */}
+          <li className="hiw-rstep hiw-rstep--green">
+            <div className="hiw-rstep-num">
+              <span className="mono hiw-rstep-num-prefix">STEP</span>
+              <span className="hiw-rstep-num-big mono">03</span>
+            </div>
+            <div className="hiw-rstep-art" aria-hidden="true">
+              <svg viewBox="0 0 220 120" preserveAspectRatio="xMidYMid meet" className="hiw-rart">
+                {/* Dashboard panel with live chart */}
+                <g transform="translate(20, 14)">
+                  <rect x="0" y="0" width="180" height="92" rx="8" fill="none" stroke="currentColor" strokeWidth="2.5"/>
+                  {/* Top bar */}
+                  <rect x="0" y="0" width="180" height="14" rx="8" fill="currentColor" opacity="0.20"/>
+                  <circle cx="8" cy="7" r="2" fill="currentColor"/>
+                  <circle cx="16" cy="7" r="2" fill="currentColor" opacity="0.55"/>
+                  <circle cx="24" cy="7" r="2" fill="currentColor" opacity="0.4"/>
+                  {/* Chart */}
+                  <g transform="translate(10, 24)">
+                    {/* Grid */}
+                    <line x1="0" y1="20" x2="160" y2="20" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 3" opacity="0.3"/>
+                    <line x1="0" y1="44" x2="160" y2="44" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 3" opacity="0.3"/>
+                    {/* Live curve */}
+                    <path d="M 0 38 C 18 32 36 36 54 28 C 72 18 96 14 116 24 C 136 34 152 22 160 18"
+                          fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round"/>
+                    {/* Pulse dot at end */}
+                    <circle cx="160" cy="18" r="3" fill="currentColor"/>
+                    <circle cx="160" cy="18" r="8" fill="currentColor" opacity="0.4">
+                      <animate attributeName="r" values="3;12;3" dur="1.8s" repeatCount="indefinite"/>
+                      <animate attributeName="opacity" values="0.5;0;0.5" dur="1.8s" repeatCount="indefinite"/>
+                    </circle>
+                  </g>
+                  {/* Bottom mini-stats */}
+                  <g transform="translate(10, 76)">
+                    <rect x="0" y="0" width="48" height="10" rx="2" fill="currentColor" opacity="0.18"/>
+                    <rect x="56" y="0" width="48" height="10" rx="2" fill="currentColor" opacity="0.18"/>
+                    <rect x="112" y="0" width="48" height="10" rx="2" fill="currentColor" opacity="0.30"/>
+                  </g>
+                </g>
+              </svg>
+            </div>
+            <h4 className="hiw-rstep-name">Veri klinik panelde canlı</h4>
+            <p className="hiw-rstep-desc">Şifreli kanaldan gelen fizyolojik akış doktor paneline gerçek zamanlı işlenir. 5/15/30 dk tahminleri otomatik üretilir.</p>
           </li>
         </ol>
       </section>
 
-      {/* ===== FOR-CLINICIANS VALUE PROPS — what the panel actually delivers ===== */}
-      <section className="landing-value">
+      {/* ===== VII. KLİNİSYEN İÇİN — Telemetry-style value cards ===== */}
+      <section className="landing-value bg-panel">
         <div className="section-head narrow">
           <span className="section-eye">VII. KLİNİSYEN İÇİN</span>
           <h2 className="section-h">Klinik karar desteği, <em>tek panelde</em>.</h2>
-          <p className="section-sub">GlucoRING doktor paneli; hasta listenizi, fizyolojik trendleri ve glukoz risk olaylarını tek bir okunabilir arayüzde toplar.</p>
+          <p className="section-sub">Hasta listesi, fizyolojik trendler ve glukoz risk olayları — hekimin tek bir okunabilir arayüzde toplanır.</p>
         </div>
-        <div className="value-grid">
-          <article className="value-card value-card--primary">
-            <div className="value-ico"><I name="pulse" size={20}/></div>
-            <h3>Sürekli izleme</h3>
-            <p>Yüzükten gelen 9 parametre, hasta bazında 24 saatlik trend grafikleriyle özetlenir. Ölçüm aralıklarına manuel müdahale gerekmez.</p>
-            <span className="value-meta mono">9 parametre · 24 saat</span>
+        <div className="value-tgrid">
+          {/* Card 1 — 9 Parameter Monitoring */}
+          <article className="value-tcard value-tcard--red">
+            <span className="value-tcard-grain" aria-hidden="true"/>
+            <span className="value-tcard-aura" aria-hidden="true"/>
+            <span className="value-tcard-scan" aria-hidden="true"/>
+
+            <header className="value-tcard-rail">
+              <span className="mono value-stage">V1</span>
+              <span className="value-stage-rule" aria-hidden="true"/>
+              <span className="mono value-stage-label">SÜREKLİ İZLEM</span>
+            </header>
+
+            <div className="value-tcard-hero">
+              <span className="value-hero-num mono">9</span>
+              <span className="value-hero-unit mono">PARAMETRE</span>
+            </div>
+
+            <h3 className="value-tcard-name">Tüm fizyolojik akış, tek panelde</h3>
+            <p className="value-tcard-desc">Yüzükten gelen 9 parametre hasta bazında 24 saatlik trend grafikleriyle özetlenir. Ölçüm aralıklarına manuel müdahale gerekmez.</p>
+
+            <div className="value-tcard-art" aria-hidden="true">
+              <svg viewBox="0 0 280 80" preserveAspectRatio="none" className="value-tart">
+                {/* 9 mini parameter sparklines stacked */}
+                {[
+                  'M 4,8 L 30,6 L 56,10 L 82,5 L 108,8 L 134,4 L 160,7 L 186,6 L 212,9 L 238,5 L 264,7',
+                  'M 4,16 L 30,14 L 56,17 L 82,12 L 108,18 L 134,13 L 160,15 L 186,17 L 212,12 L 238,16 L 264,14',
+                  'M 4,24 L 30,26 L 56,21 L 82,28 L 108,24 L 134,28 L 160,22 L 186,25 L 212,28 L 238,24 L 264,26',
+                  'M 4,33 L 30,30 L 56,36 L 82,32 L 108,30 L 134,34 L 160,33 L 186,30 L 212,35 L 238,32 L 264,34',
+                  'M 4,42 L 30,44 L 56,40 L 82,46 L 108,42 L 134,40 L 160,45 L 186,41 L 212,44 L 238,46 L 264,42',
+                  'M 4,51 L 30,49 L 56,52 L 82,48 L 108,53 L 134,49 L 160,52 L 186,50 L 212,55 L 238,49 L 264,53',
+                  'M 4,60 L 30,62 L 56,58 L 82,63 L 108,59 L 134,61 L 160,57 L 186,62 L 212,60 L 238,58 L 264,61',
+                  'M 4,69 L 30,67 L 56,72 L 82,68 L 108,70 L 134,67 L 160,71 L 186,68 L 212,66 L 238,70 L 264,68',
+                  'M 4,77 L 30,76 L 56,73 L 82,79 L 108,75 L 134,77 L 160,73 L 186,76 L 212,74 L 238,78 L 264,75',
+                ].map((d, i) => (
+                  <path key={i} d={d} fill="none" stroke="currentColor" strokeWidth="1.25"
+                        strokeLinecap="round" opacity={0.4 + (i % 3) * 0.18}/>
+                ))}
+              </svg>
+            </div>
           </article>
-          <article className="value-card value-card--secondary">
-            <div className="value-ico"><I name="bell" size={20}/></div>
-            <h3>Erken uyarı bildirimleri</h3>
-            <p>30 dakika öncesinden öngörülen düşük/yüksek glukoz olayları panelinizde sıralı bildirim olarak görünür. Eyleme dönük, sayısal eşiklerle.</p>
-            <span className="value-meta mono">5 / 15 / 30 dk</span>
+
+          {/* Card 2 — Early Warning */}
+          <article className="value-tcard value-tcard--blue">
+            <span className="value-tcard-grain" aria-hidden="true"/>
+            <span className="value-tcard-aura" aria-hidden="true"/>
+            <span className="value-tcard-scan" aria-hidden="true"/>
+
+            <header className="value-tcard-rail">
+              <span className="mono value-stage">V2</span>
+              <span className="value-stage-rule" aria-hidden="true"/>
+              <span className="mono value-stage-label">ERKEN UYARI</span>
+            </header>
+
+            <div className="value-tcard-hero">
+              <span className="value-hero-num mono">30</span>
+              <span className="value-hero-unit mono">DAKİKA</span>
+            </div>
+
+            <h3 className="value-tcard-name">Risk pencereleri, eylem öncesinde</h3>
+            <p className="value-tcard-desc">5/15/30 dakika öncesinden öngörülen düşük/yüksek glukoz olayları panele sıralı bildirim olarak düşer — sayısal eşiklerle eyleme dönük.</p>
+
+            <div className="value-tcard-art" aria-hidden="true">
+              <svg viewBox="0 0 280 80" preserveAspectRatio="none" className="value-tart">
+                {/* Horizontal timeline with 3 alert markers at 5/15/30 */}
+                <line x1="12" y1="40" x2="268" y2="40" stroke="currentColor" strokeWidth="1.5" opacity="0.4"/>
+                {/* Threshold lines */}
+                <line x1="12" x2="268" y1="18" y2="18" stroke="currentColor" strokeWidth="1" strokeDasharray="2 3" opacity="0.4"/>
+                <line x1="12" x2="268" y1="62" y2="62" stroke="currentColor" strokeWidth="1" strokeDasharray="2 3" opacity="0.4"/>
+
+                {/* Alert markers */}
+                {[{ x: 64, lbl: '+5DK', y: 26 }, { x: 140, lbl: '+15DK', y: 22 }, { x: 232, lbl: '+30DK', y: 12 }].map((a, i) => (
+                  <g key={i}>
+                    <line x1={a.x} x2={a.x} y1={a.y} y2="40" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" opacity="0.4"/>
+                    <circle cx={a.x} cy={a.y} r="4" fill="currentColor"/>
+                    <circle cx={a.x} cy={a.y} r="9" fill="currentColor" opacity="0.32">
+                      <animate attributeName="r" values="4;14;4" dur="2s" begin={`${i * 0.5}s`} repeatCount="indefinite"/>
+                      <animate attributeName="opacity" values="0.5;0;0.5" dur="2s" begin={`${i * 0.5}s`} repeatCount="indefinite"/>
+                    </circle>
+                    <text x={a.x} y="56" textAnchor="middle" fontFamily="JetBrains Mono" fontSize="9"
+                          fontWeight="700" letterSpacing="0.06em" fill="currentColor" opacity="0.7">{a.lbl}</text>
+                  </g>
+                ))}
+
+                {/* Bell pictograph at end */}
+                <g transform="translate(252, 64)">
+                  <path d="M 4 8 V 4 a 4 4 0 0 1 8 0 V 8 a 6 6 0 0 0 1 4 H 3 a 6 6 0 0 0 1 -4 Z"
+                        fill="currentColor" opacity="0.85"/>
+                  <line x1="6" y1="14" x2="10" y2="14" stroke="currentColor" strokeWidth="1.5"/>
+                </g>
+              </svg>
+            </div>
           </article>
-          <article className="value-card value-card--tertiary">
-            <div className="value-ico"><I name="shield" size={20}/></div>
-            <h3>KVKK uyumlu paylaşım</h3>
-            <p>Her veri akışı hasta onayına bağlıdır, uçtan uca şifrelenir ve denetim kaydı tutulur. Üçüncü taraf erişimi yoktur.</p>
-            <span className="value-meta mono">Uçtan uca şifreli</span>
-          </article>
-          <article className="value-card value-card--warning">
-            <div className="value-ico"><I name="line" size={20}/></div>
-            <h3>Klinik raporlama</h3>
-            <p>Hasta bazlı haftalık ve aylık rapor çıktısı; muayene öncesi tek bakışta seyir özeti almanızı sağlar.</p>
-            <span className="value-meta mono">Haftalık · Aylık · PDF</span>
+
+          {/* Card 3 — Reporting */}
+          <article className="value-tcard value-tcard--green">
+            <span className="value-tcard-grain" aria-hidden="true"/>
+            <span className="value-tcard-aura" aria-hidden="true"/>
+            <span className="value-tcard-scan" aria-hidden="true"/>
+
+            <header className="value-tcard-rail">
+              <span className="mono value-stage">V3</span>
+              <span className="value-stage-rule" aria-hidden="true"/>
+              <span className="mono value-stage-label">RAPORLAMA</span>
+            </header>
+
+            <div className="value-tcard-hero">
+              <span className="value-hero-num mono">PDF</span>
+              <span className="value-hero-unit mono">RAPOR</span>
+            </div>
+
+            <h3 className="value-tcard-name">Haftalık & aylık özet çıktısı</h3>
+            <p className="value-tcard-desc">Hasta bazlı haftalık ve aylık rapor — muayene öncesi tek bakışta seyir özeti, klinik karar için hazır format.</p>
+
+            <div className="value-tcard-art" aria-hidden="true">
+              <svg viewBox="0 0 280 80" preserveAspectRatio="none" className="value-tart">
+                {/* Document outline with chart inside + corner fold */}
+                <g transform="translate(60, 6)">
+                  <path d="M 0 0 H 130 L 152 22 V 68 H 0 Z" fill="none" stroke="currentColor" strokeWidth="2"/>
+                  {/* Folded corner */}
+                  <path d="M 130 0 V 22 H 152" fill="none" stroke="currentColor" strokeWidth="2"/>
+                  {/* PDF tag */}
+                  <rect x="8" y="6" width="22" height="11" rx="2" fill="currentColor"/>
+                  <text x="19" y="14.5" textAnchor="middle" fontFamily="JetBrains Mono" fontSize="8"
+                        fontWeight="700" fill="var(--panel)">PDF</text>
+                  {/* Chart inside */}
+                  <g transform="translate(12, 28)">
+                    <line x1="0" y1="32" x2="128" y2="32" stroke="currentColor" strokeWidth="0.75" opacity="0.4"/>
+                    <path d="M 0 26 C 16 22 32 28 48 18 C 64 12 80 22 96 14 C 108 8 120 18 128 10"
+                          fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    <path d="M 0 26 C 16 22 32 28 48 18 C 64 12 80 22 96 14 C 108 8 120 18 128 10 L 128 32 L 0 32 Z"
+                          fill="currentColor" opacity="0.18"/>
+                  </g>
+                </g>
+              </svg>
+            </div>
           </article>
         </div>
       </section>
