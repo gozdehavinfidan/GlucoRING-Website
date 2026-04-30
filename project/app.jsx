@@ -26,7 +26,7 @@ const App = () => {
   React.useEffect(() => {
     if (!auth.ready) return;
     if (auth.user) {
-      if (route === 'landing' || route === 'login') {
+      if (route === 'login') {
         setRoute('app');
         setPage('dashboard');
       }
@@ -59,14 +59,17 @@ const App = () => {
   // popstate listener mirrors history state into our local state.
   const isFirstMount = React.useRef(true);
   React.useEffect(() => {
+    const targetUrl = route === 'landing'
+      ? window.location.pathname + window.location.search
+      : `#${route}/${page}`;
     if (isFirstMount.current) {
-      window.history.replaceState({ route, page }, '', `#${route}/${page}`);
+      window.history.replaceState({ route, page }, '', targetUrl);
       isFirstMount.current = false;
       return;
     }
     const cur = window.history.state || {};
     if (cur.route === route && cur.page === page) return;
-    window.history.pushState({ route, page }, '', `#${route}/${page}`);
+    window.history.pushState({ route, page }, '', targetUrl);
   }, [route, page]);
 
   React.useEffect(() => {
@@ -122,7 +125,7 @@ const App = () => {
 
   // Wait for auth state to resolve before rendering anything other than the
   // public landing — avoids a flash of "logged out" UI for returning users.
-  if (!auth.ready) {
+  if (!auth.ready && route !== 'landing') {
     return <div style={{ background: '#0a0e0c', minHeight: '100vh' }}/>;
   }
 
