@@ -663,7 +663,6 @@ const Landing = ({ onEnter }) => {
         <p>Kayıtlı hastalarınızın glukoz seyrini, fizyolojik trendlerini ve risk olaylarını güvenli ve okunabilir bir klinik arayüzde takip edin.</p>
         <div className="ctas">
           <button className="btn-pill btn-accent" onClick={onEnter}>Doktor Paneline Giriş</button>
-          <button className="btn-pill ghost">Akademik Dokümanlar</button>
         </div>
       </section>
 

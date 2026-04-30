@@ -1193,7 +1193,6 @@ const Landing = ({ onEnter }) => {
           <p>Kayıtlı hastalarınızın glukoz seyrini, fizyolojik trendlerini ve risk olaylarını güvenli, okunabilir bir klinik arayüzde takip edin. Kurulum gerekmez — tarayıcıdan giriş yapmanız yeterli.</p>
           <div className="ctas">
             <button className="btn-pill btn-accent" onClick={onEnter}>Doktor Paneline Giriş</button>
-            <button className="btn-pill ghost">Akademik Dokümanlar</button>
           </div>
           <ul className="cta-trust">
             <li><span className="dot"/>KVKK uyumlu</li>
@@ -1221,7 +1220,6 @@ const Landing = ({ onEnter }) => {
             <a href="#panel">Güvenlik & Paylaşım</a>
             <a onClick={onEnter} role="button">Doktor Paneline Giriş</a>
             <a>Klinik Yönerge</a>
-            <a>Akademik Dokümanlar</a>
           </div>
           <div className="lf-col">
             <h6>Yasal</h6>
