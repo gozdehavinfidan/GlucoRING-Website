@@ -120,6 +120,7 @@ const AppGallery = () => {
 const Landing = ({ onEnter }) => {
   const [frame, setFrame] = React.useState(1);
   const [section, setSection] = React.useState(-1);
+  const [railVisible, setRailVisible] = React.useState(true);
   const stageRef = React.useRef(null);
   const TOTAL_FRAMES = 240;
   const FRAME_STEP = 8; // bundled every 8th frame
@@ -146,6 +147,7 @@ const Landing = ({ onEnter }) => {
         const scrolled = -rect.top;
         const max = stageRef.current.offsetHeight - window.innerHeight;
         const p = Math.max(0, Math.min(1, scrolled / max));
+        setRailVisible(rect.top < window.innerHeight && rect.bottom > 0);
         const f = Math.max(1, Math.min(TOTAL_FRAMES, Math.round(p * (TOTAL_FRAMES - 1)) + 1));
         setFrame(f);
         let sec = -1;
@@ -252,7 +254,7 @@ const Landing = ({ onEnter }) => {
         </div>
       </nav>
 
-      <div className="scroll-rail">
+      <div className={`scroll-rail ${railVisible ? '' : 'is-hidden'}`} aria-hidden={!railVisible}>
         {[-1, 0, 1, 2, 3].map(i => (
           <div key={i} className={`tick ${section === i ? 'active' : ''}`}/>
         ))}

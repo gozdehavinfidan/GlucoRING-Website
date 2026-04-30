@@ -120,6 +120,7 @@ const AppGallery = () => {
 const Landing = ({ onEnter }) => {
   const [frame, setFrame] = React.useState(1);
   const [section, setSection] = React.useState(-1);
+  const [railVisible, setRailVisible] = React.useState(true);
   const stageRef = React.useRef(null);
   const TOTAL_FRAMES = 240;
 
@@ -144,6 +145,7 @@ const Landing = ({ onEnter }) => {
         const scrolled = -rect.top;
         const max = stageRef.current.offsetHeight - window.innerHeight;
         const p = Math.max(0, Math.min(1, scrolled / max));
+        setRailVisible(rect.top < window.innerHeight && rect.bottom > 0);
         const f = Math.max(1, Math.min(TOTAL_FRAMES, Math.round(p * (TOTAL_FRAMES - 1)) + 1));
         setFrame(f);
         let sec = -1;
@@ -250,7 +252,7 @@ const Landing = ({ onEnter }) => {
         </div>
       </nav>
 
-      <div className="scroll-rail">
+      <div className={`scroll-rail ${railVisible ? '' : 'is-hidden'}`} aria-hidden={!railVisible}>
         {[-1, 0, 1, 2, 3].map(i => (
           <div key={i} className={`tick ${section === i ? 'active' : ''}`}/>
         ))}
@@ -1150,6 +1152,10 @@ const Landing = ({ onEnter }) => {
             <p>Sadece <strong>siz onayladığınız doktor</strong>, sadece siz onayladığınız sürece. Süreç şöyle: doktorunuzun panelinde bir QR kodu çıkar, GlucoRING uygulamanızla bu kodu tararsınız, tek dokunuşla onaylarsınız. O andan itibaren doktorunuz verilerinizi görür. Paylaşım izninizi uygulamadan güncellediğinizde panel erişimi aynı anda buna göre düzenlenir. GlucoRING ekibi dahil hiç kimse, sizin onayınız olmadan verilerinize bakamaz.</p>
           </details>
           <details className="faq-item">
+            <summary>Hangi telefonlarda çalışıyor?</summary>
+            <p>iOS 15+ veya Android 9+ olan her telefonda. Doktor paneli ise tarayıcıdan açılır — Chrome, Safari, Edge — kurulum gerekmez. Bilgisayarınız yoksa hekiminiz tablete veya telefona da girebilir.</p>
+          </details>
+          <details className="faq-item">
             <summary>Yüzük şarj gerektiriyor mu, ne kadar dayanıyor?</summary>
             <p>Düşük enerji tüketimli sensör mimarisi sayesinde tek şarjla <strong>5–7 gün</strong> kullanırsınız. Yatağınızın yanındaki magnetik şarj kaidesinin üzerine bırakırsınız, <strong>90 dakikada</strong> tam dolar — yani genelde duş aldığınız sürede zaten şarj olur, gün içinde bir kez bile aklınıza gelmez.</p>
           </details>
@@ -1164,10 +1170,6 @@ const Landing = ({ onEnter }) => {
           <details className="faq-item">
             <summary>Doktorum panelde tam olarak neyi görüyor?</summary>
             <p>Onayladığınız andan itibaren doktorunuz, GlucoRING klinik panelinde hasta listesinde sizi görür ve <strong>glukoz seyrinizi, 9 fizyolojik parametrenizin trendlerini ve risk olaylarını</strong> tek bir okunabilir arayüzde takip eder. 5/15/30 dakikalık tahminler ve hipo/hiper uyarıları otomatik bildirim olarak panele düşer; doktor haftalık ve aylık özet raporları muayene öncesinde tek bakışta inceleyebilir.</p>
-          </details>
-          <details className="faq-item">
-            <summary>Hangi telefonlarda çalışıyor?</summary>
-            <p>iOS 15+ veya Android 9+ olan her telefonda. Doktor paneli ise tarayıcıdan açılır — Chrome, Safari, Edge — kurulum gerekmez. Bilgisayarınız yoksa hekiminiz tablete veya telefona da girebilir.</p>
           </details>
         </div>
       </section>
