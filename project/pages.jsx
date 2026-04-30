@@ -142,6 +142,69 @@ const DashGfxHRV = () => (
   </svg>
 );
 
+const DashGfxBP = ({ value }) => {
+  const sys = value?.systolic != null ? Math.max(80, Math.min(180, Number(value.systolic))) : 120;
+  const dia = value?.diastolic != null ? Math.max(45, Math.min(120, Number(value.diastolic))) : 80;
+  const sysW = 44 + ((sys - 80) / 100) * 82;
+  const diaW = 44 + ((dia - 45) / 75) * 82;
+  return (
+    <svg className="db-gfx" viewBox="0 0 160 60" preserveAspectRatio="none" aria-hidden="true">
+      <line x1="18" x2="142" y1="20" y2="20" stroke="currentColor" strokeWidth="7" opacity="0.16" strokeLinecap="round"/>
+      <line x1="18" x2={18 + sysW} y1="20" y2="20" stroke="currentColor" strokeWidth="7" strokeLinecap="round"/>
+      <line x1="18" x2="142" y1="40" y2="40" stroke="currentColor" strokeWidth="7" opacity="0.16" strokeLinecap="round"/>
+      <line x1="18" x2={18 + diaW} y1="40" y2="40" stroke="currentColor" strokeWidth="7" strokeLinecap="round" opacity="0.72"/>
+      <circle cx={18 + sysW} cy="20" r="5" fill="currentColor"/>
+      <circle cx={18 + diaW} cy="40" r="5" fill="currentColor" opacity="0.72"/>
+    </svg>
+  );
+};
+
+const DashGfxSteps = ({ value }) => {
+  const v = value != null ? Math.max(0, Math.min(10000, Number(value))) : 0;
+  const filled = Math.max(18, (v / 10000) * 118);
+  return (
+    <svg className="db-gfx" viewBox="0 0 160 60" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M18 44 C40 18, 62 50, 84 26 S126 28, 142 14" fill="none" stroke="currentColor" strokeWidth="2.2" strokeDasharray="4 6" opacity="0.32" strokeLinecap="round"/>
+      <line x1="18" x2="142" y1="50" y2="50" stroke="currentColor" strokeWidth="6" opacity="0.14" strokeLinecap="round"/>
+      <line x1="18" x2={18 + filled} y1="50" y2="50" stroke="currentColor" strokeWidth="6" strokeLinecap="round"/>
+      {[30, 58, 86, 114].map((x, i) => (
+        <g key={i} transform={`translate(${x} ${i % 2 ? 20 : 30}) rotate(${i % 2 ? -14 : 14})`}>
+          <ellipse cx="0" cy="0" rx="5" ry="8" fill="currentColor" opacity={0.78}/>
+          <circle cx="6" cy="-7" r="2.2" fill="currentColor" opacity={0.62}/>
+        </g>
+      ))}
+    </svg>
+  );
+};
+
+const DashGfxCalories = ({ value }) => {
+  const v = value != null ? Math.max(0, Math.min(600, Number(value))) : 0;
+  const glow = 0.22 + (v / 600) * 0.45;
+  return (
+    <svg className="db-gfx" viewBox="0 0 160 60" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <path d="M82 7 C92 19, 69 23, 88 38 C96 31, 104 39, 103 47 C102 55, 92 59, 80 59 C67 59, 56 52, 58 40 C60 29, 74 25, 70 11 C74 14, 79 14, 82 7 Z"
+            fill="currentColor" opacity={glow}/>
+      <path d="M78 22 C84 30, 72 34, 82 44 C87 39, 92 45, 90 51 C88 56, 82 58, 76 56 C69 54, 66 48, 69 42 C72 36, 80 34, 78 22 Z"
+            fill="currentColor"/>
+      <circle cx="80" cy="42" r="26" fill="none" stroke="currentColor" strokeWidth="2" opacity="0.16"/>
+    </svg>
+  );
+};
+
+const DashGfxDistance = ({ value }) => {
+  const v = value != null ? Math.max(0, Math.min(5, Number(value))) : 0;
+  const dash = 18 + (v / 5) * 86;
+  return (
+    <svg className="db-gfx" viewBox="0 0 160 60" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M20 46 C42 16, 60 50, 82 26 C101 6, 121 20, 140 12" fill="none" stroke="currentColor" strokeWidth="7" opacity="0.12" strokeLinecap="round"/>
+      <path d="M20 46 C42 16, 60 50, 82 26 C101 6, 121 20, 140 12" fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray={`${dash} 180`} strokeLinecap="round"/>
+      <circle cx="20" cy="46" r="5" fill="currentColor"/>
+      <circle cx="140" cy="12" r="5" fill="currentColor" opacity="0.55"/>
+      <path d="M132 12 L140 4 L148 12 L140 20 Z" fill="currentColor" opacity="0.28"/>
+    </svg>
+  );
+};
+
 const DashGfx = ({ kind, value }) => {
   if (kind === 'patients') return <DashGfxPatients/>;
   if (kind === 'hypo')     return <DashGfxHypo/>;
@@ -151,12 +214,16 @@ const DashGfx = ({ kind, value }) => {
   if (kind === 'ring')     return <DashGfxRing value={value}/>;
   if (kind === 'thermo')   return <DashGfxThermo value={value}/>;
   if (kind === 'hrv')      return <DashGfxHRV/>;
+  if (kind === 'bp')       return <DashGfxBP value={value}/>;
+  if (kind === 'steps')    return <DashGfxSteps value={value}/>;
+  if (kind === 'calories') return <DashGfxCalories value={value}/>;
+  if (kind === 'distance') return <DashGfxDistance value={value}/>;
   return null;
 };
 
 // Dashboard bento card following the landing /params hero/card pattern.
 const DashCard = ({ index, name, value, unit, hint, tone, gfx, gfxValue }) => {
-  const isText = typeof value === 'string' && !/^[\d\.\-,]+$/.test(value);
+  const isText = typeof value === 'string' && !/^[\d\.\-,/]+$/.test(value);
   return (
     <div className={`pb-card db-card ${tone ? 'db-card--' + tone : ''}`}>
       <div className="pb-card-head">
@@ -619,7 +686,14 @@ const PatientDetail = ({ patientUid, onBack, tw }) => {
     personal: { name: 'Kişiselleştirilmiş', icon: 'spark' },
   }[tw.seasonModel || 'personal'];
 
-  const fmt = (v, digits = 0) => v == null ? '—' : Number(v).toFixed(digits);
+  const firstNumber = (...values) => {
+    for (const value of values) {
+      if (value == null || value === '') continue;
+      const n = Number(value);
+      if (Number.isFinite(n)) return n;
+    }
+    return null;
+  };
   const lastSync = reading ? formatRelativeTime(reading.timestamp) : '—';
   const patientLabel = patientUid ? formatPatientId(patientUid) : 'PT-XXXX';
 
@@ -637,14 +711,54 @@ const PatientDetail = ({ patientUid, onBack, tw }) => {
         const status = !reading ? 'gray' : g == null ? 'gray' : g < HYPO_THRESHOLD ? 'warn' : g > HYPER_THRESHOLD ? 'crit' : 'ok';
         const statusLabel = !reading ? (loading ? 'yükleniyor…' : 'veri yok') : g == null ? 'glukoz okuması yok' : g < HYPO_THRESHOLD ? 'Hipoglisemi eşiğinde' : g > HYPER_THRESHOLD ? 'Hiperglisemi eşiğinde' : 'Hedef aralıkta';
         const trendArrow = g == null ? '·' : g < HYPO_THRESHOLD ? '↓' : g > HYPER_THRESHOLD ? '↑' : '→';
+        const bpRaw = reading?.bloodPressure ?? reading?.blood_pressure ?? reading?.bp ?? null;
+        const systolic = firstNumber(
+          reading?.systolicBloodPressure,
+          reading?.bloodPressureSystolic,
+          reading?.bloodPressureSys,
+          reading?.systolicPressure,
+          reading?.systolicBP,
+          reading?.systolicBp,
+          reading?.bpSystolic,
+          reading?.bpSys,
+          reading?.systolic,
+          reading?.sys,
+          reading?.systolicMmHg,
+          reading?.systolic_mmhg,
+          bpRaw?.systolic,
+          bpRaw?.sys,
+          bpRaw?.systolicMmHg,
+          bpRaw?.systolic_mmhg
+        );
+        const diastolic = firstNumber(
+          reading?.diastolicBloodPressure,
+          reading?.bloodPressureDiastolic,
+          reading?.bloodPressureDia,
+          reading?.diastolicPressure,
+          reading?.diastolicBP,
+          reading?.diastolicBp,
+          reading?.bpDiastolic,
+          reading?.bpDia,
+          reading?.diastolic,
+          reading?.dia,
+          reading?.diastolicMmHg,
+          reading?.diastolic_mmhg,
+          bpRaw?.diastolic,
+          bpRaw?.dia,
+          bpRaw?.diastolicMmHg,
+          bpRaw?.diastolic_mmhg
+        );
+        const bloodPressure = systolic != null && diastolic != null
+          ? `${Math.round(systolic)}/${Math.round(diastolic)}`
+          : (typeof bpRaw === 'string' ? bpRaw : (typeof bpRaw?.value === 'string' ? bpRaw.value : null));
         return (
         <div className="patient-bento">
           <div className={`pb-card pb-hero db-hero db-hero--${status} pd-hero`}>
             <div className="pb-live"><span className="pb-dot"/>{reading ? 'CANLI' : 'BEKLENİYOR'}</div>
             <div className="pb-hero-top">
               <span className="pb-eyebrow mono">HASTA · {patientLabel}</span>
-              <h3>Güncel glukoz<br/>{reading ? lastSync : '—'}.</h3>
-              <p>{statusLabel}. {reading?.dataSource ? `Kaynak: ${reading.dataSource}.` : ''}</p>
+              <h3>Güncel glukoz</h3>
+              <p>{reading ? `Son ölçüm: ${lastSync}. ${statusLabel}.` : 'Henüz ölçüm alınmadı.'}</p>
             </div>
             <div className="pb-hero-readout">
               <div className="pb-hero-val">
@@ -657,10 +771,7 @@ const PatientDetail = ({ patientUid, onBack, tw }) => {
               </div>
             </div>
             <div className="pb-hero-axis mono">
-              <span>Outlier: {reading ? (reading.isOutlier ? 'EVET' : 'HAYIR') : '—'}</span>
-              <span>Adım: {fmt(reading?.stepCount)}</span>
-              <span>Kalori: {fmt(reading?.caloriesBurned, 1)}</span>
-              <span>Mesafe: {fmt(reading?.distance, 2)} km</span>
+              <span>Ölçüm: {reading ? (reading.isOutlier ? 'kontrol gerekli' : 'normal') : '—'}</span>
             </div>
           </div>
 
@@ -701,6 +812,46 @@ const PatientDetail = ({ patientUid, onBack, tw }) => {
             tone="ok"
             gfx="hrv"
             hint={reading?.hrvStressLevel != null ? `stres skoru ${reading.hrvStressLevel}` : '—'}
+          />
+          <DashCard
+            index="05"
+            name="Tansiyon"
+            value={bloodPressure}
+            unit="mmHg"
+            tone="warn"
+            gfx="bp"
+            gfxValue={{ systolic, diastolic }}
+            hint={bloodPressure ? 'kan basıncı' : 'veri yok'}
+          />
+          <DashCard
+            index="06"
+            name="Adım"
+            value={reading?.stepCount != null ? Math.round(reading.stepCount) : null}
+            unit="adım"
+            tone="accent"
+            gfx="steps"
+            gfxValue={reading?.stepCount}
+            hint={reading ? 'güncel aktivite' : '—'}
+          />
+          <DashCard
+            index="07"
+            name="Kalori"
+            value={reading?.caloriesBurned != null ? Number(reading.caloriesBurned).toFixed(1) : null}
+            unit="kcal"
+            tone="crit"
+            gfx="calories"
+            gfxValue={reading?.caloriesBurned}
+            hint={reading ? 'harcanan enerji' : '—'}
+          />
+          <DashCard
+            index="08"
+            name="Mesafe"
+            value={reading?.distance != null ? Number(reading.distance).toFixed(2) : null}
+            unit="km"
+            tone="info"
+            gfx="distance"
+            gfxValue={reading?.distance}
+            hint={reading ? 'tahmini mesafe' : '—'}
           />
         </div>
         );
