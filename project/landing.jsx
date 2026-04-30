@@ -6,7 +6,7 @@ const APP_SHOTS = [
   { src: 'assets/app/mobile-pairing.png', t: 'Eşleştirme' },
   { src: 'assets/app/mobile-medicine-reminder.png', t: 'İlaç Hatırlatma' },
   { src: 'assets/app/mobile-new-medicine-reminder.png', t: 'Yeni Hatırlatma' },
-  { src: 'assets/app/mobile-home.png', t: 'Ana Ekran' },
+  { src: 'assets/app/mobile-home.png', t: 'Ana Ekran', fit: 'fit-home' },
 ];
 
 const AppGallery = () => {

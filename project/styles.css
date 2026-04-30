@@ -2072,6 +2072,15 @@ a { color: inherit; text-decoration: none; }
 .cover-item.fit-tight-left img {
   transform: scale(1.13) translateX(-2%);
 }
+.app-screen.fit-home,
+.cover-item.fit-home {
+  aspect-ratio: 890 / 1943;
+}
+.app-screen.fit-home img,
+.cover-item.fit-home img {
+  object-fit: cover;
+  transform: none;
+}
 
 .cover-dots {
   display: flex;
